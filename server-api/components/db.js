@@ -19,6 +19,14 @@ module.exports = {
             console.log("Error in Mongodb connection!")
         }
 
+        _db.collections = {
+            user: 'user'
+        }
+
+        _db.configs = {
+            USERS_PER_PAGE:10
+        }
+
         callback()
     },
     get: function () {
