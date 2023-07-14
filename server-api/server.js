@@ -13,5 +13,14 @@ app.locals.basedir = ''
 app.use(morgan('dev'))
 app.use(express.json())
 
-// activate the server
-app.listen(process.env.SERVER_PORT, () => { console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`) })
+/* Initialize Mongodb */
+const db = require('./components/db')
+
+db.connect(() => {
+  boot()
+})
+
+function boot() {
+  // activate the server
+  app.listen(process.env.SERVER_PORT, () => { console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`) })
+}
