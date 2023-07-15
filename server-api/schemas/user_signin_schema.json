@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://www.my-schema.com/user_signin_schema.json",
+    "title": "User signin",
+    "description": "A signin user schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "username": {
+            "description": "Username of the user",
+            "type": "string",
+            "maxLength": 20
+        },
+        "password": {
+            "description": "Password of the user",
+            "type": "string",
+            "maxLength": 32
+        }
+    },
+    "required": ["username", "password"]
+}

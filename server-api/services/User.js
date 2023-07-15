@@ -17,3 +17,18 @@ exports.getUser = (user = {}) => {
 
     return db.collection(db.collections.user).findOne(u, userProjection)
 }
+
+exports.getUserId = (id) => {
+    return db.collection(db.collections.user).findOne({ _id: new ObjectId(id) }, { projection: { _id: 1 } })
+}
+
+exports.getHash = (user = {}) => {
+    let { id, ...u } = user
+    if (id) u._id = new ObjectId(id)
+
+    return db.collection(db.collections.user).findOne(u, { projection: { _id: 0, id: '$_id', hash: 1 } })
+}
+
+exports.createUser = (user) => {
+    return db.collection(db.collections.user).insertOne(user)
+}
