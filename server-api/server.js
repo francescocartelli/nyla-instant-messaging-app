@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser')
 require('dotenv').config()
 
 /* Validator middleware */
-const { validateId, validate, schemas, validationError } = require("./middleware/validation")
+const {schemas, validationError, ...val} = require("./middleware/validation")
 
 /* Init Express */
 const app = new express()
@@ -43,15 +43,15 @@ function boot() {
   /* ----- */
   app.get('/api/users', userController.getUsers)
   app.get('/api/users/current', passport.authenticate('jwt', { session: false }), userController.getCurrentUser)
-  app.get('/api/users/:id', validateId('id'), userController.getUser)
-  app.put('/api/users/:id', passport.authenticate('jwt', { session: false }), validateId('id'), isUserCurrent, validate({ body: schemas.userUpdateSchema }), userController.updateUser)
-  app.delete('/api/users/:id', validateId('id'), userController.deleteUser)
+  app.get('/api/users/:id', val.validateId('id'), userController.getUser)
+  app.put('/api/users/:id', passport.authenticate('jwt', { session: false }), val.validateId('id'), val.isUserCurrent, val.validate({ body: schemas.userUpdateSchema }), userController.updateUser)
+  app.delete('/api/users/:id', val.validateId('id'), userController.deleteUser)
 
   /* ------------ */
   /* AUTHENTICATE */
   /* ------------ */
-  app.post('/api/authenticate/signup', validate({ body: schemas.userSignUpSchema }), accountController.signUp)
-  app.post('/api/authenticate/signin', validate({ body: schemas.userSignInSchema }), accountController.singIn)
+  app.post('/api/authenticate/signup', val.validate({ body: schemas.userSignUpSchema }), accountController.signUp)
+  app.post('/api/authenticate/signin', val.validate({ body: schemas.userSignInSchema }), accountController.singIn)
   app.post('/api/authenticate/logout', passport.authenticate('jwt', { session: false }), accountController.logOut)
 
   // Error handlers for validation
