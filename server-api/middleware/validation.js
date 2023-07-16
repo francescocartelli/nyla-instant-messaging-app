@@ -39,3 +39,20 @@ exports.validationError = function (err, req, res, next) {
         console.log(err.validationErrors)
     } else next(err)
 }
+
+exports.requirePaging = function (req, res, next) {
+    if(!req.query.page) res.status(400).send("Missing page parameter")
+    else {
+        const page = parseInt(req.query.page)
+
+        if (!Number.isInteger(page) || page < 0) res.status(400).send("Page number must be a number equal or higher than zero")
+        else next()
+    }
+}
+
+exports.isUserCurrent = function (req, res, next) {
+    const user = req.user
+
+    if (user.id.toString() === req.params.id) next()
+    else res.status(401).send("You cannot edit other user identity")
+}

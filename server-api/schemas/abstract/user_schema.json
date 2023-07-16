@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://www.my-schema.com/user_schema.json",
+    "title": "User",
+    "description": "A user in the system",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "description": "JSON schema for the validator",
+            "type": "string"
+        },
+        "id": {
+            "description": "Unique identifier of the user",
+            "type": "string"
+        },
+        "username": {
+            "description": "Username of the user",
+            "type": "string",
+            "pattern": "^(?=.{6,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$"
+        },
+        "email": {
+            "description": "Email of the user",
+            "type": "string",
+            "pattern": "[a-z0-9\\._%+!$&*=^|~#%{}/\\-]+@([a-z0-9\\-]+\\.){1,}([a-z]{2,22})"
+        },
+        "bio": {
+            "description": "Short description of the user",
+            "type": "string",
+            "maxLength": 128
+        }
+    },
+    "required": [
+        "id",
+        "username",
+        "email",
+        "bio"
+    ]
+}

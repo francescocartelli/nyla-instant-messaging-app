@@ -32,3 +32,12 @@ exports.getHash = (user = {}) => {
 exports.createUser = (user) => {
     return db.collection(db.collections.user).insertOne(user)
 }
+
+exports.updateUser = (id, user) => {
+    return db.collection(db.collections.user).updateOne({ _id: new ObjectId(id) }, { $set: user })
+}
+
+/* semicit: user cannot be deleted, they simply result missing */
+exports.deleteUser = (id) => {
+    return db.collection(db.collections.user).deleteOne({ _id: new ObjectId(id) })
+}

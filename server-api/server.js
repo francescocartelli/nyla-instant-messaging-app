@@ -42,7 +42,10 @@ function boot() {
   /* USERS */
   /* ----- */
   app.get('/api/users', userController.getUsers)
+  app.get('/api/users/current', passport.authenticate('jwt', { session: false }), userController.getCurrentUser)
   app.get('/api/users/:id', validateId('id'), userController.getUser)
+  app.put('/api/users/:id', passport.authenticate('jwt', { session: false }), validateId('id'), isUserCurrent, validate({ body: schemas.userUpdateSchema }), userController.updateUser)
+  app.delete('/api/users/:id', validateId('id'), userController.deleteUser)
 
   /* ------------ */
   /* AUTHENTICATE */
