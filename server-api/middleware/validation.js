@@ -5,8 +5,9 @@ var fs = require("fs")
 
 // Get schema files
 let schemas = {
-    userSignUpSchema: JSON.parse(fs.readFileSync('./schemas/user_signup_schema.json')),
+    chatCreateSchema: JSON.parse(fs.readFileSync('./schemas/chat_create_schema.json')),
     userSignInSchema: JSON.parse(fs.readFileSync('./schemas/user_signin_schema.json')),
+    userSignUpSchema: JSON.parse(fs.readFileSync('./schemas/user_signup_schema.json')),
     userUpdateSchema: JSON.parse(fs.readFileSync('./schemas/user_update_schema.json'))
 }
 

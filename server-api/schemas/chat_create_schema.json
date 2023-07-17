@@ -1,0 +1,65 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://www.my-schema.com/chat_create_schema.json",
+    "title": "Chat create",
+    "description": "A chat create schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "name": {
+            "description": "Name of the chat",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "users": {
+            "description": "Users participanting in the chat",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "uniqueItems": true,
+            "minItems": 2,
+            "maxItems": 256
+        },
+        "isGroup": {
+            "description": "Group chat flag information",
+            "type": "boolean"
+        }
+    },
+    "if": {
+        "properties": {
+            "isGroup": {
+                "const": false
+            }
+        }
+    },
+    "then": {
+        "properties": {
+            "name": {
+                "type": "null"
+            },
+            "users": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2
+            }
+        }
+    },
+    "else": {
+        "properties": {
+            "name": {
+                "type": "string"
+            }
+        }
+    },
+    "required": [
+        "name",
+        "users",
+        "isGroup"
+    ]
+}

@@ -20,7 +20,8 @@ module.exports = {
         }
 
         _db.collections = {
-            user: 'user'
+            user: 'user',
+            chat: 'chat'
         }
 
         _db.configs = {
