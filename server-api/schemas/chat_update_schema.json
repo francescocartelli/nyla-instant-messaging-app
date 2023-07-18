@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://www.my-schema.com/chat_update_schema.json",
+    "title": "Chat update",
+    "description": "A chat update schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "description": "Name of the chat",
+            "type": [
+                "string"
+            ]
+        }
+    },
+    "required": [
+        "name"
+    ]
+}

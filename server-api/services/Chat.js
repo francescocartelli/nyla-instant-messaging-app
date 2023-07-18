@@ -24,8 +24,9 @@ exports.createChat = function (chat) {
     return db.collection(db.collections.chat).insertOne(newChat(chat))
 }
 
-exports.getChat = function (idChat) {
-    return db.collection(db.collections.chat).findOne({ _id: new ObjectId(idChat) }, { projection: chatProj })
+exports.getChat = function (idChat, project = true) {
+    const options = project ? { projection: chatProj } : {}
+    return db.collection(db.collections.chat).findOne({ _id: new ObjectId(idChat) }, options)
 }
 
 exports.getChatsPersonal = function (idUser, page = 0) {
@@ -55,4 +56,18 @@ exports.getChatUsersIds = function (idChat) {
             else resolve(null)
         }).catch(err => reject(err))
     })
+}
+
+exports.addUser = function (idChat, idUser) {
+    return db.collection(db.collections.chat).updateOne(
+        { _id: new ObjectId(idChat) },
+        { $addToSet: { users: new ObjectId(idUser) } }
+    )
+}
+
+exports.removeUser = function (idChat, idUser) {
+    return db.collection(db.collections.chat).updateOne(
+        { _id: new ObjectId(idChat) },
+        { $pull: { users: new ObjectId(idUser) } }
+    )
 }

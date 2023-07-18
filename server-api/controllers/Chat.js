@@ -55,6 +55,9 @@ exports.updateChat = async (req, res) => {
         const id = req.params.id
         const chatUpdate = req.body
 
+        const chat = await chatServices.getChat(id)
+        if (!chat.isGroup) return res.status(409).json("Only group chats can change name")
+
         const { modifiedCount } = await chatServices.updateChat(id, chatUpdate)
 
         if (modifiedCount) res.end()
@@ -72,6 +75,36 @@ exports.getUsers = async (req, res) => {
             const users = await usersServices.getFullUsers(usersIds)
             res.json(users)
         } else res.status(404).json("Chat users not found with the specified id")
+    } catch (err) {
+        console.log(err)
+        res.status(500).json(err)
+    }
+}
+
+exports.addUser = async (req, res) => {
+    try {
+        const user = await usersServices.getUser({ id: req.params.idu })
+        if (user) {
+            const { modifiedCount } = await chatServices.addUser(req.params.id, req.params.idu)
+
+            if (modifiedCount > 0) res.end()
+            else res.status(304).json("No data has been modified")
+        } else res.status(404).json("User not found with the specified id")
+    } catch (err) {
+        console.log(err)
+        res.status(500).json(err)
+    }
+}
+
+exports.removeUser = async (req, res) => {
+    try {
+        const user = await usersServices.getUser({ id: req.params.idu })
+        if (user) {
+            const { modifiedCount } = await chatServices.removeUser(req.params.id, req.params.idu)
+
+            if (modifiedCount > 0) res.end()
+            else res.status(304).json("No data has been modified")
+        } else res.status(404).json("User not found with the specified id")
     } catch (err) {
         console.log(err)
         res.status(500).json(err)
