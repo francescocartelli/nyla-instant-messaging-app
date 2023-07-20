@@ -1,19 +1,9 @@
 const { ObjectId } = require('mongodb')
 
 const mongo = require.main.require('./components/db')
-const { newChat } = require.main.require('./components/Chat')
+const { newChat, chatProj } = require.main.require('./components/Chat')
 
 const db = mongo.get()
-
-const chatLimit = 10
-
-const chatProj = {
-    _id: 0,
-    id: '$_id',
-    name: 1,
-    users: { $concat: ["/api/chats/", { $toString: "$_id" }, "/users"] },
-    isGroup: 1
-}
 
 /**
  * non clean utility: filter delegated to validator
@@ -32,7 +22,18 @@ exports.getChat = function (idChat, project = true) {
 exports.getChatsPersonal = function (idUser, page = 0) {
     return db.collection(db.collections.chat)
         .find({ users: { $in: [new ObjectId(idUser)] } }, { projection: chatProj })
-        .sort({ _id: -1 }).limit(chatLimit).skip(chatLimit * page).toArray(chatLimit)
+        .sort({ _id: -1 }).limit(db.configs.CHATS_PER_PAGE)
+        .skip(db.configs.CHATS_PER_PAGE * page).toArray()
+}
+
+exports.countChatsPages = function (idUser) {
+    return new Promise((resolve, reject) => {
+        db.collection(db.collections.chat).countDocuments({ users: { $in: [new ObjectId(idUser)] } }).then((count) => {
+            resolve(Math.ceil(count/db.configs.CHATS_PER_PAGE))
+        }).catch(err => {
+            reject(err)
+        })
+    })
 }
 
 /**

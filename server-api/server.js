@@ -34,9 +34,9 @@ function boot() {
   require('./middleware/strategy')
 
   /* Controllers */
-  const accountController = require('./controllers/Account')
-  const chatController = require('./controllers/Chat')
-  const userController = require('./controllers/User')
+  const accountControllers = require('./controllers/Account')
+  const chatControllers = require('./controllers/Chat')
+  const userControllers = require('./controllers/User')
 
   /* Middlewares */
   const chatMiddleware = require('./middleware/Chat')
@@ -48,30 +48,30 @@ function boot() {
   /* ----- */
   /* CHATS */
   /* ----- */
-  app.get('/api/chats/personal', authenticate, chatController.getChatsPersonal)
-  app.get('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatController.getChat)
-  app.post('/api/chats', authenticate, validate({ body: schemas.chatCreateSchema }), chatController.createChat)
-  app.put('/api/chats/:id', authenticate, validateId('id'), validate({body: schemas.chatUpdateSchema}), chatMiddleware.isUserInChat('id'), chatController.updateChat)
+  app.get('/api/chats/personal', authenticate, chatControllers.getChatsPersonal)
+  app.get('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatControllers.getChat)
+  app.post('/api/chats', authenticate, validate({ body: schemas.chatCreateSchema }), chatControllers.createChat)
+  app.put('/api/chats/:id', authenticate, validateId('id'), validate({body: schemas.chatUpdateSchema}), chatMiddleware.isUserInChat('id'), chatControllers.updateChat)
   app.delete('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'))
-  app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id'), chatController.addUser)
-  app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id'), chatController.removeUser)
-  app.get('/api/chats/:id/users', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatController.getUsers)
+  app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id'), chatControllers.addUser)
+  app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id'), chatControllers.removeUser)
+  app.get('/api/chats/:id/users', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatControllers.getUsers)
 
   /* ----- */
   /* USERS */
   /* ----- */
-  app.get('/api/users', userController.getUsers)
-  app.get('/api/users/current', authenticate, userController.getCurrentUser)
-  app.get('/api/users/:id', validateId('id'), userController.getUser)
-  app.put('/api/users/:id', authenticate, validateId('id'), userMiddleware.isUserCurrent('id'), validate({ body: schemas.userUpdateSchema }), userController.updateUser)
-  app.delete('/api/users/:id', validateId('id'), userController.deleteUser)
+  app.get('/api/users', userControllers.getUsers)
+  app.get('/api/users/current', authenticate, userControllers.getCurrentUser)
+  app.get('/api/users/:id', validateId('id'), userControllers.getUser)
+  app.put('/api/users/:id', authenticate, validateId('id'), userMiddleware.isUserCurrent('id'), validate({ body: schemas.userUpdateSchema }), userControllers.updateUser)
+  app.delete('/api/users/:id', validateId('id'), userControllers.deleteUser)
 
   /* ------------ */
   /* AUTHENTICATE */
   /* ------------ */
-  app.post('/api/authenticate/signup', validate({ body: schemas.userSignUpSchema }), accountController.signUp)
-  app.post('/api/authenticate/signin', validate({ body: schemas.userSignInSchema }), accountController.singIn)
-  app.post('/api/authenticate/logout', authenticate, accountController.logOut)
+  app.post('/api/authenticate/signup', validate({ body: schemas.userSignUpSchema }), accountControllers.signUp)
+  app.post('/api/authenticate/signin', validate({ body: schemas.userSignInSchema }), accountControllers.singIn)
+  app.post('/api/authenticate/logout', authenticate, accountControllers.logOut)
 
   // Error handlers for validation
   app.use(validationError)

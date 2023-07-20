@@ -20,12 +20,13 @@ module.exports = {
         }
 
         _db.collections = {
-            user: 'user',
-            chat: 'chat'
+            chat: 'chat',
+            user: 'user'
         }
 
         _db.configs = {
-            USERS_PER_PAGE:10
+            CHATS_PER_PAGE: 10,
+            USERS_PER_PAGE: 10
         }
 
         callback()

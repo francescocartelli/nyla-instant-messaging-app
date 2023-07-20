@@ -7,3 +7,22 @@ exports.newChat = function (c) {
         isGroup: c.isGroup
     }
 }
+
+exports.pagingChat = function (page, nPages, chats) {
+    return {
+        page: page,
+        nPages: nPages,
+        chats: chats,
+        prev: page > 0 ? `/api/chats/personal?page=${page - 1}` : null,
+        next: page + 1 < nPages ? `/api/chats/personal?page=${page + 1}` : null
+    }
+}
+
+// projections
+exports.chatProj = {
+    _id: 0,
+    id: '$_id',
+    name: 1,
+    users: { $concat: ["/api/chats/", { $toString: "$_id" }, "/users"] },
+    isGroup: 1
+}

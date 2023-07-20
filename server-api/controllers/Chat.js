@@ -1,6 +1,9 @@
 const { ObjectId } = require("mongodb")
 
-const usersServices = require("../services/User")
+const { pagingChat } = require.main.require("./components/Chat")
+const { getPage } = require.main.require("./components/utils")
+
+const usersServices = require.main.require("./services/User")
 const chatServices = require.main.require('./services/Chat')
 
 exports.getChat = async (req, res) => {
@@ -18,9 +21,14 @@ exports.getChat = async (req, res) => {
 exports.getChatsPersonal = async (req, res) => {
     try {
         const { id } = req.user
-        const chat = await chatServices.getChatsPersonal(id.toString())
+        const page = getPage(req.query.page)
 
-        res.json(chat)
+        const [chats, nPages] = await Promise.all([
+            chatServices.getChatsPersonal(id.toString(), page),
+            chatServices.countChatsPages(id.toString())
+        ])
+
+        res.json(pagingChat(page, nPages, chats))
     } catch (err) {
         console.log(err)
         res.status(500).json(err)

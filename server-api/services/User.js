@@ -1,10 +1,9 @@
 const { ObjectId } = require('mongodb')
 
+const { userProjection } = require.main.require('./components/User')
 const mongo = require.main.require('./components/db')
 
 const db = mongo.get()
-
-const userProjection = { _id: 0, id: '$_id', username: 1, email: 1, confirmed: 1 }
 
 exports.getUsers = (username) => {
     let query = { username: { $regex: username, $options: 'i' } }
