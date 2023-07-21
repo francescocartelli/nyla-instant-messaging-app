@@ -13,5 +13,5 @@ exports.cookieExtractor = (req) => {
 exports.getPage = (p) => {
     const page = parseInt(p)
     if (page < 0) throw new Error("Page number has to be equal or higher than zero")
-    return page === NaN ? 0 : page
+    return isNaN(page) ? 0 : page
 }

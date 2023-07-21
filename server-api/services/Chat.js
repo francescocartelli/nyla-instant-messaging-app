@@ -47,7 +47,7 @@ exports.updateChat = function (idChat, chat) {
 }
 
 exports.deleteChat = function (idChat) {
-    return db.collection.deleteOne({ _id: new ObjectId(idChat) })
+    return db.collection(db.collections.chat).deleteOne({ _id: new ObjectId(idChat) })
 }
 
 exports.getChatUsersIds = function (idChat) {

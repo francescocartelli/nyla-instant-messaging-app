@@ -3,8 +3,9 @@ const { ObjectId } = require("mongodb")
 const { pagingChat } = require.main.require("./components/Chat")
 const { getPage } = require.main.require("./components/utils")
 
-const usersServices = require.main.require("./services/User")
 const chatServices = require.main.require('./services/Chat')
+const messagesServices = require.main.require("./services/Message")
+const usersServices = require.main.require("./services/User")
 
 exports.getChat = async (req, res) => {
     try {
@@ -70,6 +71,26 @@ exports.updateChat = async (req, res) => {
 
         if (modifiedCount) res.end()
         else res.status(304).json("No data has been modified")
+    } catch (err) {
+        console.log(err)
+        res.status(500).json(err)
+    }
+}
+
+exports.deleteChat = async (req, res) => {
+    try {
+        const id = req.params.id
+
+        // cannot perform bulk operation on multiple collections
+        // first delete messages
+        const {acknowledged} = await messagesServices.deleteMessages(id)
+
+        if (!acknowledged) return res.status(304).json("No messages were deleted")
+
+        const {deletedCount} = await chatServices.deleteChat(id)
+
+        if (deletedCount > 0) res.end()
+        else res.status(304).json("No chat was deleted")
     } catch (err) {
         console.log(err)
         res.status(500).json(err)

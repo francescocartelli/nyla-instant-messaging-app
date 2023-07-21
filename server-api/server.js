@@ -53,7 +53,7 @@ function boot() {
   app.get('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatControllers.getChat)
   app.post('/api/chats', authenticate, validate({ body: schemas.chatCreateSchema }), chatControllers.createChat)
   app.put('/api/chats/:id', authenticate, validateId('id'), validate({ body: schemas.chatUpdateSchema }), chatMiddleware.isUserInChat('id'), chatControllers.updateChat)
-  app.delete('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'))
+  app.delete('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatControllers.deleteChat)
   app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id'), chatControllers.addUser)
   app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id'), chatControllers.removeUser)
   app.get('/api/chats/:id/users', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatControllers.getUsers)
