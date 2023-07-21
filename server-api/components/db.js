@@ -21,11 +21,13 @@ module.exports = {
 
         _db.collections = {
             chat: 'chat',
+            message: 'message',
             user: 'user'
         }
 
         _db.configs = {
             CHATS_PER_PAGE: 10,
+            MESSAGES_PER_PAGE: 10,
             USERS_PER_PAGE: 10
         }
 

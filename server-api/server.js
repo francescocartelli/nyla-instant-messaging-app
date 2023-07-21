@@ -36,6 +36,7 @@ function boot() {
   /* Controllers */
   const accountControllers = require('./controllers/Account')
   const chatControllers = require('./controllers/Chat')
+  const messageControllers = require('./controllers/Message')
   const userControllers = require('./controllers/User')
 
   /* Middlewares */
@@ -51,11 +52,19 @@ function boot() {
   app.get('/api/chats/personal', authenticate, chatControllers.getChatsPersonal)
   app.get('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatControllers.getChat)
   app.post('/api/chats', authenticate, validate({ body: schemas.chatCreateSchema }), chatControllers.createChat)
-  app.put('/api/chats/:id', authenticate, validateId('id'), validate({body: schemas.chatUpdateSchema}), chatMiddleware.isUserInChat('id'), chatControllers.updateChat)
+  app.put('/api/chats/:id', authenticate, validateId('id'), validate({ body: schemas.chatUpdateSchema }), chatMiddleware.isUserInChat('id'), chatControllers.updateChat)
   app.delete('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'))
   app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id'), chatControllers.addUser)
   app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id'), chatControllers.removeUser)
   app.get('/api/chats/:id/users', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatControllers.getUsers)
+
+  /* -------- */
+  /* MESSAGES */
+  /* -------- */
+  app.get('/api/chats/:id/messages', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), messageControllers.getMessages)
+  app.post('/api/chats/:id/messages', authenticate, validateId('id'), validate({ body: schemas.messageCreateSchema }), chatMiddleware.isUserInChat('id'), messageControllers.createMessage)
+  app.get('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), messageControllers.getMessage)
+  app.delete('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), messageControllers.deleteMessage)
 
   /* ----- */
   /* USERS */
