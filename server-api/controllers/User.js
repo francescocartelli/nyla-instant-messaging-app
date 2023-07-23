@@ -3,10 +3,7 @@ const usersServices = require.main.require('./services/User')
 module.exports.getUsers = async (req, res) => {
     const username = req.query.username
 
-    if (!username || username === "") {
-        res.status(400).send("Missing username parameter")
-        return
-    }
+    if (!username || username === "") return res.json([])
 
     usersServices.getUsers(username).then((user) => {
         if (!user) res.status(404).send("User not found with specified id")
