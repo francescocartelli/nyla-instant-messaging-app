@@ -1,0 +1,50 @@
+.gap-1 {
+    gap: 0.25em;
+}
+
+.gap-2 {
+    gap: 0.5em;
+}
+
+.gap-3 {
+    gap: 1em;
+}
+
+.h-0 {
+    height: 0;
+}
+
+.scroll-y {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.fore-1 {
+    color: #ffffff;
+}
+
+.fore-2 {
+    color: #717A85;
+}
+
+.fore-2-btn {
+    color: #717A85;
+}
+
+.fore-2-btn:hover {
+    color: #aab1ba;
+}
+
+.size-1 {
+    height: 1.5em;
+    width: 1.5em;
+}
+
+.size-2 {
+    height: 2em;
+    width: 2em;
+}
+
+.f-size-1 {
+    font-size: 0.6em;
+}

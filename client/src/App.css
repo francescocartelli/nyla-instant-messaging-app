@@ -1,0 +1,38 @@
+.main-container {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background-color: #1A1D21;
+  display: flex;
+  flex-direction: column;
+}
+
+.adaptive-m {
+  margin-left: 1.5em;
+  margin-right: 1.5em;
+}
+
+.hide {
+  display: flex;
+}
+
+.unhide {
+  display: none;
+}
+
+@media only screen and (max-width: 600px) {
+  .hide {
+    display: none;
+  }
+
+  .unhide {
+    display: flex;
+  }
+
+  .adaptive-m {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
+}
