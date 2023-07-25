@@ -1,0 +1,26 @@
+.tabs-layout {
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+    width: 100%;
+}
+
+.tabs-layout .tab {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.5em;
+    flex-grow: 1;
+    flex-basis: 0;
+    transition: 0.2s;
+}
+
+.tabs-layout .tab:hover {
+    background-color: #ffffff10;
+    color: #ffffff;
+    transition: 0.2s;
+}

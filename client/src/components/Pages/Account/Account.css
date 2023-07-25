@@ -1,0 +1,38 @@
+.alert {
+    background: #b6454580;
+    border-radius: 0.5em !important;
+    border-color: #dc656580 !important;
+    margin: 0px !important;
+    width: 100%;
+}
+
+.alert p {
+    margin: 0;
+    font-size: 0.8em;
+}
+
+.overlap-icon {
+    position: relative;
+}
+
+.overlap-icon input {
+    padding-left: 2.4em !important;
+}
+
+.overlap-icon svg {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translate(0, -50%);
+    font-size: 1.5em;
+}
+
+.overlap-icon svg.right {
+    right: 10px;
+    left: auto;
+}
+
+.max-s {
+    max-width: 300px;
+    width: 300px;
+}

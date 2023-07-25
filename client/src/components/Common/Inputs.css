@@ -1,0 +1,67 @@
+.input-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+    width: 100%;
+    border-radius: 0.5em;
+    background-color: #161A1F;
+    border: 1px solid #2A2F35;
+    padding: 0.5em;
+}
+
+.input-wrap:focus-within {
+    outline: 1px solid #50555a;
+}
+
+.input-wrap input[type=text] {
+    width: 100%;
+    color: #ffffff;
+    background-color: transparent;
+    border: 0;
+    box-sizing: border-box;
+    box-shadow: none;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.input-wrap input[type=text]:focus {
+    border: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-shadow: none;
+}
+
+.input-wrap input[type=text]::placeholder {
+    font-style: oblique;
+    color: #717A85;
+}
+
+.input-wrap input[type=password] {
+    width: 100%;
+    color: #ffffff;
+    background-color: transparent;
+    border: 0;
+    box-sizing: border-box;
+    box-shadow: none;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.input-wrap input[type=password]:focus {
+    border: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-shadow: none;
+}
+
+.input-wrap input[type=password]::placeholder {
+    font-style: oblique;
+    color: #717A85;
+}
