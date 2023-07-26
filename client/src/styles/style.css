@@ -19,6 +19,14 @@
     overflow-x: hidden;
 }
 
+.back-1 {
+    background-color: #212529;
+}
+
+.back-2 {
+    background-color: #161A1F;
+}
+
 .fore-1 {
     color: #ffffff;
 }
@@ -37,6 +45,13 @@
 
 .card-1 {
     background-color: #212529;
+    border: 1px solid #2A2F35;
+    border-radius: 0.5em;
+    padding: 0.5em;
+}
+
+.card-2 {
+    background-color: #161A1F;
     border: 1px solid #2A2F35;
     border-radius: 0.5em;
     padding: 0.5em;

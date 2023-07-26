@@ -3,11 +3,11 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 
 import './App.css'
 
-import { Nav } from 'components/UI/Nav/Nav'
 import { Footer } from 'components/UI/Footer/Footer'
+import { Nav } from 'components/UI/Nav/Nav'
 
-import { Home } from 'components/Pages/Home/Home'
 import { Account } from './components/Pages/Account/Account'
+import { Home } from 'components/Pages/Home/Home'
 
 import usersAPI from 'api/userAPI'
 
@@ -30,7 +30,8 @@ function App() {
       <div className="App">
         <div className="main-container">
           <Nav isWaitingUser={isWaitingUser} user={user} setUser={setUser} logout={() => usersAPI.logout()}/>
-          <div className='d-flex flex-column flex-grow-1 align-items-center adaptive-m mb-2'>
+          <div className='mt-nav'><p>-</p></div>
+          <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>
             <Switch>
               {!isWaitingUser && !user && <Route path={["/account"]}>
                 <Account setUser={setUser} />
@@ -40,7 +41,7 @@ function App() {
               </Route>
             </Switch>
           </div>
-          <div className="flex-row justify-content-center hide">
+          <div className="flex-row justify-content-center">
             <Footer />
           </div>
         </div>

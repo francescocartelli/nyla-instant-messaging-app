@@ -24,4 +24,10 @@ function TabsLayout(props) {
     </>
 }
 
-export { TabsLayout }
+function FlowLayout({ state, children }) {
+    return <>
+        {state && children.filter(child => child.type === state).map(i => i.props.children)}
+    </>
+}
+
+export { TabsLayout, FlowLayout }

@@ -9,14 +9,26 @@
   flex-direction: column;
 }
 
-.adaptive-m {
-  margin-left: 1.5em;
-  margin-right: 1.5em;
+.adaptive-p {
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+}
+
+.mt-nav {
+  padding: 0.5rem;
+  border-bottom: 1px solid transparent;
+  visibility: hidden;
+}
+
+.mt-nav p {
+  padding: 0.5em;
+  margin: 0;
+  border: 1px solid transparent;
 }
 
 @media only screen and (max-width: 600px) {
-  .adaptive-m {
-    margin-left: 0.5em;
-    margin-right: 0.5em;
+  .adaptive-p {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
   }
 }

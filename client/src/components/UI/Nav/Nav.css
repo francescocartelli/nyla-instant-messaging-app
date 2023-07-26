@@ -1,9 +1,9 @@
 .navbar {
-    border-bottom: 1px #ffffff20 solid;
     position: absolute !important;
     left: 0;
     right: 0;
     z-index: 100;
+    border-bottom: 1px solid #2A2F35;
 }
 
 .nav-item {
