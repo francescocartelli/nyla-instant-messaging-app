@@ -30,7 +30,7 @@ async function signup(username, password, email) {
 }
 
 async function getCurrentUser() {
-    const response = await fetch('/api/user/current')
+    const response = await fetch('/api/users/current')
 
     return response.json()
 }

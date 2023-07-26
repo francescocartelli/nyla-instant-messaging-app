@@ -5,11 +5,8 @@ import { List, XCircleFill } from 'react-bootstrap-icons'
 import './Nav.css'
 import 'styles/style.css'
 
-function NavItem({ className, children, ...props }) {
-    return <Link {...props} className={`nav-item ${className}`}>
-        {children}
-    </Link>
-}
+import { IsLogged, IsNotLogged } from 'components/Common/Barriers'
+import { Footer } from '../Footer/Footer'
 
 function Sep() {
     return <div className='hide-small flex-grow-1'></div>
@@ -18,12 +15,12 @@ function Sep() {
 function Nav({ isWaitingUser, user, setUser, logout }) {
     const [isCollapsed, setCollapsed] = useState(true)
 
-    const IsLogged = ({ children }) => {
-        return isWaitingUser ? <></> : (user ? children : <></>)
-    }
+    function NavItem({ className, children, onClick, ...props }) {
+        const defaultBehaviorOnClick = () => setCollapsed(true)
 
-    const IsNotLogged = ({ children }) => {
-        return isWaitingUser ? <></> : (!user ? children : <></>)
+        return <Link {...props} className={`nav-item ${className}`} onClick={onClick ? onClick : defaultBehaviorOnClick}>
+            {children}
+        </Link>
     }
 
     return <div className="d-flex flex-column align-items-stretch navbar adaptive-p gap-2 back-2">
@@ -33,19 +30,20 @@ function Nav({ isWaitingUser, user, setUser, logout }) {
         </div>
         <div className={`${isCollapsed ? "hide-small" : "d-flex"} flex-row-col-adaptive gap-2`}>
             <NavItem to={"/"} className="hide-small">LOGO<b>app name</b></NavItem>
-            <IsLogged>
+            <IsLogged isWaitingUser={isWaitingUser} user={user}>
                 <NavItem to={"/users"}>Users</NavItem>
-                <Sep/>
+                <Sep />
                 <NavItem to='#' className="border" onClick={() => {
                     logout().then(() => { setUser(false) }).catch(err => console.log(err))
                 }}>Logout</NavItem>
             </IsLogged>
-            <IsNotLogged>
+            <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
                 <NavItem to={"/account"}>option #2</NavItem>
                 <NavItem to={"/account"}>option #3</NavItem>
-                <Sep/>
+                <Sep />
                 <NavItem to={"/account"} className="card-2">Login</NavItem>
             </IsNotLogged>
+            <div className='show-small row justify-content-center'><Footer/></div>
         </div>
     </div>
 }

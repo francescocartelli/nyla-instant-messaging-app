@@ -3,11 +3,14 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 
 import './App.css'
 
+import { IsLogged, IsNotLogged } from 'components/Common/Barriers'
+
 import { Footer } from 'components/UI/Footer/Footer'
 import { Nav } from 'components/UI/Nav/Nav'
 
 import { Account } from './components/Pages/Account/Account'
 import { Home } from 'components/Pages/Home/Home'
+import { UsersSearch } from 'components/Pages/Users/Users'
 
 import usersAPI from 'api/userAPI'
 
@@ -29,13 +32,20 @@ function App() {
     <Router>
       <div className="App">
         <div className="main-container">
-          <Nav isWaitingUser={isWaitingUser} user={user} setUser={setUser} logout={() => usersAPI.logout()}/>
+          <Nav isWaitingUser={isWaitingUser} user={user} setUser={setUser} logout={() => usersAPI.logout()} />
           <div className='mt-nav'><p>-</p></div>
           <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>
             <Switch>
               {!isWaitingUser && !user && <Route path={["/account"]}>
                 <Account setUser={setUser} />
               </Route>}
+              <Route path="/users">
+                <IsLogged isWaitingUser={isWaitingUser} user={user} >
+                  <UsersSearch />
+                </IsLogged>
+                <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
+                </IsNotLogged>
+              </Route>
               <Route path="/">
                 <Home />
               </Route>
