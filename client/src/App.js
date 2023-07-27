@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 
 import './App.css'
 
+import 'styles/style.css'
+import 'styles/colors.css'
+
 import { IsLogged, IsNotLogged } from 'components/Common/Barriers'
 
 import { Footer } from 'components/UI/Footer/Footer'
@@ -28,6 +31,17 @@ function App() {
     })
   }, [])
 
+  const AuthWall = ({ children }) => {
+    return <>
+      <IsLogged isWaitingUser={isWaitingUser} user={user} >
+        {children}
+      </IsLogged>
+      <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
+        <Account setUser={setUser} />
+      </IsNotLogged>
+    </>
+  }
+
   return (
     <Router>
       <div className="App">
@@ -36,9 +50,15 @@ function App() {
           <div className='mt-nav'><p>-</p></div>
           <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>
             <Switch>
-              {!isWaitingUser && !user && <Route path={["/account"]}>
-                <Account setUser={setUser} />
-              </Route>}
+              <Route path="/account">
+                <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
+                  <Account setUser={setUser} />
+                </IsNotLogged>
+              </Route>
+              <Route path="/chats/:id">
+              </Route>
+              <Route path="/chats">
+              </Route>
               <Route path="/users">
                 <IsLogged isWaitingUser={isWaitingUser} user={user} >
                   <UsersSearch />

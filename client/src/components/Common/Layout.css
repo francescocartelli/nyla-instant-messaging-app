@@ -24,3 +24,26 @@
     color: #ffffff;
     transition: 0.2s;
 }
+
+.pages-control {
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
+    height: fit-content;
+}
+
+.pages-control p {
+    width: 2em;
+    padding: 0.25em;
+    text-align: center;
+    margin: 0;
+}
+
+.pages-control .right-b {
+    border-right: 1px solid #2A2F35;
+}
+
+.pages-control .sep {
+    width: 5px !important;
+    padding: 0;
+}

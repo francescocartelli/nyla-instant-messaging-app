@@ -12,7 +12,6 @@ import usefullRegExp from "utils/UsefullRegExp"
 import userAPI from 'api/userAPI'
 
 import "./Account.css"
-import "styles/style.css"
 
 function LoginTab({ signinSuccessful }) {
     const [username, setUsername] = useState("")
@@ -100,7 +99,7 @@ function Account(props) {
     }
 
     return <div className='d-flex flex-column align-self-center gap-2 align-items-center flex-grow-1 justify-content-center p-0 max-s'>
-        <div style={{ marginTop: '-5em' }} className='align-self-center'><Logo /></div>
+        <div style={{ marginTop: '-5em' }} className='align-self-center'><Logo fontSize={64} /></div>
         <TabsLayout>
             <div title={<>Sign In <BoxArrowInRight className='size-1' /></>}><LoginTab signinSuccessful={signinSuccessful} /></div>
             <div title={<>Sign Up <PersonPlusFill className='size-1' /></>}><RegistrationTab signupSuccessful={signupSuccessful} /></div>

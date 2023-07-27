@@ -12,6 +12,7 @@
 
 .input-wrap:focus-within {
     outline: 1px solid #50555a;
+    outline-offset: -1px;
 }
 
 .input-wrap input[type=text] {

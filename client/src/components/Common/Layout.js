@@ -1,6 +1,5 @@
 import { useState } from 'react'
 
-import 'styles/style.css'
 import './Layout.css'
 
 function Tab({ onClick=() => {}, isActive=true, children=<></> }) {
@@ -30,4 +29,18 @@ function FlowLayout({ state, children }) {
     </>
 }
 
-export { TabsLayout, FlowLayout }
+function PagesControl({ page, nPages, onClick }) {
+    const displayPage = page + 1
+
+    return <div className='pages-control card-2 p-0'>
+        {page > 1 ? <p className='right-b enabled' onClick={() => onClick(0)}>1</p> : <p className='right-b'></p>}
+        {<p className='right-b sep'></p>}
+        {page > 0 ? <p className='right-b enabled' onClick={() => onClick(page - 1)}>{displayPage - 1}</p> : <p className='right-b'></p>}
+        <p className='right-b' onClick={() => onClick(page)}>{displayPage}</p>
+        {page + 1 < nPages ? <p className='right-b enabled' onClick={() => onClick(page + 1)}>{displayPage + 1}</p> : <p className='right-b'></p>}
+        {<p className='right-b sep'></p>}
+        {page + 2 < nPages ? <p className='enabled' onClick={() => onClick(nPages - 1)}>{nPages}</p> : <p className=''></p>}
+    </div>
+}
+
+export { TabsLayout, FlowLayout, PagesControl }
