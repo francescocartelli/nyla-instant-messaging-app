@@ -1,0 +1,20 @@
+.crd-title {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin: 0;
+}
+
+.crd-subtitle {
+    font-size: 0.8em;
+    opacity: 0.5;
+    margin: 0;
+}
+
+.crd-icon {
+    height: 3em;
+    width: 3em;
+    text-align: center;
+    line-height: 3em;
+    background-color: #181d20;
+    border-radius: 1.5em;
+}

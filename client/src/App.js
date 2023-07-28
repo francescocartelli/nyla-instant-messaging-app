@@ -16,6 +16,7 @@ import { Home } from 'components/Pages/Home/Home'
 import { UsersSearch } from 'components/Pages/Users/Users'
 
 import usersAPI from 'api/userAPI'
+import { PersonalChats } from 'components/Pages/Chats/Chats'
 
 function App() {
   const [user, setUser] = useState(false)
@@ -56,8 +57,12 @@ function App() {
                 </IsNotLogged>
               </Route>
               <Route path="/chats/:id">
+
               </Route>
               <Route path="/chats">
+                <AuthWall>
+                  <PersonalChats />
+                </AuthWall>
               </Route>
               <Route path="/users">
                 <IsLogged isWaitingUser={isWaitingUser} user={user} >
