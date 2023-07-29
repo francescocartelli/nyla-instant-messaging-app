@@ -14,9 +14,10 @@ import { Nav } from 'components/UI/Nav/Nav'
 import { Account } from './components/Pages/Account/Account'
 import { Home } from 'components/Pages/Home/Home'
 import { UsersSearch } from 'components/Pages/Users/Users'
+import { PersonalChats } from 'components/Pages/Chats/Chats'
+import { Chat } from 'components/Pages/Chats/Chat'
 
 import usersAPI from 'api/userAPI'
-import { PersonalChats } from 'components/Pages/Chats/Chats'
 
 function App() {
   const [user, setUser] = useState(false)
@@ -57,7 +58,9 @@ function App() {
                 </IsNotLogged>
               </Route>
               <Route path="/chats/:id">
-
+                <AuthWall>
+                  <Chat user={user}/>
+                </AuthWall>
               </Route>
               <Route path="/chats">
                 <AuthWall>

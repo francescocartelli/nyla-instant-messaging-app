@@ -18,3 +18,16 @@
     background-color: #181d20;
     border-radius: 1.5em;
 }
+
+.limit-width {
+    width: fit-content;
+    max-width: 60%;
+}
+
+.left {
+    align-self: flex-start;
+}
+
+.right {
+    align-self: flex-end;
+}

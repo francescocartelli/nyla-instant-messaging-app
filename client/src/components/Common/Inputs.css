@@ -66,3 +66,30 @@
     font-style: oblique;
     color: #717A85;
 }
+
+.input-wrap textarea {
+    width: 100%;
+    color: #ffffff;
+    background-color: transparent;
+    border: 0;
+    box-sizing: border-box;
+    box-shadow: none;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    resize: none;
+}
+
+.input-wrap textarea:focus {
+    border: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-shadow: none;
+}
+
+.input-wrap textarea::placeholder {
+    font-style: oblique;
+    color: #717A85;
+}

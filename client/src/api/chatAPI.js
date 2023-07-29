@@ -1,4 +1,4 @@
-async function getChatPersonal(page=0, options={}) {
+async function getChatPersonal(page = 0, options = {}) {
     const response = await fetch(`/api/chats/personal?page=${page}`, options)
 
     const res = await response.json()
@@ -22,6 +22,26 @@ async function getChatUsers(id) {
     else throw new Error(res.message)
 }
 
-const chatAPI = { getChatPersonal, getChat, getChatUsers }
+async function getMessages(idChat, page = 0) {
+    const response = await fetch(`/api/chats/${idChat}/messages?page=${page}`)
+
+    const res = await response.json()
+    if (response.ok) return res
+    else throw new Error(res.message)
+}
+
+async function sendMessage(idChat, message) {
+    const response = await fetch(`/api/chats/${idChat}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: message.content })
+    })
+
+    const res = await response.json()
+    if (response.ok) return res
+    else throw new Error(res.message)
+}
+
+const chatAPI = { getChatPersonal, getChat, getChatUsers, getMessages, sendMessage }
 
 export default chatAPI
