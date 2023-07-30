@@ -1,4 +1,5 @@
 const { pagingMessage } = require("../components/Message")
+const { getCursor } = require("../components/utils")
 
 const messageServices = require.main.require('./services/Message')
 const { getPage } = require.main.require('./components/utils')
@@ -21,14 +22,14 @@ exports.getMessage = async (req, res) => {
 exports.getMessages = async (req, res) => {
     try {
         const idChat = req.params.id
-        const page = getPage(req.query.page)
+        const cursor = getCursor(req.query.cursor)
 
-        const [messages, nPages] = await Promise.all([
-            messageServices.getMessages(idChat, page),
-            messageServices.countMessagesPages(idChat)
-        ])
+        const messages = await messageServices.getMessages(idChat, cursor)
+        const length = messages.length
+        let next = undefined
+        if (length > 0) next = messages[length - 1].id.toString()
 
-        res.json(pagingMessage(page, nPages, messages, idChat))
+        res.json(pagingMessage(messages, idChat, next))
     } catch (err) {
         console.log(err)
         res.status(500).json(err)

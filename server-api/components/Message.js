@@ -9,13 +9,10 @@ exports.newMessage = function (m) {
     }
 }
 
-exports.pagingMessage = function (page, nPages, messages, idChat) {
+exports.pagingMessage = function (messages, idChat, next) {
     return {
-        page: page,
-        nPages: nPages,
         messages: messages,
-        prev: page > 0 ? `/api/chats/${idChat}/messages?page=${page - 1}` : null,
-        next: page + 1 < nPages ? `/api/chats/${idChat}/messages?page=${page + 1}` : null
+        next: next ? `/api/chats/${idChat}/messages?cursor=${next}` : null
     }
 }
 

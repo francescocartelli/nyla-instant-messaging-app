@@ -1,3 +1,5 @@
+const { ObjectId } = require("mongodb")
+
 module.exports.getDate = function () {
     return Math.floor(Date.now()/1000)
 }
@@ -14,4 +16,8 @@ exports.getPage = (p) => {
     const page = parseInt(p)
     if (page < 0) throw new Error("Page number has to be equal or higher than zero")
     return isNaN(page) ? 0 : page
+}
+
+exports.getCursor = (c) => {
+    return ObjectId.isValid(c) ? c : undefined
 }

@@ -13,9 +13,19 @@ exports.getMessage = function (idChat, idMessage) {
     return db.collection(db.collections.message).findOne({ _id: new ObjectId(idMessage), chat: new ObjectId(idChat) }, { projection: messageProj })
 }
 
-exports.getMessages = function (idChat, page = 0) {
-    return db.collection(db.collections.message).find({ chat: new ObjectId(idChat) }, { projection: messageProj })
-        .sort({ _id: -1 }).limit(db.configs.MESSAGES_PER_PAGE).skip(db.configs.MESSAGES_PER_PAGE * page).toArray()
+exports.getMessages = function (idChat, cursor) {
+    let query = { chat: new ObjectId(idChat) } 
+    if (cursor) {
+        query = {
+            $and: [
+                { chat: new ObjectId(idChat) },
+                { _id: { $lt: new ObjectId(cursor) } }
+            ]
+        }
+    }
+
+    return db.collection(db.collections.message).find(query, { projection: messageProj })
+        .sort({ _id: -1 }).limit(db.configs.MESSAGES_PER_PAGE).toArray()
 }
 
 exports.deleteMessage = function (idChat, idMessage) {
