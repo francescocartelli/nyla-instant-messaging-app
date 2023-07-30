@@ -21,57 +21,71 @@ function UserCard({ user }) {
     </div>
 }
 
-function UsersSearch() {
-    const [users, setUsers] = useState([])
-    const [userSearch, setUserSearch] = useState("")
+function UsersSearchInput({ value, onChange, onLoading, onReady, onError }) {
     const [userSearchDebounce, setUserSearchDebounce] = useState(null)
 
-    const userSearchFlow = FlowState()
-
     useEffect(() => {
-        userSearchFlow.setLoading()
+        onLoading()
         if (userSearchDebounce) clearTimeout(userSearchDebounce)
         setUserSearchDebounce(setTimeout(() => {
-            userAPI.getUsers(userSearch).then((u) => {
-                setUsers(u)
-                userSearchFlow.setReady()
+            userAPI.getUsers(value).then((u) => {
+                onReady(u)
             }).catch(err => {
-                userSearchFlow.setError()
+                onError(err)
             })
         }, 1000))
-    }, [userSearch])
+    }, [value])
 
-
-    return <div className="d-flex flex-column gap-2 mt-2 mb-2 align-self-stretch flex-grow-1 scroll-y h-0">
-        <div className="d-flex flex-row gap-2">
-            <Text title="User search:" autoComplete="new-password" value={userSearch} placeholder="Search by username..."
-                onChange={(ev) => setUserSearch(ev.target.value)}
-                left={<Search className="size-1 fore-2" />}
-                right={userSearch === "" ? <></> : <XCircleFill onClick={() => setUserSearch("")} className="size-1 fore-2-btn" />} />
-        </div>
-        <div className="d-flex flex-column gap-3 flex-grow-1">
-            <FlowLayout state={userSearchFlow.toString()}>
-                <loading>
-                    <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>
-                </loading>
-                <ready>
-                    {users.length > 0 ? users.map(u => <UserCard key={u.id} user={u} />) :
-                        <>
-                            {userSearch === "" ? <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
-                                <Person className="size-2 fore-2" />
-                                <p className="m-0 text-center fore-2"><i>Mathing users will appear here...</i></p>
-                            </div> : <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
-                                <PersonXFill className="size-2 fore-2" />
-                                <p className="m-0 text-center text-center fore-2"><i>No users found...</i></p>
-                            </div>}
-                        </>}
-                </ready>
-                <error>
-                    <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><ErrorAlert /></div>
-                </error>
-            </FlowLayout>
-        </div>
+    return <div className="d-flex flex-row gap-2" >
+        <Text title="User search:" autoComplete="new-password" value={value} placeholder="Search by username..."
+            onChange={(ev) => onChange(ev.target.value)}
+            left={<Search className="size-1 fore-2" />}
+            right={value === "" ? <></> : <XCircleFill onClick={() => onChange("")} className="size-1 fore-2-btn" />} />
     </div>
 }
 
-export { UsersSearch }
+function UserList({ users, flowState, initialCondition, onRenderItem }) {
+    return <div className="d-flex flex-column gap-3 flex-grow-1">
+        <FlowLayout state={flowState}>
+            <loading>
+                <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>
+            </loading>
+            <ready>
+                {users.length > 0 ? users.map(u => onRenderItem(u)) :
+                    <>
+                        {initialCondition ? <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
+                            <Person className="size-2 fore-2" />
+                            <p className="m-0 text-center fore-2"><i>Mathing users will appear here...</i></p>
+                        </div> : <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
+                            <PersonXFill className="size-2 fore-2" />
+                            <p className="m-0 text-center text-center fore-2"><i>No users found...</i></p>
+                        </div>}
+                    </>}
+            </ready>
+            <error>
+                <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><ErrorAlert /></div>
+            </error>
+        </FlowLayout>
+    </div>
+}
+
+function UsersSearch() {
+    const [users, setUsers] = useState([])
+    const [userSearch, setUserSearch] = useState("")
+
+    const userSearchFlow = FlowState()
+
+    return <div className="d-flex flex-column gap-2 mt-2 mb-2 align-self-stretch flex-grow-1 scroll-y h-0">
+        <UsersSearchInput value={userSearch} onChange={setUserSearch}
+            onLoading={() => userSearchFlow.setLoading()}
+            onReady={(u) => {
+                setUsers(u)
+                userSearchFlow.setReady()
+            }}
+            onError={(err) => userSearchFlow.setError()} />
+        <UserList users={users} flowState={userSearchFlow.toString()} initialCondition={userSearch === ""}
+            onRenderItem={(u) => <UserCard key={u.id} user={u} />} />
+    </div>
+}
+
+export { UsersSearch, UsersSearchInput, UserList }

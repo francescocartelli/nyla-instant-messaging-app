@@ -12,6 +12,7 @@ exports.newMessage = function (m) {
 exports.pagingMessage = function (messages, idChat, next) {
     return {
         messages: messages,
+        nextCursor: next,
         next: next ? `/api/chats/${idChat}/messages?cursor=${next}` : null
     }
 }
@@ -22,6 +23,7 @@ exports.messageProj = {
     id: '$_id',
     chat: { $concat: ["/api/chats/", { $toString: "$chat" }] },
     sender: { $concat: ["/api/users/", { $toString: "$sender" }] },
+    senderId: "$sender",
     content: 1,
     createdAt: 1
 }

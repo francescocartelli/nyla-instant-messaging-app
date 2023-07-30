@@ -22,8 +22,8 @@ async function getChatUsers(id) {
     else throw new Error(res.message)
 }
 
-async function getMessages(idChat, page = 0) {
-    const response = await fetch(`/api/chats/${idChat}/messages?page=${page}`)
+async function getMessages(idChat, cursor) {
+    const response = await fetch(`/api/chats/${idChat}/messages?cursor=${cursor}`)
 
     const res = await response.json()
     if (response.ok) return res
