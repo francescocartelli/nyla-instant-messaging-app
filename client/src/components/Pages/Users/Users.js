@@ -44,23 +44,14 @@ function UsersSearchInput({ value, onChange, onLoading, onReady, onError }) {
     </div>
 }
 
-function UserList({ users, flowState, initialCondition, onRenderItem }) {
+function UserList({ users, flowState, onEmpty, onRenderItem }) {
     return <div className="d-flex flex-column gap-3 flex-grow-1">
         <FlowLayout state={flowState}>
             <loading>
                 <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>
             </loading>
             <ready>
-                {users.length > 0 ? users.map(u => onRenderItem(u)) :
-                    <>
-                        {initialCondition ? <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
-                            <Person className="size-2 fore-2" />
-                            <p className="m-0 text-center fore-2"><i>Mathing users will appear here...</i></p>
-                        </div> : <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
-                            <PersonXFill className="size-2 fore-2" />
-                            <p className="m-0 text-center text-center fore-2"><i>No users found...</i></p>
-                        </div>}
-                    </>}
+                {users.length > 0 ? users.map(u => onRenderItem(u)) : onEmpty()}
             </ready>
             <error>
                 <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><ErrorAlert /></div>
@@ -69,13 +60,13 @@ function UserList({ users, flowState, initialCondition, onRenderItem }) {
     </div>
 }
 
-function UsersSearch() {
+function UsersSearchList({onRenderItem}) {
     const [users, setUsers] = useState([])
     const [userSearch, setUserSearch] = useState("")
 
     const userSearchFlow = FlowState()
 
-    return <div className="d-flex flex-column gap-2 mt-2 mb-2 align-self-stretch flex-grow-1 scroll-y h-0">
+    return <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y">
         <UsersSearchInput value={userSearch} onChange={setUserSearch}
             onLoading={() => userSearchFlow.setLoading()}
             onReady={(u) => {
@@ -83,9 +74,24 @@ function UsersSearch() {
                 userSearchFlow.setReady()
             }}
             onError={(err) => userSearchFlow.setError()} />
-        <UserList users={users} flowState={userSearchFlow.toString()} initialCondition={userSearch === ""}
-            onRenderItem={(u) => <UserCard key={u.id} user={u} />} />
+        <UserList users={users} flowState={userSearchFlow.toString()}
+            onRenderItem={onRenderItem}
+            onEmpty={() => userSearch === "" ? <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
+                <Person className="size-2 fore-2" />
+                <p className="m-0 text-center fore-2"><i>Mathing users will appear here...</i></p>
+            </div> :
+                <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
+                    <PersonXFill className="size-2 fore-2" />
+                    <p className="m-0 text-center text-center fore-2"><i>No users found...</i></p>
+                </div>
+            } />
     </div>
 }
 
-export { UsersSearch, UsersSearchInput, UserList }
+function UsersSearch() {
+    return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2">
+        <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u}/>}/>
+    </div>
+}
+
+export { UsersSearch, UsersSearchList, UsersSearchInput, UserList }
