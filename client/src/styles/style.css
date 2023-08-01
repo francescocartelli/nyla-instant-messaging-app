@@ -53,3 +53,7 @@
 .f-size-1 {
     font-size: 0.6em;
 }
+
+.circle {
+    border-radius: 50% !important;
+}

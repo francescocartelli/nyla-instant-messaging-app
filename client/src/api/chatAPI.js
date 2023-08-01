@@ -42,6 +42,45 @@ async function sendMessage(idChat, message) {
     else throw new Error(res.message)
 }
 
-const chatAPI = { getChatPersonal, getChat, getChatUsers, getMessages, sendMessage }
+async function updateChat(idChat, chat) {
+    const response = await fetch(`/api/chats/${idChat}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: chat.name })
+    })
+
+    if (response.ok) return true
+    else {
+        const err = await response.json()
+        throw new Error(err.message)
+    }
+}
+
+async function addUserChat(idChat, idUser) {
+    const response = await fetch(`/api/chats/${idChat}/users/${idUser}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+    })
+
+    if (response.ok) return true
+    else {
+        const err = await response.json()
+        throw new Error(err.message)
+    }
+}
+
+async function removeUserChat(idChat, idUser) {
+    const response = await fetch(`/api/chats/${idChat}/users/${idUser}`, {
+        method: 'DELETE'
+    })
+
+    if (response.ok) return true
+    else {
+        const err = await response.json()
+        throw new Error(err.message)
+    }
+}
+
+const chatAPI = { getChatPersonal, getChat, getChatUsers, getMessages, sendMessage, updateChat, addUserChat, removeUserChat }
 
 export default chatAPI

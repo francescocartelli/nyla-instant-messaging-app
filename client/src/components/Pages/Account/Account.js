@@ -30,7 +30,7 @@ function LoginTab({ signinSuccessful }) {
                 <EyeFill className='fore-2-btn size-1' onClick={() => setShowPassword(false)} /> :
                 <EyeSlashFill className='fore-2-btn size-1' onClick={() => setShowPassword(true)} />
             } />
-        <div className='align-self-stretch'><Button onClick={() => {
+        <div className='d-flex align-self-stretch'><Button className="flex-grow-1" onClick={() => {
             userAPI.signin(username, password).then((response) => {
                 signinSuccessful(response)
             }).catch((err) => {
@@ -75,7 +75,7 @@ function RegistrationTab({ signupSuccessful }) {
             left={<LockFill className='fore-2 size-1' />} />
         <Text autoComplete="new-password" type="password" placeholder="Repeat password..." value={passwordRepeat} onChange={(ev) => setRepeatPassword(ev.target.value)}
             left={<Lock className='fore-2 size-1' />} />
-        <div className='align-self-stretch'><Button isDisabled={messages.length > 0} onClick={() => {
+        <div className='d-flex align-self-stretch'><Button className="flex-grow-1" isDisabled={messages.length > 0} onClick={() => {
             userAPI.signup(username, password, email).then((response) => {
                 signupSuccessful(response)
             }).catch(err => {

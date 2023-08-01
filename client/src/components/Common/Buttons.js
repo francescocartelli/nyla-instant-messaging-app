@@ -1,7 +1,7 @@
 import './Buttons.css'
 
-function Button({isDisabled, onClick, children}) {
-    return <button className={`button-wrap ${isDisabled ? "disabled" : ''}`}
+function Button({isDisabled, onClick, className, children}) {
+    return <button className={`button-wrap ${className} ${isDisabled ? "disabled" : ''}`}
         onClick={() => !isDisabled && onClick()}>
         {children}
     </button>

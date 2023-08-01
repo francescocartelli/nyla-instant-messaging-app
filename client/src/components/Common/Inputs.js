@@ -3,7 +3,9 @@ import { useRef, useState } from 'react'
 import './Inputs.css'
 
 function Text({ left, right, className = "", ...props }) {
-    return <div className={`input-wrap ${className}`}>
+    const disabled = props.disabled || props.readOnly ? ' disabled' : ''
+
+    return <div className={`input-wrap ${className} ${disabled}`}>
         {left}
         <input type={props.type ? props.type : "text"} {...props}></input>
         {right}

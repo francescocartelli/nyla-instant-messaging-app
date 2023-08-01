@@ -23,18 +23,16 @@ function MessageEditor({ scrollTo }) {
         <div className="d-flex flex-row gap-2 align-items-center">
             <TextArea rows={1} className="flex-grow-1" value={content} placeholder="Write yout message here..."
                 onChange={(ev) => setContent(ev.target.value)} />
-            <div>
-                <Button isDisabled={isSending || content === ""} onClick={() => {
-                    setSending(true)
-                    chatAPI.sendMessage(id, { content: content }).then(() => {
-                        setContent("")
-                        scrollTo()
-                        setSending(false)
-                    }).catch(err => {
-                        console.log(err)
-                    })
-                }}><Check2 /></Button>
-            </div>
+            <Button className={'circle'} isDisabled={isSending || content === ""} onClick={() => {
+                setSending(true)
+                chatAPI.sendMessage(id, { content: content }).then(() => {
+                    setContent("")
+                    scrollTo()
+                    setSending(false)
+                }).catch(err => {
+                    console.log(err)
+                })
+            }}><Check2 className="fore-success size-1" /></Button>
         </div>
     </div>
 }
@@ -117,10 +115,10 @@ function Chat({ user }) {
         }).catch(err => console.log(err))
     }
 
-    const scrollToLast = () => { lastMessageRef.current.scrollIntoView() }
+    const scrollToLast = () => { lastMessageRef?.current.scrollIntoView() }
 
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-2">
-        {isEditing ? <ChatEditor chat={chat} close={() => setEditing(false)} /> : <>
+        {isEditing ? <ChatEditor chat={chat} setChat={setChat} users={users} setUsers={setUsers} close={() => setEditing(false)} /> : <>
             <FlowLayout state={chatFlow.toString()}>
                 <loading></loading>
                 <ready>
@@ -129,9 +127,7 @@ function Chat({ user }) {
                             <p className="crd-title">{chat.name}</p>
                             {<p className="crd-subtitle">{`${users?.length} users`}</p>}
                         </div>
-                        <div>
-                            <Button onClick={() => setEditing(true)}><ThreeDotsVertical className="fore-2-btn" /></Button>
-                        </div>
+                        <Button className='circle' onClick={() => setEditing(true)}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
                     </div>
                 </ready>
                 <error></error>

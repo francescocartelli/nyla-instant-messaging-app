@@ -28,6 +28,10 @@
     appearance: none;
 }
 
+.input-wrap.disabled input[type=text] {
+    color: #ffffffa0;
+}
+
 .input-wrap input[type=text]:focus {
     border: 0;
     -webkit-appearance: none;
@@ -52,6 +56,10 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+}
+
+.input-wrap.disabled input[type=password] {
+    color: #ffffffa0;
 }
 
 .input-wrap input[type=password]:focus {

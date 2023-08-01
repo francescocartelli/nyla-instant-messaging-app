@@ -60,7 +60,7 @@ function UserList({ users, flowState, onEmpty, onRenderItem }) {
     </div>
 }
 
-function UsersSearchList({onRenderItem}) {
+function UsersSearchList({ onRenderItem = () => { } }) {
     const [users, setUsers] = useState([])
     const [userSearch, setUserSearch] = useState("")
 
@@ -90,7 +90,7 @@ function UsersSearchList({onRenderItem}) {
 
 function UsersSearch() {
     return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2">
-        <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u}/>}/>
+        <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u} />} />
     </div>
 }
 
