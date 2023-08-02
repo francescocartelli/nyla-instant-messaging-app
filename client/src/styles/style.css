@@ -57,3 +57,21 @@
 .circle {
     border-radius: 50% !important;
 }
+
+.hide-small {
+    display: flex !important;
+}
+
+.show-small {
+    display: none !important;
+}
+
+@media only screen and (max-width: 600px) {
+    .hide-small {
+        display: none !important;
+    }
+
+    .show-small {
+        display: flex !important;
+    }
+}

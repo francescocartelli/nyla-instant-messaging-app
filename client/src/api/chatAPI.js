@@ -30,11 +30,15 @@ async function getMessages(idChat, cursor) {
     else throw new Error(res.message)
 }
 
-async function sendMessage(idChat, message) {
-    const response = await fetch(`/api/chats/${idChat}/messages`, {
+async function createChat({name, users, isGroup}) {
+    const response = await fetch(`/api/chats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: message.content })
+        body: JSON.stringify({ 
+            name: name,
+            users: users.map(u => u.id),
+            isGroup: isGroup
+        })
     })
 
     const res = await response.json()
@@ -81,6 +85,18 @@ async function removeUserChat(idChat, idUser) {
     }
 }
 
-const chatAPI = { getChatPersonal, getChat, getChatUsers, getMessages, sendMessage, updateChat, addUserChat, removeUserChat }
+async function sendMessage(idChat, message) {
+    const response = await fetch(`/api/chats/${idChat}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: message.content })
+    })
+
+    const res = await response.json()
+    if (response.ok) return res
+    else throw new Error(res.message)
+}
+
+const chatAPI = { getChatPersonal, getChat, getChatUsers, getMessages, sendMessage, createChat, updateChat, addUserChat, removeUserChat }
 
 export default chatAPI

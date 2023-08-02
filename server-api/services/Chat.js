@@ -29,11 +29,25 @@ exports.getChatsPersonal = function (idUser, page = 0) {
 exports.countChatsPages = function (idUser) {
     return new Promise((resolve, reject) => {
         db.collection(db.collections.chat).countDocuments({ users: { $in: [new ObjectId(idUser)] } }).then((count) => {
-            resolve(Math.ceil(count/db.configs.CHATS_PER_PAGE))
+            resolve(Math.ceil(count / db.configs.CHATS_PER_PAGE))
         }).catch(err => {
             reject(err)
         })
     })
+}
+
+/**
+ * only for direct chat
+ * check if the two users are already in a direct chat
+ */
+exports.checkChatExistence = function (users) {
+    if (users.length != 2) throw new Error("Users must be two in a direct messages chat")
+    return db.collection(db.collections.chat).findOne({
+        isGroup: false, $and: [
+            { users: { $in: [new ObjectId(users[0])] } },
+            { users: { $in: [new ObjectId(users[1])] } }
+        ]
+    }, { projection: { _id: 0, id: '$_id' } })
 }
 
 /**

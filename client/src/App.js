@@ -11,6 +11,7 @@ import { IsLogged, IsNotLogged } from 'components/Common/Barriers'
 import { Footer } from 'components/UI/Footer/Footer'
 import { Nav } from 'components/UI/Nav/Nav'
 
+import { About } from 'components/Pages/About/About'
 import { Account } from './components/Pages/Account/Account'
 import { Home } from 'components/Pages/Home/Home'
 import { UsersSearch } from 'components/Pages/Users/Users'
@@ -52,6 +53,9 @@ function App() {
           <div className='mt-nav'><p>-</p></div>
           <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>
             <Switch>
+              <Route path="/about">
+                <About />
+              </Route>
               <Route path="/account">
                 <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
                   <Account setUser={setUser} />
@@ -59,7 +63,7 @@ function App() {
               </Route>
               <Route path="/chats/:id">
                 <AuthWall>
-                  <Chat user={user}/>
+                  <Chat user={user} />
                 </AuthWall>
               </Route>
               <Route path="/chats">
@@ -69,7 +73,7 @@ function App() {
               </Route>
               <Route path="/users">
                 <IsLogged isWaitingUser={isWaitingUser} user={user} >
-                  <UsersSearch />
+                  <UsersSearch user={user}/>
                 </IsLogged>
                 <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
                 </IsNotLogged>
@@ -79,7 +83,7 @@ function App() {
               </Route>
             </Switch>
           </div>
-          <div className="flex-row justify-content-center">
+          <div className="flex-row justify-content-center hide-small">
             <Footer />
           </div>
         </div>

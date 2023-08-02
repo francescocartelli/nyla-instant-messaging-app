@@ -18,7 +18,7 @@ function UserCard({ user, onClick, onRemove, isSelected }) {
         </div>
         {isLoading ? <Hourglass className="fore-2 size-1" /> : <>
             {onClick && <Button onClick={() => onClick(user, setLoading)}>
-                {isSelected ? <Check2 className="fore-success size-1" /> : <Square className="fore-2 size-1" />}
+                {isSelected ? <>Added<Check2 className="fore-success size-1" /></> : <> Add<Square className="fore-2 size-1" /></>}
             </Button>}
             {onRemove && <Button onClick={() => onRemove(user, setLoading)}><XCircle className="fore-danger size-1" /></Button>}
         </>}
@@ -91,10 +91,7 @@ function ChatEditor({ chat, setChat, users, setUsers, close }) {
             }} /></>}
         {!isSearchVisible && <>
             <UserList users={users} flowState={'ready'} initialCondition={true}
-                onRenderItem={(u) => {
-                    const onRemove = isEditingUsers ? () => remove : false
-                    return <UserCard key={u.id} user={u} onRemove={remove}/>
-                }}
+                onRenderItem={(u) => <UserCard key={u.id} user={u} onRemove={isEditingUsers ? remove : false} />}
                 onEmpty={() => <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
                     <Person className="size-2 fore-2" />
                     <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>

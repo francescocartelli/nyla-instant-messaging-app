@@ -1,23 +1,33 @@
 import { useEffect, useState } from "react"
 import { Chat, ChatFill, Exclamation, ExclamationCircleFill, Person, PersonCircle, PersonFill, PersonXFill, Search, X, XCircleFill } from "react-bootstrap-icons"
 
-import userAPI from 'api/userAPI'
+import './Users.css'
+
 import { FlowState } from "utils/Utils"
 
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 import { Text } from "components/Common/Inputs"
 import { FlowLayout } from "components/Common/Layout"
 
-import './Users.css'
+import userAPI from 'api/userAPI'
+import chatAPI from "api/chatAPI"
+import { Button } from "components/Common/Buttons"
+import { useHistory } from "react-router-dom"
 
-function UserCard({ user }) {
+function UserCard({ user, currentUser, onRedirect }) {
     return <div className="row-center card-1">
         <div className="crd-icon"><PersonFill className="fore-2 size-2" /></div>
         <div className="d-flex flex-column flex-grow-1">
             <p className="crd-title">{user.username}</p>
             <p className="crd-subtitle c-gray"><i>{user.bio}</i></p>
         </div>
-        <Chat className="size-2 fore-2-btn" />
+        <Button onClick={() => {
+            chatAPI.createChat({ name: null, users: [user, currentUser], isGroup: false }).then(chat => {
+                onRedirect(chat.id)
+            }).catch(err => console.log(err))
+        }}>
+            <Chat className="size-2 fore-2-btn" />
+        </Button>
     </div>
 }
 
@@ -26,6 +36,11 @@ function UsersSearchInput({ value, onChange, onLoading, onReady, onError }) {
 
     useEffect(() => {
         onLoading()
+        if (value === "") {
+            onReady([])
+            return
+        }
+
         if (userSearchDebounce) clearTimeout(userSearchDebounce)
         setUserSearchDebounce(setTimeout(() => {
             userAPI.getUsers(value).then((u) => {
@@ -88,9 +103,15 @@ function UsersSearchList({ onRenderItem = () => { } }) {
     </div>
 }
 
-function UsersSearch() {
+function UsersSearch({ user }) {
+    const history = useHistory()
+
+    const onRedirect = (idChat) => {
+        history.push(`/chats/${idChat}`)
+    }
+
     return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2">
-        <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u} />} />
+        <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u} currentUser={user} onRedirect={onRedirect}/>} />
     </div>
 }
 

@@ -48,6 +48,12 @@ exports.createChat = async (req, res) => {
         // check for user existence
         const existingIds = await Promise.all(chat.users.map((userId) => usersServices.getUserId(userId)))
         if (!existingIds.every(i => i)) return res.status(400).json("User ids not recognized")
+        // check for direct chat existence
+        if (!chat.isGroup) {
+            // if a direct chat already exists return the id of the already existing
+            const results = await chatServices.checkChatExistence(chat.users)
+            if (results) return res.json({ id: results.id })
+        }
 
         const { insertedId } = await chatServices.createChat(chat)
 
@@ -83,11 +89,11 @@ exports.deleteChat = async (req, res) => {
 
         // cannot perform bulk operation on multiple collections
         // first delete messages
-        const {acknowledged} = await messagesServices.deleteMessages(id)
+        const { acknowledged } = await messagesServices.deleteMessages(id)
 
         if (!acknowledged) return res.status(304).json("No messages were deleted")
 
-        const {deletedCount} = await chatServices.deleteChat(id)
+        const { deletedCount } = await chatServices.deleteChat(id)
 
         if (deletedCount > 0) res.end()
         else res.status(304).json("No chat was deleted")

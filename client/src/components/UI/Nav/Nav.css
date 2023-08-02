@@ -39,27 +39,11 @@
     margin-bottom: 0;
 }
 
-.hide-small {
-    display: flex !important;
-}
-
-.show-small {
-    display: none !important;
-}
-
 .flex-row-col-adaptive {
     flex-direction: row;
 }
 
 @media only screen and (max-width: 600px) {
-    .hide-small {
-        display: none !important;
-    }
-
-    .show-small {
-        display: flex !important;
-    }
-
     .flex-row-col-adaptive {
         flex-direction: column;
     }
