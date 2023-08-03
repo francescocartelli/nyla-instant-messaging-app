@@ -5,7 +5,7 @@ import { Link } from "react-router-dom"
 import { PagesControl } from "components/Common/Layout"
 
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
-import { Button } from "components/Common/Buttons"
+import { Button, LinkButton } from "components/Common/Buttons"
 
 import chatAPI from "api/chatAPI"
 
@@ -19,8 +19,19 @@ function ChatCard({ chat }) {
             <p className="crd-subtitle c-gray">last activity on {chat.lastEdit}</p>
             {chat.nChatters > 1 && <p>{chat.nChatters}</p>}
         </div>
-        <Link to={`/chats/${chat.id}`}><ChevronRight className="size-2 fore-2-btn"/></Link>
+        <Link to={`/chats/${chat.id}`}><ChevronRight className="size-2 fore-2-btn" /></Link>
     </div>
+}
+
+function NewChatButton() {
+    const [isVisible, setVisible] = useState(false)
+
+    return isVisible ?
+        <div className="d-flex flex-row gap-2">
+            <LinkButton className="col" to='/users'>Direct Messages<PlusCircleFill className="size-1" /></LinkButton>
+            <LinkButton className="col" to='/chats/new'>Group Chat <PlusCircleFill className="size-1" /></LinkButton>
+        </div> :
+        <Button onClick={() => setVisible(true)}>New Chat <PlusCircleFill className="size-1" /></Button>
 }
 
 function PersonalChats() {
@@ -41,7 +52,7 @@ function PersonalChats() {
     }, [chatsPaging.page])
 
     return <div className="d-flex flex-column gap-3 mt-2 mb-2 align-self-stretch flex-grow-1 scroll-y h-0">
-        <Button>New Chat <PlusCircleFill className="size-1" /></Button>
+        <NewChatButton />
         <div className="d-flex flex-column gap-3 flex-grow-1">
             {chats.map(chat => <ChatCard key={chat.id} chat={chat} />)}
         </div>

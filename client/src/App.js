@@ -17,6 +17,8 @@ import { Home } from 'components/Pages/Home/Home'
 import { UsersSearch } from 'components/Pages/Users/Users'
 import { PersonalChats } from 'components/Pages/Chats/Chats'
 import { Chat } from 'components/Pages/Chats/Chat'
+import { NewChatEditor } from 'components/Pages/Chats/ChatEditor'
+
 
 import usersAPI from 'api/userAPI'
 
@@ -60,6 +62,11 @@ function App() {
                 <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
                   <Account setUser={setUser} />
                 </IsNotLogged>
+              </Route>
+              <Route path="/chats/new">
+                <AuthWall>
+                  <NewChatEditor user={user}/>
+                </AuthWall>
               </Route>
               <Route path="/chats/:id">
                 <AuthWall>

@@ -66,7 +66,7 @@ function UserList({ users, flowState, onEmpty, onRenderItem }) {
                 <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>
             </loading>
             <ready>
-                {users.length > 0 ? users.map(u => onRenderItem(u)) : onEmpty()}
+                {users?.length > 0 ? users.map(u => onRenderItem(u)) : onEmpty()}
             </ready>
             <error>
                 <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><ErrorAlert /></div>

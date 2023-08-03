@@ -28,5 +28,7 @@
 .button-wrap:hover {
     background-color: #262c34;
     border: 1px solid #545b63;
+    color: #ffffff;
     transition: 0.2s linear;
+    text-decoration: none;
 }

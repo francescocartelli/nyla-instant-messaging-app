@@ -11,8 +11,9 @@ import { FlowLayout } from "components/Common/Layout"
 import { TextArea } from "components/Common/Inputs"
 import { Button } from "components/Common/Buttons"
 
+import { ChatEditor } from "components/Pages/Chats/ChatEditor"
+
 import chatAPI from "api/chatAPI"
-import { ChatEditor } from "./ChatEditor"
 
 function MessageEditor({ scrollTo }) {
     const { id } = useParams()
@@ -61,6 +62,15 @@ function MessageCard({ message, user, prev, users }) {
             <p className="crd-subtitle">{time}</p>
         </div>
     </>
+}
+
+function EmptyMessages() {
+    return <div className="d-flex justify-content-center align-items-center flex-grow-1">
+        <div className="card-1">
+            <p className="text-center m-0"><b>Wow, such an empty!</b></p>
+            <p className="text-center crd-subtitle">All the exhcnaged messages will be shown here!</p>
+        </div>
+    </div>
 }
 
 function Chat({ user }) {
@@ -117,23 +127,28 @@ function Chat({ user }) {
 
     const scrollToLast = () => { lastMessageRef?.current.scrollIntoView() }
 
-    return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-2">
+    const getChatName = () => {
+        return chat.isGroup ? chat.name : `Chat with ${users.find(u => u.id !== user.id)?.username}`
+    }
+
+    return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-3">
         {isEditing ? <ChatEditor chat={chat} setChat={setChat} users={users} setUsers={setUsers} close={() => setEditing(false)} /> : <>
             <FlowLayout state={chatFlow.toString()}>
                 <loading></loading>
                 <ready>
                     <div className="d-flex flex-row card-1 align-items-center gap-2">
                         <div className="d-flex flex-column flex-grow-1">
-                            <p className="crd-title">{chat.name}</p>
-                            {<p className="crd-subtitle">{`${users?.length} users`}</p>}
+                            <p className="crd-title">{getChatName()}</p>
+                            {chat.isGroup && <p className="crd-subtitle">{`${users?.length} users`}</p>}
                         </div>
-                        <Button className='circle' onClick={() => setEditing(true)}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
+                        {chat.isGroup && <Button className='circle' onClick={() => setEditing(true)}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>}
                     </div>
                 </ready>
                 <error></error>
             </FlowLayout>
             <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y">
                 {isNextVisible && <Button onClick={() => getMessages()}>Get Previous Messages...</Button>}
+                {messages.length === 0 && <EmptyMessages />}
                 {messages.map((message, i, arr) => <MessageCard key={message.id}
                     message={message}
                     user={user}

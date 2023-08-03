@@ -30,8 +30,8 @@ function Nav({ isWaitingUser, user, setUser, logout }) {
         </div>
         <div className={`${isCollapsed ? "hide-small" : "d-flex"} flex-row-col-adaptive gap-3`}>
             <NavItem to={"/"} className="hide-small pt-0 pb-0"><Logo className="size-1" /><b>nyla</b></NavItem>
+            <NavItem to={"/about"}><InfoCircle className='fore-2' />About</NavItem>
             <IsLogged isWaitingUser={isWaitingUser} user={user}>
-                <NavItem to={"/about"}><InfoCircle className='fore-2' />About</NavItem>
                 <NavItem to={"/chats"}><ChatFill className='fore-2' />Chats</NavItem>
                 <NavItem to={"/users"}><PersonFill className='fore-2' />Users</NavItem>
                 <Sep />
