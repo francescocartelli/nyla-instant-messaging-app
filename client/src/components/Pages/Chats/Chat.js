@@ -108,8 +108,6 @@ function Chat({ user }) {
             console.log(err)
             usersFlow.setError()
         })
-
-        scrollToLast()
     }, [id])
 
     useEffect(() => {
@@ -122,6 +120,7 @@ function Chat({ user }) {
             else setNextVisible(false)
             const revMessages = messages.reverse()
             setMessages(p => [...revMessages, ...p])
+            scrollToLast()
         }).catch(err => console.log(err))
     }
 
@@ -132,7 +131,7 @@ function Chat({ user }) {
     }
 
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-3">
-        {isEditing ? <ChatEditor chat={chat} setChat={setChat} users={users} setUsers={setUsers} close={() => setEditing(false)} /> : <>
+        {isEditing ? <ChatEditor user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} close={() => setEditing(false)} /> : <>
             <FlowLayout state={chatFlow.toString()}>
                 <loading></loading>
                 <ready>

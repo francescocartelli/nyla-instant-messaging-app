@@ -39,6 +39,10 @@
     margin: 0;
 }
 
+.pages-control .actual {
+    color: #ffffff;
+}
+
 .pages-control .right-b {
     border-right: 1px solid #2A2F35;
 }

@@ -6,6 +6,7 @@ import { Text } from "components/Common/Inputs"
 import { UserList, UsersSearchList } from "components/Pages/Users/Users"
 import chatAPI from "api/chatAPI"
 import { useHistory } from "react-router-dom"
+import { sleep } from "utils/Utils"
 
 function UserCard({ user, onClick, onRemove, isSelected }) {
     const [isLoading, setLoading] = useState(false)
@@ -25,7 +26,7 @@ function UserCard({ user, onClick, onRemove, isSelected }) {
     </div>
 }
 
-function ChatEditor({ chat, setChat, users, setUsers, close }) {
+function ChatEditor({user, chat, setChat, users, setUsers, close }) {
     const [chatName, setChatName] = useState(chat?.name)
 
     const [isSearchVisible, setSearchVisible] = useState(false)
@@ -89,7 +90,10 @@ function ChatEditor({ chat, setChat, users, setUsers, close }) {
             }} /></>}
         {!isSearchVisible && <>
             <UserList users={users} flowState={'ready'} initialCondition={true}
-                onRenderItem={(u) => <UserCard key={u.id} user={u} onRemove={isEditingUsers ? remove : false} />}
+                onRenderItem={(u) => {
+                    const isUser = user.id === u.id
+                    return <UserCard key={u.id} user={u} onRemove={isEditingUsers && !isUser ? remove : false} />
+                }}
                 onEmpty={() => <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
                     <Person className="size-2 fore-2" />
                     <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>
@@ -107,21 +111,25 @@ function NewChatEditor({ user }) {
     const history = useHistory()
 
     const submit = () => {
+        sleep(3000)
         setLoading(true)
         chatAPI.createChat(chat).then((chat) => {
             history.push(`/chats/${chat.id}`)
-        }).catch(err => console.log(err))
+        }).catch(err => {
+            setLoading(false)
+        })
     }
 
     const add = (u) => setChat(p => { return { ...p, users: [...p.users, u] } })
-
     const remove = (u) => setChat(p => { return { ...p, users: p.users.filter(i => i.id !== u.id) } })
+
+    const isInvalid = () => { return chat.users?.length < 2 || chat.name === "" }
 
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-3 mt-2">
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
                 <p className="crd-title flex-grow-1">Edit chat:</p>
-                <Button className='circle' onClick={() => { history.push('/chats')}}><X className="fore-2-btn size-1" /></Button>
+                <Button className='circle' onClick={() => { history.push('/chats') }}><X className="fore-2-btn size-1" /></Button>
             </div>
             <div className="d-flex flex-row gap-2">
                 <Text className="flex-grow-1" placeholder="Group name..." value={chat.name}
@@ -151,7 +159,7 @@ function NewChatEditor({ user }) {
                     <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>
                 </div>} />
         </>}
-        <Button onClick={() => submit()}>Create Group Chat</Button>
+        <Button isDisabled={isLoading || isInvalid()} onClick={() => submit()}>Create Group Chat</Button>
     </div>
 }
 

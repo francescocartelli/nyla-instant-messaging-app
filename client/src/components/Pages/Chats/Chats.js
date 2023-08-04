@@ -36,20 +36,21 @@ function NewChatButton() {
 
 function PersonalChats() {
     const [chats, setChats] = useState([])
-    const [chatsPaging, setChatsPaging] = useState({ page: 0, nPages: 0 })
+    const [chatsPage, setChatsPage] = useState(0)
+    const [chatsNPages, setChatsNPages] = useState(0)
 
     useEffect(() => {
         const controller = new AbortController()
 
-        chatAPI.getChatPersonal(chatsPaging.page, { signal: controller.signal }).then(({ page, nPages, chats }) => {
-            setChatsPaging({ page: page, nPages: nPages })
+        chatAPI.getChatPersonal(chatsPage, { signal: controller.signal }).then(({ page, nPages, chats }) => {
+            setChatsNPages(nPages)
             setChats([...chats])
         }).catch(err => {
             console.log(err)
         })
 
         return () => { controller?.abort() }
-    }, [chatsPaging.page])
+    }, [chatsPage])
 
     return <div className="d-flex flex-column gap-3 mt-2 mb-2 align-self-stretch flex-grow-1 scroll-y h-0">
         <NewChatButton />
@@ -57,8 +58,8 @@ function PersonalChats() {
             {chats.map(chat => <ChatCard key={chat.id} chat={chat} />)}
         </div>
         <div className="align-self-center">
-            <PagesControl page={chatsPaging.page} nPages={chatsPaging.nPages}
-                onClick={(value) => setChatsPaging(p => { return { page: value, ...p } })} />
+            <PagesControl page={chatsPage} nPages={chatsNPages}
+                onClick={(value) => setChatsPage(value)} />
         </div>
     </div>
 }
