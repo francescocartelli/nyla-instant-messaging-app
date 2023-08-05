@@ -19,11 +19,11 @@ exports.getChat = function (idChat, project = true) {
     return db.collection(db.collections.chat).findOne({ _id: new ObjectId(idChat) }, options)
 }
 
-exports.getChatsPersonal = function (idUser, page = 0) {
+exports.getChatsPersonal = function (idUser, page = 1) {
     return db.collection(db.collections.chat)
         .find({ users: { $in: [new ObjectId(idUser)] } }, { projection: chatProj })
-        .sort({ _id: -1 }).limit(db.configs.CHATS_PER_PAGE)
-        .skip(db.configs.CHATS_PER_PAGE * page).toArray()
+        .sort({ updatedAt: -1 }).limit(db.configs.CHATS_PER_PAGE)
+        .skip(db.configs.CHATS_PER_PAGE * (page - 1)).toArray()
 }
 
 exports.countChatsPages = function (idUser) {
@@ -58,6 +58,10 @@ exports.checkChatExistence = function (users) {
  */
 exports.updateChat = function (idChat, chat) {
     return db.collection(db.collections.chat).updateOne({ _id: new ObjectId(idChat) }, { $set: chat })
+}
+
+exports.updateChatLog = function (idChat) {
+    return db.collection(db.collections.chat).updateOne({ _id: new ObjectId(idChat) }, { $set: { updatedAt: new Date() } })
 }
 
 exports.deleteChat = function (idChat) {

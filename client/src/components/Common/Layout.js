@@ -30,16 +30,14 @@ function FlowLayout({ state, children }) {
 }
 
 function PagesControl({ page, nPages, onClick = () => { } }) {
-    const displayPage = page + 1
-
     return <div className='pages-control card-2 p-0'>
-        {page > 1 ? <p className='right-b fore-2-btn enabled' onClick={() => onClick(0)}>1</p> : <p className='right-b'></p>}
+        {page > 2 ? <p className='right-b fore-2-btn enabled' onClick={() => onClick(1)}>1</p> : <p className='right-b'></p>}
         {<p className='right-b sep'></p>}
-        {page > 0 ? <p className='right-b  fore-2-btn enabled' onClick={() => onClick(page - 1)}>{displayPage - 1}</p> : <p className='right-b'></p>}
-        <p className='right-b actual'>{displayPage}</p>
-        {page + 1 < nPages ? <p className='right-b  fore-2-btn enabled' onClick={() => onClick(page + 1)}>{displayPage + 1}</p> : <p className='right-b'></p>}
+        {page > 1 ? <p className='right-b  fore-2-btn enabled' onClick={() => onClick(page - 1)}>{page - 1}</p> : <p className='right-b'></p>}
+        <p className='right-b actual'>{page}</p>
+        {page < nPages ? <p className='right-b  fore-2-btn enabled' onClick={() => onClick(page + 1)}>{page + 1}</p> : <p className='right-b'></p>}
         {<p className='right-b sep'></p>}
-        {page + 2 < nPages ? <p className=' fore-2-btn enabled' onClick={() => onClick(nPages - 1)}>{nPages}</p> : <p className=''></p>}
+        {page + 1 < nPages ? <p className=' fore-2-btn enabled' onClick={() => onClick(nPages)}>{nPages}</p> : <p className=''></p>}
     </div>
 }
 

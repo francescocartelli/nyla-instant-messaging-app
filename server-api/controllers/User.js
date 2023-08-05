@@ -5,9 +5,8 @@ module.exports.getUsers = async (req, res) => {
 
     if (!username || username === "") return res.json([])
 
-    usersServices.getUsers(username).then((user) => {
-        if (!user) res.status(404).send("User not found with specified id")
-        else res.json(user)
+    usersServices.getUsers(username).then((users) => {
+        res.json(users)
     }).catch((err) => {
         res.status(500).json(err)
     })
@@ -49,5 +48,5 @@ module.exports.updateUser = async (req, res) => {
 }
 
 module.exports.deleteUser = async (req, res) => {
-    res.json({ message: `${req} not already implemented` })
+    res.json({ message: `${req} not yet implemented` })
 }

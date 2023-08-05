@@ -1,10 +1,10 @@
 const { ObjectId } = require("mongodb")
 
-exports.newMessage = function (m) {
+exports.newMessage = function ({chat, sender, content}) {
     return {
-        chat: new ObjectId(m.chat),
-        sender: new ObjectId(m.sender),
-        content: m.content,
+        chat: new ObjectId(chat),
+        sender: new ObjectId(sender),
+        content: content,
         createdAt: new Date()
     }
 }

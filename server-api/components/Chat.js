@@ -1,10 +1,12 @@
 const { ObjectId } = require("mongodb")
 
-exports.newChat = function (c) {
+exports.newChat = function ({name, users, isGroup}) {
     return {
-        name: c.isGroup ? c.name : null,
-        users: c.users.map(u => new ObjectId(u)),
-        isGroup: c.isGroup
+        name: isGroup ? name : null,
+        users: users.map(u => new ObjectId(u)),
+        isGroup: isGroup,
+        createdAt: new Date(),
+        updatedAt: new Date()
     }
 }
 
@@ -13,8 +15,8 @@ exports.pagingChat = function (page, nPages, chats) {
         page: page,
         nPages: nPages,
         chats: chats,
-        prev: page > 0 ? `/api/chats/personal?page=${page - 1}` : null,
-        next: page + 1 < nPages ? `/api/chats/personal?page=${page + 1}` : null
+        prev: page > 1 ? `/api/chats/personal?page=${page - 1}` : null,
+        next: page < nPages ? `/api/chats/personal?page=${page + 1}` : null
     }
 }
 
@@ -25,5 +27,9 @@ exports.chatProj = {
     name: 1,
     users: { $concat: ["/api/chats/", { $toString: "$_id" }, "/users"] },
     messages: { $concat: ["/api/chats/", { $toString: "$_id" }, "/messages"] },
-    isGroup: 1
+    isGroup: 1,
+    createdAt: 1,
+    updatedAt: 1
 }
+
+

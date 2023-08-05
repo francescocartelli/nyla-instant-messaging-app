@@ -1,10 +1,11 @@
-exports.newUser = function (u) {
+exports.newUser = function ({username, email, hash}) {
     return {
-        username: u.username,
-        email: u.email,
+        username: username,
+        email: email,
         bio: "",
-        hash: u.hash,
-        confirmed: false
+        hash: hash,
+        confirmed: false,
+        createdAt: new Date()
     }
 }
 

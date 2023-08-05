@@ -14,8 +14,8 @@ exports.cookieExtractor = (req) => {
 
 exports.getPage = (p) => {
     const page = parseInt(p)
-    if (page < 0) throw new Error("Page number has to be equal or higher than zero")
-    return isNaN(page) ? 0 : page
+    if (page < 1) throw new Error("Page number has to be equal or higher than one")
+    return isNaN(page) ? 1 : page
 }
 
 exports.getCursor = (c) => {

@@ -2,7 +2,7 @@ const { pagingMessage } = require("../components/Message")
 const { getCursor } = require("../components/utils")
 
 const messageServices = require.main.require('./services/Message')
-const { getPage } = require.main.require('./components/utils')
+const chatServices = require.main.require('./services/Chat')
 
 exports.getMessage = async (req, res) => {
     try {
@@ -42,8 +42,11 @@ exports.createMessage = async (req, res) => {
 
         const { insertedId } = await messageServices.createMessage({ chat: idChat, sender: user.id, ...message })
 
-        if (insertedId) res.json({ id: insertedId })
-        else res.status(304).json("No data has been created")
+        if (insertedId) {
+            // not a critical write
+            chatServices.updateChatLog(idChat)
+            res.json({ id: insertedId })
+        } else res.status(304).json("No data has been created")
     } catch (err) {
         console.log(err)
         res.status(500).json(err)
