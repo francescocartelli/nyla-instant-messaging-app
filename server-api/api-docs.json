@@ -1,0 +1,1136 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "{APPNAME}",
+    "description": "REST APIs for interaction with {APPNAME}.",
+    "termsOfService": "http://swagger.io/terms/",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.0"
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001"
+    }
+  ],
+  "paths": {
+    "/api/chats/personal": {
+      "get": {
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page identifier of the page to be retrieved.",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "summary": "Retrieve personal chats",
+        "description": "Retrieve a personal chats page based on the user that is requesting it and the page number used as query parameter.<br> User retrieves the chats in which she belong.<br> Chats are sorted starting from the one that received the most recent message to the oldest.",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "example": {
+                  "page": 1,
+                  "nPages": 2,
+                  "prev": null,
+                  "next": "/api/chats/personal?page=2",
+                  "chats": [
+                    {
+                      "name": "New Group Chat",
+                      "isGroup": true,
+                      "createdAt": "2023-08-06T05:27:43.358Z",
+                      "updatedAt": "2023-08-06T05:27:43.358Z",
+                      "id": "64cf2f4f8c8b0b38cc2a1fbb",
+                      "users": "/api/chats/64cf2f4f8c8b0b38cc2a1fbb/users",
+                      "messages": "/api/chats/64cf2f4f8c8b0b38cc2a1fbb/messages"
+                    },
+                    {
+                      "name": null,
+                      "isGroup": false,
+                      "id": "64cb9ef64e37fe6678b19d13",
+                      "users": "/api/chats/64cb9ef64e37fe6678b19d13/users",
+                      "messages": "/api/chats/64cb9ef64e37fe6678b19d13/messages"
+                    },
+                    {
+                      "name": "Random Group",
+                      "isGroup": true,
+                      "id": "64cc927e8e0f32cfe1f536d1",
+                      "users": "/api/chats/64cc927e8e0f32cfe1f536d1/users",
+                      "messages": "/api/chats/64cc927e8e0f32cfe1f536d1/messages"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unhautorized - Missing token",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/chats/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Chat identifier of the chat.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "12-byte ObjectId"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Retrieve a single chat",
+        "description": "Retrieve a single chat using its unique id.<br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Operation Successful",
+            "content": {
+              "application/json": {
+                "example": {
+                  "name": "New Group Chat",
+                  "isGroup": true,
+                  "createdAt": "2023-08-06T05:27:43.358Z",
+                  "updatedAt": "2023-08-06T05:27:43.358Z",
+                  "id": "64cf2f4f8c8b0b38cc2a1fbb",
+                  "users": "/api/chats/64cf2f4f8c8b0b38cc2a1fbb/users",
+                  "messages": "/api/chats/64cf2f4f8c8b0b38cc2a1fbb/messages"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Bad id",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not found",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/chat_update_schema.json"
+              }
+            }
+          }
+        },
+        "summary": "Update a single chat",
+        "description": "Update a single chat using its unique id.<br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Operation Successful",
+            "content": {}
+          },
+          "304": {
+            "description": "Not modified - Failed write operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request - Bad id or invalid request body",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "409": {
+            "description": "Conflict - Only group chat can have a name",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Delete a single chat",
+        "description": "Delete a single chat using its unique id.<br> Deleting chat will delete also the message related to it.<br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Operation Successful",
+            "content": {}
+          },
+          "304": {
+            "description": "Not modified - Failed delete operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request - Bad id or invalid request body",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/chats": {
+      "post": {
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Chat identifier of the chat.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "12-byte ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Chat to be created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/chat_create_schema.json"
+              },
+              "example": {
+                "name": "Random Group Chat",
+                "users": [
+                  "64aeb7ed4386c2d1fc25e0f2",
+                  "64aeb8494386c2d1fc25e0f3",
+                  "64aeb8494386c2d1fc25e8ef",
+                  "64aeb8494386c2d1fc25e2e9"
+                ],
+                "isGroup": true
+              }
+            }
+          }
+        },
+        "summary": "Create a single chat",
+        "description": "Create a single chat passing chat object as a request body.<br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "64b53cbdcd7e17707c91ae3e"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified - Failed write operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request - Bad id or invalid request body",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/chats/{id}/users": {
+      "get": {
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Chat identifier of the chat.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "12-byte ObjectId"
+            }
+          }
+        ],
+        "summary": "Retrieve users in chat",
+        "description": "Retrieve users in chat using chat id and user id.<br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request - Bad id",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/chats/{id}/users/{idu}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Chat identifier of the chat.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "12-byte ObjectId"
+          }
+        },
+        {
+          "name": "idu",
+          "in": "path",
+          "description": "User identifier of the the user.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "12-byte ObjectId"
+          }
+        }
+      ],
+      "put": {
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Insert a single user in chat",
+        "description": "Insert a single user in chat using chat id and user id.<br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "304": {
+            "description": "Not modified - Failed write operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request - Bad id",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Remove a single user from chat",
+        "description": "Remove a single user from chat using chat id and user id.<br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "304": {
+            "description": "Not modified - Failed delete operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request - Bad id",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/chats/{id}/messages": {
+      "get": {
+        "tags": [
+          "messages"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Retrieve a messages page from a chat",
+        "description": "Retrieve a messages page from a chat using chat id and cursor page mechanism.<br> Messages are sorted from the newer to the older.<br> Only users in chat are allowed to perform this operation.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Chat identifier of the chat",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "12-byte ObjectId"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "Cursor used for paging mechanism",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "12-byte ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation - List of messages is retrieved ",
+            "content": {
+              "application/json": {
+                "example": {
+                  "nextCursor": "64cd73bc91fc0053393c47c3",
+                  "next": "/api/chats/64b53cbdcd7e17707c91ae3e/messages?cursor=64cd73bc91fc0053393c47c3",
+                  "messages": [
+                    {
+                      "content": "hi",
+                      "createdAt": "2023-08-04T21:55:34.707Z",
+                      "id": "64cd73d61633fc78617cb59c",
+                      "chat": "/api/chats/64b53cbdcd7e17707c91ae3e",
+                      "sender": "/api/users/64aeb7ed4386c2d1fc25e0f2",
+                      "senderId": "64aeb7ed4386c2d1fc25e0f2"
+                    },
+                    {
+                      "content": "how are you",
+                      "createdAt": "2023-08-04T21:55:12.149Z",
+                      "id": "64cd73c091fc0053393c47c4",
+                      "chat": "/api/chats/64b53cbdcd7e17707c91ae3e",
+                      "sender": "/api/users/64aeb7ed4386c2d1fc25e0f2",
+                      "senderId": "64aeb7ed4386c2d1fc25e0f2"
+                    },
+                    {
+                      "content": "hello",
+                      "createdAt": "2023-08-04T21:55:08.664Z",
+                      "id": "64cd73bc91fc0053393c47c3",
+                      "chat": "/api/chats/64b53cbdcd7e17707c91ae3e",
+                      "sender": "/api/users/64aeb7ed4386c2d1fc25e0c2",
+                      "senderId": "64aeb7ed4386c2d1fc25e0f2"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Bad id",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "messages"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Send a message in a chat",
+        "description": "Send a message in a chat using chat id. <br> Only users in chat are allowed to perform this operation.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Chat identifier of the chat in which the message has to be sent",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "12-byte ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation - Returns the created message id",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "64cd73c91633fc78617cb595"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified - Failed write operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request - Bad id or invalid request body",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/chats/{id}/messages/{idm}": {
+      "get": {
+        "tags": [
+          "messages"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Chat identifier of the chat that contains the message to be retrieved.<br> Only users in chat are allowed to perform this operation.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "12-byte ObjectId"
+            }
+          },
+          {
+            "name": "idm",
+            "in": "path",
+            "description": "Message identifier of message to be retrieved",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "12-byte ObjectId"
+            }
+          }
+        ],
+        "summary": "Retrieve a single messages from a chat",
+        "description": "Retrieve a single messages from a chat using chat id and message id.<br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "example": {
+                  "content": "Hello, how are you?",
+                  "createdAt": "2023-08-04T21:55:34.707Z",
+                  "id": "64cd73d61633fc78617cb59c",
+                  "chat": "/api/chats/64b53cbdcd7e17707c91ae3e",
+                  "sender": "/api/users/64aeb7ed4386c2d1fc25e0f2",
+                  "senderId": "64aeb7ed4386c2d1fc25e0f2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Bad id",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "messages"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Chat identifier of the chat that contains the message to be deleted",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "12-byte ObjectId"
+            }
+          },
+          {
+            "name": "idm",
+            "in": "path",
+            "description": "Message identifier of message to be deleted",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "12-byte ObjectId"
+            }
+          }
+        ],
+        "summary": "Delete a single message from a chat",
+        "description": "Delete a single message from a chat using chat id and message id. <br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "304": {
+            "description": "Not modified - Failed delete operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request - Bad id",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Retrieve the users mathing the username",
+        "description": "Retrieve at most N users mathing the username in query parameters.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "description": "Username used for matching users with a contain logic",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "example": [
+                    {
+                      "id": "64aeb7ed4386c2d1fc25e0f2",
+                      "username": "johndoe",
+                      "email": "Jonhdoe01@mail.com",
+                      "bio": "bla bla bla this is the bio",
+                      "confirmed": true
+                    },
+                    {
+                      "id": "64aeb7ed4386c2d1fc25e0f2",
+                      "username": "LovelyLayla",
+                      "email": "lovelylayla@mail.com",
+                      "bio": "bla bla bla this is the bio",
+                      "confirmed": true
+                    },
+                    {
+                      "id": "64aeb7ed4386c2d1fc25e0f2",
+                      "username": "AngelicAmber",
+                      "email": "angelicamber@mail.com",
+                      "bio": "bla bla bla this is the bio",
+                      "confirmed": true
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Retrieve a user",
+        "description": "Retrieve a user using user id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User identifier of the user to retrieve",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "12-byte ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "64aeb7ed4386c2d1fc25e0f2",
+                  "username": "johndoe",
+                  "email": "Jonhdoe01@mail.com",
+                  "bio": "bla bla bla this is the bio",
+                  "confirmed": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Bad id",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not Found - User not found with specified id",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Update me",
+        "description": "Update the user who owns the token passed in the request.",
+        "operationId": "getSingleUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of the user to get",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "examples": {
+              "successful": {
+                "value": 1
+              },
+              "not_found": {
+                "value": 100
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/user_update_schema.json"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Delete me",
+        "description": "Delete the user who owns the token passed in the request.",
+        "operationId": "getSingleUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User identifier of the user to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/users/current": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Retrieve me",
+        "description": "Retrieve the user who owns the token passed in the request.",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "64aeb7ed4386c2d1fc25e0f2",
+                  "username": "johndoe",
+                  "email": "Jonhdoe01@mail.com",
+                  "bio": "bla bla bla this is the bio",
+                  "confirmed": true
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not Found - User identity not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/users/authenticate/signup": {
+      "post": {
+        "tags": [
+          "authenticate"
+        ],
+        "summary": "Signup the user",
+        "description": "Signup the user that provided its personal information.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/user_signup_schema.json"
+              },
+              "example": {
+                "usernmae": "johndoe",
+                "password": "Jonhdoe01",
+                "email": "johndoe@mail.com"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Token of the user that signup alogn with its information",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "example": "token=abcde12345; Path=/; HttpOnly"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "64aeb7ed4386c2d1fc25e0f2",
+                  "username": "johndoe",
+                  "email": "Jonhdoe01@mail.com",
+                  "bio": "bla bla bla this is the bio",
+                  "confirmed": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Username or email already used",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/users/authenticate/signin": {
+      "post": {
+        "tags": [
+          "authenticate"
+        ],
+        "summary": "Signin the user",
+        "description": "Signin the user that provided correct credentials.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/user_signin_schema.json"
+              },
+              "example": {
+                "username": "johndoe",
+                "password": "Jonhdoe01!"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Token of the user that signup alogn with its information",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "example": "token=abcde12345; Path=/; HttpOnly"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "64aeb7ed4386c2d1fc25e0f2",
+                  "username": "johndoe",
+                  "email": "Jonhdoe01@mail.com",
+                  "bio": "bla bla bla this is the bio",
+                  "confirmed": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Wrong username or password",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/users/authenticate/logout": {
+      "post": {
+        "tags": [
+          "authenticate"
+        ],
+        "summary": "Logout the user",
+        "description": "Logout the user who owns the token passed in the request.",
+        "responses": {
+          "200": {
+            "description": "No Content",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Wrong password",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found - Wrong username",
+            "content": {}
+          }
+        }
+      }
+    }
+  }
+}
