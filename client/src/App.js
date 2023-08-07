@@ -20,14 +20,13 @@ import { PersonalChats } from 'components/Pages/Chats/Chats'
 import { Chat } from 'components/Pages/Chats/Chat'
 import { NewChatEditor } from 'components/Pages/Chats/ChatEditor'
 
-
 import usersAPI from 'api/userAPI'
 
 function App() {
   const [user, setUser] = useState(false)
   const [isWaitingUser, setWaitingUser] = useState(true)
   const [notifications, setNotifications] = useState([])
-  
+
   useEffect(() => {
     usersAPI.getCurrentUser().then((user) => {
       setUser(user)
