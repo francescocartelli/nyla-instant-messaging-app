@@ -10,6 +10,7 @@ import { IsLogged, IsNotLogged } from 'components/Common/Barriers'
 
 import { Footer } from 'components/UI/Footer/Footer'
 import { Nav } from 'components/UI/Nav/Nav'
+import { PushContainer } from 'components/UI/Push/Push'
 
 import { About } from 'components/Pages/About/About'
 import { Account } from './components/Pages/Account/Account'
@@ -25,7 +26,8 @@ import usersAPI from 'api/userAPI'
 function App() {
   const [user, setUser] = useState(false)
   const [isWaitingUser, setWaitingUser] = useState(true)
-
+  const [notifications, setNotifications] = useState([])
+  
   useEffect(() => {
     usersAPI.getCurrentUser().then((user) => {
       setUser(user)
@@ -51,6 +53,7 @@ function App() {
     <Router>
       <div className="App">
         <div className="main-container">
+          <PushContainer notifications={notifications} setNotifications={setNotifications} />
           <Nav isWaitingUser={isWaitingUser} user={user} setUser={setUser} logout={() => usersAPI.logout()} />
           <div className='mt-nav'><p>-</p></div>
           <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>
@@ -65,7 +68,7 @@ function App() {
               </Route>
               <Route path="/chats/new">
                 <AuthWall>
-                  <NewChatEditor user={user}/>
+                  <NewChatEditor user={user} />
                 </AuthWall>
               </Route>
               <Route path="/chats/:id">
@@ -80,7 +83,7 @@ function App() {
               </Route>
               <Route path="/users">
                 <IsLogged isWaitingUser={isWaitingUser} user={user} >
-                  <UsersSearch user={user}/>
+                  <UsersSearch user={user} />
                 </IsLogged>
                 <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
                 </IsNotLogged>

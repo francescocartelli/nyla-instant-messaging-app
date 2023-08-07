@@ -39,7 +39,7 @@ function MessageEditor({ scrollTo }) {
 }
 
 function DateLabel({ date }) {
-    return <div className="card-1">
+    return <div className="card-2">
         <p className="crd-subtitle text-center">{date}</p>
     </div>
 }
@@ -57,7 +57,7 @@ function MessageCard({ message, user, prev, users }) {
     return <>
         {date != prevDate && <DateLabel date={date} />}
         <div className={`d-flex flex-column card-1 limit-width ${alignment} ${gap}`}>
-            {isFromOther && changedSender && <p className="crd-title">{senderUsername}</p>}
+            {isFromOther && changedSender && <p className="crd-title-small fore-2">{senderUsername}</p>}
             <p className="m-0">{message.content}</p>
             <p className="crd-subtitle">{time}</p>
         </div>

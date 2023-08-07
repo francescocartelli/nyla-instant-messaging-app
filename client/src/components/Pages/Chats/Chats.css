@@ -4,6 +4,12 @@
     margin: 0;
 }
 
+.crd-title-small {
+    font-size: 0.8em;
+    font-weight: 600;
+    margin: 0;
+}
+
 .crd-subtitle {
     font-size: 0.8em;
     opacity: 0.5;
