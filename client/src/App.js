@@ -37,6 +37,21 @@ function App() {
     })
   }, [])
 
+  useEffect(() => {
+    if (!user) return
+
+    const ws = new WebSocket(process.env.REACT_APP_WSS_URL)
+
+    // Event handler for WebSocket connection established
+    ws.onopen = () => { console.log('WebSocket connection established.')  }
+
+    // Event handler for WebSocket connection closed
+    ws.onclose = () => { console.log('WebSocket connection closed.') }
+
+    // Clean up the WebSocket instance on component unmount
+    return () => { if (ws) ws.close() }
+  }, [user])
+
   const AuthWall = ({ children }) => {
     return <>
       <IsLogged isWaitingUser={isWaitingUser} user={user} >
