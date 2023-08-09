@@ -1,6 +1,7 @@
-const { pagingMessage } = require("../components/Message")
-const { getCursor } = require("../components/utils")
+const { pagingMessage } = require.main.require("./components/Message")
+const { getCursor } = require.main.require("./components/utils")
 
+const { sendToUsers } = require.main.require('./services/Redis')
 const messageServices = require.main.require('./services/Message')
 const chatServices = require.main.require('./services/Chat')
 
@@ -39,10 +40,13 @@ exports.getMessages = async (req, res) => {
 exports.createMessage = async (req, res) => {
     try {
         const [user, message, idChat] = [req.user, req.body, req.params.id]
-
-        const { insertedId } = await messageServices.createMessage({ chat: idChat, sender: user.id, ...message })
-
+        // build message
+        let newMessage = { chat: idChat, sender: user.id, ...message }
+        // write message on database
+        const { insertedId } = await messageServices.createMessage(newMessage)
         if (insertedId) {
+            // send message on mq
+            await sendToUsers(res.locals.chatUsers, JSON.stringify({ id: insertedId, ...newMessage }))
             // not a critical write
             chatServices.updateChatLog(idChat)
             res.json({ id: insertedId })

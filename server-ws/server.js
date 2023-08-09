@@ -15,21 +15,24 @@ const boot = async () => {
             const user = await getCurrentUser(req)
             const channel = getChannel(user)
 
-            console.log(`${user.id} connected`)
+            console.log(`${user.id} connected and subscribed to ${channel}`)
 
             await redisClient.subscribe(channel, (message) => {
                 console.log(`${channel} received message`)
                 ws.send(message)
             })
 
-            ws.on('close', () => {
-                redisClient.unsubscribe(channel)
+            ws.on('close', async () => {
+                await redisClient.unsubscribe(channel)
+                await redisClient.disconnect()
                 console.log(`${user.id} disconnected`)
             })
         })
 
         console.log(`WebSocket server running on port ${process.env.SERVER_PORT}.`)
+        console.log(`Subscribed to Redis server ${process.env.MQ_SERVER_URL}.`)
     } catch (err) {
+        console.log("Check your Redis server: it's probably not open")
         console.log(err)
     }
 }
