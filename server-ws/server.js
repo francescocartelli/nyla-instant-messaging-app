@@ -12,19 +12,24 @@ const boot = async () => {
         const wss = new WebSocket.Server({ port: process.env.SERVER_PORT })
 
         wss.on('connection', async function (ws, req) {
-            const user = await getCurrentUser(req)
-            const channel = getChannel(user)
+            try {
+                const user = await getCurrentUser(req)
+                const channel = getChannel(user)
 
-            console.log(`${user.id} connected and subscribed to ${channel}`)
+                console.log(`${user.id} connected and subscribed to ${channel}`)
 
-            await redisClient.subscribe(channel, (message) => {
-                console.log(`${channel} received message`)
-                ws.send(message)
-            })
+                await redisClient.subscribe(channel, (message) => {
+                    console.log(`${channel} received message`)
+                    ws.send(message)
+                })
 
-            ws.on('close', async () => {
-                console.log(`${user.id} disconnected`)
-            })
+                ws.on('close', async () => {
+                    console.log(`${user.id} disconnected`)
+                })
+            } catch (err) {
+                ws.send(JSON.stringify(err))
+                ws.close()
+            }
         })
 
         console.log(`WebSocket server running on port ${process.env.SERVER_PORT}.`)

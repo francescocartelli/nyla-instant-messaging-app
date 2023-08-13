@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { Check2, ThreeDotsVertical } from "react-bootstrap-icons"
 
 import './Chats.css'
+
+import { WebSocketContext, useWebSocket } from "components/Ws/WsContext"
 
 import { FlowState } from "utils/Utils"
 import { getDateAndTime } from "utils/Dates"
@@ -15,20 +17,20 @@ import { ChatEditor } from "components/Pages/Chats/ChatEditor"
 
 import chatAPI from "api/chatAPI"
 
-function MessageEditor({ scrollTo }) {
-    const { id } = useParams()
+function MessageEditor({ id }) {
     const [content, setContent] = useState("")
     const [isSending, setSending] = useState(false)
+
+    const isSendButtonDisabled = () => { return isSending || content === "" }
 
     return <div className="card-1">
         <div className="d-flex flex-row gap-2 align-items-center">
             <TextArea rows={1} className="flex-grow-1" value={content} placeholder="Write yout message here..."
                 onChange={(ev) => setContent(ev.target.value)} />
-            <Button className={'circle'} isDisabled={isSending || content === ""} onClick={() => {
+            <Button className={'circle'} isDisabled={isSendButtonDisabled()} onClick={() => {
                 setSending(true)
-                chatAPI.sendMessage(id, { content: content }).then(() => {
+                chatAPI.sendMessage(id, { content: content }).then((m) => {
                     setContent("")
-                    scrollTo()
                     setSending(false)
                 }).catch(err => {
                     console.log(err)
@@ -55,7 +57,7 @@ function MessageCard({ message, user, prev, users }) {
     const gap = changedSender ? 'mt-2' : ''
 
     return <>
-        {date != prevDate && <DateLabel date={date} />}
+        {date !== prevDate && <DateLabel date={date} />}
         <div className={`d-flex flex-column card-1 limit-width ${alignment} ${gap}`}>
             {isFromOther && changedSender && <p className="crd-title-small fore-2">{senderUsername}</p>}
             <p className="m-0">{message.content}</p>
@@ -73,89 +75,107 @@ function EmptyMessages() {
     </div>
 }
 
+function IncomingMessages({ id, user, users }) {
+    const [ subscribe, unsubscribe ] = useContext(WebSocketContext)
+    const [incomingMessages, setIncomingMessages] = useState([])
+
+    useEffect(() => {
+        subscribe(id, (message) => setIncomingMessages(p => [...p, message]))
+        return () => { unsubscribe(id) }
+    }, [])
+
+    return incomingMessages.map((message, i, arr) => <MessageCard key={message.id}
+        message={message}
+        user={user}
+        prev={i > 0 ? arr[i - 1] : null}
+        users={users} />)
+}
+
 function Chat({ user }) {
     const { id } = useParams()
 
     const [chat, setChat] = useState({})
     const [users, setUsers] = useState([])
-    const [messages, setMessages] = useState([])
-    const [cursor, setCursor] = useState(null)
 
     const chatFlow = FlowState()
     const usersFlow = FlowState()
-    const messagesFlow = FlowState()
 
+    const [messages, setMessages] = useState([])
+    const [cursor, setCursor] = useState(null)
+    const [isNextVisible, setNextVisible] = useState(true)
     const [isEditing, setEditing] = useState(false)
 
-    const [isNextVisible, setNextVisible] = useState(true)
-
-    const lastMessageRef = useRef(null)
-
-    useEffect(() => {
+    const getChat = (options) => {
         chatFlow.setLoading()
-        chatAPI.getChat(id).then(chat => {
+        chatAPI.getChat(id, options).then(chat => {
             setChat(chat)
             chatFlow.setReady()
         }).catch(err => {
             console.log(err)
             chatFlow.setError()
         })
+    }
 
-        chatAPI.getChatUsers(id).then(users => {
+    const getChatUsers = (options) => {
+        chatAPI.getChatUsers(id, options).then(users => {
             setUsers(users)
             usersFlow.setReady()
         }).catch(err => {
             console.log(err)
             usersFlow.setError()
         })
-    }, [id])
+    }
 
-    useEffect(() => {
-        getMessages()
-    }, [])
-
-    const getMessages = () => {
-        chatAPI.getMessages(id, cursor).then(({ messages, nextCursor }) => {
+    const getMessages = (options) => {
+        chatAPI.getMessages(id, cursor, options).then(({ messages, nextCursor }) => {
             if (nextCursor) setCursor(nextCursor)
             else setNextVisible(false)
             const revMessages = messages.reverse()
             setMessages(p => [...revMessages, ...p])
-            scrollToLast()
         }).catch(err => console.log(err))
     }
 
-    const scrollToLast = () => { lastMessageRef?.current.scrollIntoView() }
+    useEffect(() => {
+        const controller = new AbortController()
+        
+        getChat({ signal: controller.signal })
+        getChatUsers({ signal: controller.signal })
+        getMessages({ signal: controller.signal })
 
-    const getChatName = () => {
-        return chat.isGroup ? chat.name : `Chat with ${users.find(u => u.id !== user.id)?.username}`
-    }
+        return () => { controller?.abort() }
+    }, [])
+
+    const getChatName = () => { return chat.isGroup ? chat.name : `Chat with ${users.find(u => u.id !== user.id)?.username}` }
 
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-3">
-        {isEditing ? <ChatEditor user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} close={() => setEditing(false)} /> : <>
-            <FlowLayout state={chatFlow.toString()}>
-                <loading></loading>
-                <ready>
-                    <div className="d-flex flex-row card-1 align-items-center gap-2">
-                        <div className="d-flex flex-column flex-grow-1">
-                            <p className="crd-title">{getChatName()}</p>
-                            {chat.isGroup && <p className="crd-subtitle">{`${users?.length} users`}</p>}
+        {isEditing ?
+            <ChatEditor user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} close={() => setEditing(false)} /> :
+            <>
+                <FlowLayout state={chatFlow.toString()}>
+                    <loading></loading>
+                    <ready>
+                        <div className="d-flex flex-row card-1 align-items-center gap-2">
+                            <div className="d-flex flex-column flex-grow-1">
+                                <p className="crd-title">{getChatName()}</p>
+                                {chat.isGroup && <p className="crd-subtitle">{`${users?.length} users`}</p>}
+                            </div>
+                            {chat.isGroup && <Button className='circle' onClick={() => setEditing(true)}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>}
                         </div>
-                        {chat.isGroup && <Button className='circle' onClick={() => setEditing(true)}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>}
-                    </div>
-                </ready>
-                <error></error>
-            </FlowLayout>
-            <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y">
-                {isNextVisible && <Button onClick={() => getMessages()}>Get Previous Messages...</Button>}
-                {messages.length === 0 && <EmptyMessages />}
-                {messages.map((message, i, arr) => <MessageCard key={message.id}
-                    message={message}
-                    user={user}
-                    prev={i > 0 ? arr[i - 1] : null}
-                    users={users} />)}
-                <div ref={lastMessageRef}></div>
-            </div>
-            <MessageEditor scrollTo={scrollToLast} /></>}
+                    </ready>
+                    <error></error>
+                </FlowLayout>
+                <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y">
+                    {isNextVisible && <Button onClick={() => getMessages()}>Get Previous Messages...</Button>}
+                    {messages.length === 0 && <EmptyMessages />}
+                    {messages.map((message, i, arr) => <MessageCard key={message.id}
+                        message={message}
+                        user={user}
+                        prev={i > 0 ? arr[i - 1] : null}
+                        users={users} />)}
+                    <IncomingMessages id={id} user={user} users={users} />
+                </div>
+                <MessageEditor id={id} />
+            </>}
     </div>
 }
 

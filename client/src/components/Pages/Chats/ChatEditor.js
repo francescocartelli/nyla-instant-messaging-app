@@ -1,12 +1,13 @@
 import { useState } from "react"
 import { Check2, Hourglass, Lock, Pencil, Person, PersonFill, Square, Unlock, X, XCircle } from "react-bootstrap-icons"
+import { redirect } from "react-router-dom"
 
 import { Button } from "components/Common/Buttons"
 import { Text } from "components/Common/Inputs"
 import { UserList, UsersSearchList } from "components/Pages/Users/Users"
-import chatAPI from "api/chatAPI"
-import { useHistory } from "react-router-dom"
 import { sleep } from "utils/Utils"
+
+import chatAPI from "api/chatAPI"
 
 function UserCard({ user, onClick, onRemove, isSelected }) {
     const [isLoading, setLoading] = useState(false)
@@ -108,13 +109,11 @@ function NewChatEditor({ user }) {
     const [isSearchVisible, setSearchVisible] = useState(false)
     const [isLoading, setLoading] = useState(false)
 
-    const history = useHistory()
-
     const submit = () => {
         sleep(3000)
         setLoading(true)
         chatAPI.createChat(chat).then((chat) => {
-            history.push(`/chats/${chat.id}`)
+            redirect(`/chats/${chat.id}`)
         }).catch(err => {
             setLoading(false)
         })
@@ -129,7 +128,7 @@ function NewChatEditor({ user }) {
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
                 <p className="crd-title flex-grow-1">Edit chat:</p>
-                <Button className='circle' onClick={() => { history.push('/chats') }}><X className="fore-2-btn size-1" /></Button>
+                <Button className='circle' onClick={() => { redirect('/chats') }}><X className="fore-2-btn size-1" /></Button>
             </div>
             <div className="d-flex flex-row gap-2">
                 <Text className="flex-grow-1" placeholder="Group name..." value={chat.name}

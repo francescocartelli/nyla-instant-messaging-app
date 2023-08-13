@@ -11,9 +11,11 @@ exports.getCurrentUser = function (req) {
             cookieParserMiddleware(req, {}, () => {
                 const cookies = req.cookies
 
-                const activeURI = `http://${process.env.API_SERVER_URL}/api/users/current`
+                if (!cookies.jwt) reject({status: 401, message: "Missing JWT cookie"})
 
-                axios.get(activeURI, {
+                const userCurrentURI = `http://${process.env.API_SERVER_URL}/api/users/current`
+
+                axios.get(userCurrentURI, {
                     headers: {
                         Cookie: `jwt=${cookies.jwt};`
                     }
