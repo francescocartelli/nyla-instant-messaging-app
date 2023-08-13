@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BoxArrowInRight, EnvelopeFill, EyeFill, EyeSlashFill, Lock, LockFill, PersonFill, PersonPlusFill } from 'react-bootstrap-icons'
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { Logo } from 'components/Icons/Icons'
 
@@ -86,16 +86,16 @@ function RegistrationTab({ signupSuccessful }) {
 }
 
 function Account(props) {
-    const history = useHistory()
+    const navigate = useNavigate()
 
     const signinSuccessful = (response) => {
         props.setUser(response)
-        history.push('/')
+        navigate('/')
     }
 
     const signupSuccessful = (response) => {
         props.setUser(response)
-        history.push('/')
+        navigate('/')
     }
 
     return <div className='d-flex flex-column align-self-center gap-2 align-items-center flex-grow-1 justify-content-center p-0 max-s'>

@@ -23,8 +23,6 @@ const boot = async () => {
             })
 
             ws.on('close', async () => {
-                await redisClient.unsubscribe(channel)
-                await redisClient.disconnect()
                 console.log(`${user.id} disconnected`)
             })
         })

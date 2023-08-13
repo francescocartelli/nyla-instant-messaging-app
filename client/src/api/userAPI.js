@@ -10,23 +10,38 @@ async function signin(username, password) {
         body: JSON.stringify({ username: username, password: password })
     })
 
-    const res = await response.json()
+    if (!response.ok) {
+        let error = null
+        try {
+            error = await response.json()
+        } catch (err) {
+            /* JSON parsing error, continue with default errorMessage */
+            throw new Error(response.statusText)
+        }
+        throw new Error(error.message)
+    }
 
-    if (response.ok) return res
-    else throw new Error(res.message)
+    return response.json()
 }
 
 async function signup(username, password, email) {
-    const response = await fetch('/api/authenticate/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username, password: password, email: email })
-    })
+    try {
+        const response = await fetch('/api/authenticate/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username, password: password, email: email })
+        })
 
-    const res = await response.json()
+        if (!response.ok) {
+            const error = await response.json()
+            throw new Error(error.message)
+        }
 
-    if (response.ok) return res
-    else throw new Error(res.message)
+        return response.json()
+    } catch (err) {
+        console.log("weeee")
+        console.log(err)
+    }
 }
 
 async function getCurrentUser() {

@@ -6,24 +6,24 @@ async function getChatPersonal(page = 0, options = {}) {
     else throw new Error(res.message)
 }
 
-async function getChat(id) {
-    const response = await fetch(`/api/chats/${id}`)
+async function getChat(id, options) {
+    const response = await fetch(`/api/chats/${id}`, options)
 
     const res = await response.json()
     if (response.ok) return res
     else throw new Error(res.message)
 }
 
-async function getChatUsers(id) {
-    const response = await fetch(`/api/chats/${id}/users`)
+async function getChatUsers(id, options) {
+    const response = await fetch(`/api/chats/${id}/users`, options)
 
     const res = await response.json()
     if (response.ok) return res
     else throw new Error(res.message)
 }
 
-async function getMessages(idChat, cursor) {
-    const response = await fetch(`/api/chats/${idChat}/messages?cursor=${cursor}`)
+async function getMessages(idChat, cursor, options) {
+    const response = await fetch(`/api/chats/${idChat}/messages?cursor=${cursor}`, options)
 
     const res = await response.json()
     if (response.ok) return res

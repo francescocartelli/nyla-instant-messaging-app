@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 
 import './App.css'
 
 import 'styles/style.css'
 import 'styles/colors.css'
 
-import { IsLogged, IsNotLogged } from 'components/Common/Barriers'
+import { IsNotLogged } from 'components/Common/Barriers'
 
 import { Footer } from 'components/UI/Footer/Footer'
 import { Nav } from 'components/UI/Nav/Nav'
 import { PushContainer } from 'components/UI/Push/Push'
+import { WebSocketProvider } from 'components/Ws/WsContext'
 
 import { About } from 'components/Pages/About/About'
 import { Account } from './components/Pages/Account/Account'
@@ -35,82 +36,53 @@ function App() {
       setUser(false)
       setWaitingUser(false)
     })
+
+    return () => setUser(false)
   }, [])
 
-  useEffect(() => {
-    if (!user) return
-
-    const ws = new WebSocket(process.env.REACT_APP_WSS_URL)
-
-    // Event handler for WebSocket connection established
-    ws.onopen = () => { console.log('WebSocket connection established.')  }
-
-    // Event handler for WebSocket connection closed
-    ws.onclose = () => { console.log('WebSocket connection closed.') }
-
-    // Clean up the WebSocket instance on component unmount
-    return () => { if (ws) ws.close() }
-  }, [user])
-
   const AuthWall = ({ children }) => {
-    return <>
-      <IsLogged isWaitingUser={isWaitingUser} user={user} >
-        {children}
-      </IsLogged>
-      <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
-        <Account setUser={setUser} />
-      </IsNotLogged>
-    </>
+    // if the app refresh user won't be present when auth wall is evaluated
+    // checking for isWaitingUser avoid displaying a login page even tough use has valid token
+    // in case of logged user and missing user check the app will display login to later discard the page (not good)
+    if (isWaitingUser) return <></>
+    if (!user) return <Navigate to="/account" />
+    return children
   }
 
   return (
     <Router>
       <div className="App">
-        <div className="main-container">
-          <PushContainer notifications={notifications} setNotifications={setNotifications} />
-          <Nav isWaitingUser={isWaitingUser} user={user} setUser={setUser} logout={() => usersAPI.logout()} />
-          <div className='mt-nav'><p>-</p></div>
-          <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>
-            <Switch>
-              <Route path="/about">
-                <About />
-              </Route>
-              <Route path="/account">
-                <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
+        <WebSocketProvider user={user}>
+          <div className="main-container">
+            <PushContainer notifications={notifications} setNotifications={setNotifications} />
+            <Nav isWaitingUser={isWaitingUser} user={user} setUser={setUser} logout={() => usersAPI.logout()} />
+            <div className='mt-nav'><p>-</p></div>
+            <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>
+              <Routes>
+                <Route path="/about" element={<About />} />
+                <Route path="/account" element={<IsNotLogged isWaitingUser={isWaitingUser} user={user}>
                   <Account setUser={setUser} />
-                </IsNotLogged>
-              </Route>
-              <Route path="/chats/new">
-                <AuthWall>
+                </IsNotLogged>} />
+                <Route path="/chats/new" element={<AuthWall>
                   <NewChatEditor user={user} />
-                </AuthWall>
-              </Route>
-              <Route path="/chats/:id">
-                <AuthWall>
+                </AuthWall>} />
+                <Route path="/chats/:id" element={<AuthWall>
                   <Chat user={user} />
-                </AuthWall>
-              </Route>
-              <Route path="/chats">
-                <AuthWall>
+                </AuthWall>} />
+                <Route path="/chats" element={<AuthWall>
                   <PersonalChats />
-                </AuthWall>
-              </Route>
-              <Route path="/users">
-                <IsLogged isWaitingUser={isWaitingUser} user={user} >
+                </AuthWall>} />
+                <Route path="/users" element={<AuthWall>
                   <UsersSearch user={user} />
-                </IsLogged>
-                <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
-                </IsNotLogged>
-              </Route>
-              <Route path="/">
-                <Home />
-              </Route>
-            </Switch>
+                </AuthWall>} />
+                <Route path="/" element={<Home />} />
+              </Routes>
+            </div>
+            <div className="flex-row justify-content-center hide-small gap-2">
+              <Footer />
+            </div>
           </div>
-          <div className="flex-row justify-content-center hide-small">
-            <Footer />
-          </div>
-        </div>
+        </WebSocketProvider>
       </div>
     </Router >
   )

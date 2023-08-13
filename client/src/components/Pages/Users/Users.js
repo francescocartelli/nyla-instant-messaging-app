@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import { Chat, ChatFill, Exclamation, ExclamationCircleFill, Person, PersonCircle, PersonFill, PersonXFill, Search, X, XCircleFill } from "react-bootstrap-icons"
+import { Chat, Person, PersonFill, PersonXFill, Search, XCircleFill } from "react-bootstrap-icons"
+import { redirect } from "react-router-dom"
 
 import './Users.css'
 
@@ -8,11 +9,10 @@ import { FlowState } from "utils/Utils"
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 import { Text } from "components/Common/Inputs"
 import { FlowLayout } from "components/Common/Layout"
+import { Button } from "components/Common/Buttons"
 
 import userAPI from 'api/userAPI'
 import chatAPI from "api/chatAPI"
-import { Button } from "components/Common/Buttons"
-import { useHistory } from "react-router-dom"
 
 function UserCard({ user, currentUser, onRedirect }) {
     return <div className="row-center card-1">
@@ -104,10 +104,8 @@ function UsersSearchList({ onRenderItem = () => { } }) {
 }
 
 function UsersSearch({ user }) {
-    const history = useHistory()
-
     const onRedirect = (idChat) => {
-        history.push(`/chats/${idChat}`)
+        redirect(`/chats/${idChat}`)
     }
 
     return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2">
