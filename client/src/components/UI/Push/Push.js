@@ -8,10 +8,8 @@ import { WebSocketContext, channelTypes } from 'components/Ws/WsContext'
 
 function Notification({ notification, onClose, delay = 2000 }) {
     useState(() => {
-        /*
-         const timeout = setTimeout(() => onClose(), delay)
+        const timeout = setTimeout(() => onClose(), delay)
         return () => clearTimeout(timeout)
-         */
     }, [])
 
     return <div className='d-flex flex-row align-items-center card-2 gap-2 box-glow'>
@@ -24,7 +22,7 @@ function Notification({ notification, onClose, delay = 2000 }) {
     </div>
 }
 
-function PushContainer({maxNoticationsN = 4}) {
+function PushContainer({ maxNoticationsN = 4 }) {
     const [notifications, setNotifications] = useState([])
     const [subscribe, unsubscribe] = useContext(WebSocketContext)
 
