@@ -1,4 +1,5 @@
 const { pagingMessage } = require.main.require("./components/Message")
+const { mqCreateMessage, mqDeleteMessage } = require.main.require("./components/Redis")
 const { getCursor } = require.main.require("./components/utils")
 
 const { sendToUsers } = require.main.require('./services/Redis')
@@ -46,7 +47,7 @@ exports.createMessage = async (req, res) => {
         const { insertedId } = await messageServices.createMessage(newMessage)
         if (insertedId) {
             // send message on mq
-            await sendToUsers(res.locals.chatUsers, JSON.stringify({ id: insertedId, ...newMessage }))
+            await sendToUsers(res.locals.chatUsers, JSON.stringify(mqCreateMessage({ id: insertedId, ...newMessage })))
             // not a critical write
             chatServices.updateChatLog(idChat)
             res.json({ id: insertedId })
@@ -60,11 +61,12 @@ exports.createMessage = async (req, res) => {
 exports.deleteMessage = async (req, res) => {
     try {
         const [idChat, idMessage] = [req.params.id, req.params.idm]
-
         const { deletedCount } = await messageServices.deleteMessage(idChat, idMessage)
-
-        if (deletedCount > 0) res.end()
-        else res.status(304).json("No data has been deleted")
+        if (deletedCount > 0) {
+            // send message on mq
+            await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteMessage({ id: idMessage, chat: idChat})))
+            res.end()
+        } else res.status(304).json("No data has been deleted")
     } catch (err) {
         console.log(err)
         res.status(500).json(err)

@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
-import { Check2, ThreeDotsVertical } from "react-bootstrap-icons"
+import { Check2, ChevronRight, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
 
 import './Chats.css'
 
-import { WebSocketContext, useWebSocket } from "components/Ws/WsContext"
+import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
 
 import { FlowState } from "utils/Utils"
 import { getDateAndTime } from "utils/Dates"
@@ -15,9 +15,11 @@ import { Button } from "components/Common/Buttons"
 
 import { ChatEditor } from "components/Pages/Chats/ChatEditor"
 
+import { PeopleChat, PersonChat } from "components/Icons/Icons"
+
 import chatAPI from "api/chatAPI"
 
-function MessageEditor({ id }) {
+function MessageEditor({ id, scrollTo = () => { } }) {
     const [content, setContent] = useState("")
     const [isSending, setSending] = useState(false)
 
@@ -32,6 +34,7 @@ function MessageEditor({ id }) {
                 chatAPI.sendMessage(id, { content: content }).then((m) => {
                     setContent("")
                     setSending(false)
+                    scrollTo()
                 }).catch(err => {
                     console.log(err)
                 })
@@ -46,7 +49,9 @@ function DateLabel({ date }) {
     </div>
 }
 
-function MessageCard({ message, user, prev, users }) {
+function MessageCard({ id, message, user, prev, users }) {
+    const [isExpanded, setExpanded] = useState(false)
+
     const [date, time] = getDateAndTime(message?.createdAt)
     const [prevDate, _] = prev ? getDateAndTime(prev.createdAt) : [null, null]
 
@@ -56,12 +61,22 @@ function MessageCard({ message, user, prev, users }) {
     const senderUsername = users.find(i => i.id === message.senderId)?.username
     const gap = changedSender ? 'mt-2' : ''
 
+    const deleteMessage = () => {
+        chatAPI.deleteMessage(id, message.id).then(() => {}).catch(err => console.log(err))
+    }
+
     return <>
         {date !== prevDate && <DateLabel date={date} />}
         <div className={`d-flex flex-column card-1 limit-width ${alignment} ${gap}`}>
             {isFromOther && changedSender && <p className="crd-title-small fore-2">{senderUsername}</p>}
             <p className="m-0">{message.content}</p>
-            <p className="crd-subtitle">{time}</p>
+            <div className="d-flex flex-row gap-1 align-items-center">
+                <p className="crd-subtitle pr-2 flex-grow-1">{time}</p>
+                {isExpanded ? <>
+                    <TrashFill className="fore-2-btn" onClick={() => deleteMessage()} />
+                    <ChevronRight onClick={() => setExpanded(false)} className="fore-2-btn" />
+                </> : <ThreeDots onClick={() => setExpanded(true)} className="fore-2-btn" />}
+            </div>
         </div>
     </>
 }
@@ -73,22 +88,6 @@ function EmptyMessages() {
             <p className="text-center crd-subtitle">All the exhcnaged messages will be shown here!</p>
         </div>
     </div>
-}
-
-function IncomingMessages({ id, user, users }) {
-    const [ subscribe, unsubscribe ] = useContext(WebSocketContext)
-    const [incomingMessages, setIncomingMessages] = useState([])
-
-    useEffect(() => {
-        subscribe(id, (message) => setIncomingMessages(p => [...p, message]))
-        return () => { unsubscribe(id) }
-    }, [])
-
-    return incomingMessages.map((message, i, arr) => <MessageCard key={message.id}
-        message={message}
-        user={user}
-        prev={i > 0 ? arr[i - 1] : null}
-        users={users} />)
 }
 
 function Chat({ user }) {
@@ -104,6 +103,11 @@ function Chat({ user }) {
     const [cursor, setCursor] = useState(null)
     const [isNextVisible, setNextVisible] = useState(true)
     const [isEditing, setEditing] = useState(false)
+
+    const lastRef = useRef(null)
+    const scrollToLast = () => { lastRef.current?.scrollIntoView() }
+
+    const [subscribe, unsubscribe] = useContext(WebSocketContext)
 
     const getChat = (options) => {
         chatFlow.setLoading()
@@ -126,23 +130,34 @@ function Chat({ user }) {
         })
     }
 
-    const getMessages = (options) => {
+    const getMessages = ({ scrollTo = false, ...options } = {}) => {
         chatAPI.getMessages(id, cursor, options).then(({ messages, nextCursor }) => {
             if (nextCursor) setCursor(nextCursor)
             else setNextVisible(false)
             const revMessages = messages.reverse()
             setMessages(p => [...revMessages, ...p])
+            if (scrollTo) scrollToLast()
         }).catch(err => console.log(err))
     }
 
     useEffect(() => {
         const controller = new AbortController()
-        
+
         getChat({ signal: controller.signal })
         getChatUsers({ signal: controller.signal })
-        getMessages({ signal: controller.signal })
+        getMessages({ scrollTo: true, signal: controller.signal })
 
-        return () => { controller?.abort() }
+        const channelCreateMessage = channelTypes.createMessageInChat(id)
+        subscribe(channelCreateMessage, (message) => setMessages(p => [...p, message]))
+
+        const channelDeleteMessage = channelTypes.deleteMessageInChat(id)
+        subscribe(channelDeleteMessage, (message) => setMessages(p => p.filter(i => i.id !== message.id)))
+
+        return () => {
+            controller?.abort()
+            unsubscribe(channelCreateMessage)
+            unsubscribe(channelDeleteMessage)
+        }
     }, [])
 
     const getChatName = () => { return chat.isGroup ? chat.name : `Chat with ${users.find(u => u.id !== user.id)?.username}` }
@@ -155,6 +170,7 @@ function Chat({ user }) {
                     <loading></loading>
                     <ready>
                         <div className="d-flex flex-row card-1 align-items-center gap-2">
+                            {chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}
                             <div className="d-flex flex-column flex-grow-1">
                                 <p className="crd-title">{getChatName()}</p>
                                 {chat.isGroup && <p className="crd-subtitle">{`${users?.length} users`}</p>}
@@ -168,13 +184,14 @@ function Chat({ user }) {
                     {isNextVisible && <Button onClick={() => getMessages()}>Get Previous Messages...</Button>}
                     {messages.length === 0 && <EmptyMessages />}
                     {messages.map((message, i, arr) => <MessageCard key={message.id}
+                        id={id}
                         message={message}
                         user={user}
                         prev={i > 0 ? arr[i - 1] : null}
                         users={users} />)}
-                    <IncomingMessages id={id} user={user} users={users} />
+                    <div ref={lastRef} />
                 </div>
-                <MessageEditor id={id} />
+                <MessageEditor id={id} scrollTo={scrollToLast} />
             </>}
     </div>
 }

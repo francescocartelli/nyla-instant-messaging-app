@@ -30,11 +30,11 @@ async function getMessages(idChat, cursor, options) {
     else throw new Error(res.message)
 }
 
-async function createChat({name, users, isGroup}) {
+async function createChat({ name, users, isGroup }) {
     const response = await fetch(`/api/chats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
             name: name,
             users: users.map(u => u.id),
             isGroup: isGroup
@@ -97,6 +97,18 @@ async function sendMessage(idChat, message) {
     else throw new Error(res.message)
 }
 
-const chatAPI = { getChatPersonal, getChat, getChatUsers, getMessages, sendMessage, createChat, updateChat, addUserChat, removeUserChat }
+async function deleteMessage(idChat, idMessage) {
+    const response = await fetch(`/api/chats/${idChat}/messages/${idMessage}`, {
+        method: 'DELETE'
+    })
+
+    if (response.ok) return true
+    else {
+        const error = await response.json()
+        throw new Error(error.message)
+    }
+}
+
+const chatAPI = { getChatPersonal, getChat, getChatUsers, getMessages, sendMessage, createChat, updateChat, addUserChat, removeUserChat, deleteMessage }
 
 export default chatAPI

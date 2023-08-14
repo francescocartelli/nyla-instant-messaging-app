@@ -26,7 +26,6 @@ import usersAPI from 'api/userAPI'
 function App() {
   const [user, setUser] = useState(false)
   const [isWaitingUser, setWaitingUser] = useState(true)
-  const [notifications, setNotifications] = useState([])
 
   useEffect(() => {
     usersAPI.getCurrentUser().then((user) => {
@@ -54,7 +53,7 @@ function App() {
       <div className="App">
         <WebSocketProvider user={user}>
           <div className="main-container">
-            <PushContainer notifications={notifications} setNotifications={setNotifications} />
+            <PushContainer />
             <Nav isWaitingUser={isWaitingUser} user={user} setUser={setUser} logout={() => usersAPI.logout()} />
             <div className='mt-nav'><p>-</p></div>
             <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>

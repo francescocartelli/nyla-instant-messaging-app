@@ -1,4 +1,10 @@
-const { useState, useEffect, createContext, useContext, useRef } = require("react")
+const { useEffect, createContext, useRef } = require("react")
+
+const channelTypes = {
+    createMessageInChat: (idChat) => { return `MESSAGE_CREATE_${idChat}` },
+    deleteMessageInChat: (idChat) => { return `MESSAGE_DELETE_${idChat}` },
+    createMessage: () => { return 'MESSAGE_CREATE' }
+}
 
 const WebSocketContext = createContext()
 
@@ -21,15 +27,17 @@ function WebSocketProvider({ children, user }) {
         ws.current.onopen = () => { console.log('WebSocket connection established.') }
         ws.current.onclose = () => { console.log('WebSocket connection closed.') }
         ws.current.onmessage = (message) => {
-            const data = JSON.parse(message.data)
-            if (channels.current[data.chat]) {
-                channels.current[data.chat](data)
+            const { type, data } = JSON.parse(message.data)
+            const chatChannel = `${type}_${data.chat}`
+            // lookup for a listening (is rendered) chat on message create or delete
+            if (channels.current[chatChannel]) channels.current[chatChannel](data)
+            else {
+                // if no chat is listening (is rendered) send message into generic channel for push mechanism
+                channels.current[type]?.(data)
             }
         }
 
-        return () => {
-            ws.current.close()
-        }
+        return () => { ws.current.close() }
     }, [])
 
     return (
@@ -39,4 +47,4 @@ function WebSocketProvider({ children, user }) {
     )
 }
 
-export { WebSocketContext, WebSocketProvider }
+export { WebSocketContext, WebSocketProvider, channelTypes }

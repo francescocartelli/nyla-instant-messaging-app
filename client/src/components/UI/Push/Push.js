@@ -1,31 +1,55 @@
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { InfoCircle, XCircle } from 'react-bootstrap-icons'
 
 import './Push.css'
 import 'styles/style.css'
 
-function Notification({ notification, onClose, delay = 5000 }) {
-    useState(() => {
-        const timeout = setTimeout(() => onClose(), delay)
+import { WebSocketContext, channelTypes } from 'components/Ws/WsContext'
 
+function Notification({ notification, onClose, delay = 2000 }) {
+    useState(() => {
+        /*
+         const timeout = setTimeout(() => onClose(), delay)
         return () => clearTimeout(timeout)
+         */
     }, [])
 
     return <div className='d-flex flex-row align-items-center card-2 gap-2 box-glow'>
-        <InfoCircle className='fore-2 size-2'/>
-        <div className='d-flex flex-column flex-grow-1'>
-            <p className='crd-subtitle'>{notification.title}</p>
-            <p className='m-0'>{notification.text}</p>
+        <InfoCircle className='fore-2 size-2 flex-shrink-0' />
+        <div className='d-flex flex-column flex-grow-1' style={{ minWidth: 0 }}>
+            <p className='crd-subtitle text-truncate'>{notification.title}</p>
+            <p className='m-0 text-truncate'>{notification.text}</p>
         </div>
-        <XCircle className='fore-2-btn size-1' onClick={() => onClose()} />
+        <XCircle className='fore-2-btn size-1 flex-shrink-0' onClick={() => onClose()} />
     </div>
 }
 
-function PushContainer({ notifications, setNotifications }) {
+function PushContainer({maxNoticationsN = 4}) {
+    const [notifications, setNotifications] = useState([])
+    const [subscribe, unsubscribe] = useContext(WebSocketContext)
+
+    // add notication and limit the number by removing the first if max is reached
+    const addNotification = (notification) => setNotifications(p => {
+        return p.length >= maxNoticationsN ? [...p.slice(1), notification] : [...p, notification]
+    })
+    const removeNotication = ({ id }) => setNotifications(p => p.filter(i => i.id !== id))
+
+    useEffect(() => {
+        const channelDefault = channelTypes.createMessage()
+        console.log("subscribed to:", channelDefault)
+        subscribe(channelDefault, (message) => addNotification({
+            id: message.id,
+            title: `Message from ${message.sender}`,
+            text: message.content
+        }))
+
+        return () => { unsubscribe(channelDefault) }
+    }, [])
+
     return <div className='push-wrapper adaptive-p'>
         {notifications?.map(n => {
             return <Notification key={n.id} notification={n}
-                onClose={() => setNotifications(p => p.filter(i => i.id !== n.id))} />
+                onClose={() => removeNotication(n)} />
         })}
     </div>
 }
