@@ -1,4 +1,4 @@
-import { BugFill, HourglassSplit, LockFill } from 'react-bootstrap-icons'
+import { BugFill, HourglassSplit } from 'react-bootstrap-icons'
 
 import './Alerts.css'
 

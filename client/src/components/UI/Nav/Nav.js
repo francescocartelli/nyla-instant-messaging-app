@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from "react-router-dom"
-import { BoxArrowRight, Chat, ChatFill, InfoCircle, List, PersonFill, XCircleFill } from 'react-bootstrap-icons'
+import { BoxArrowRight, ChatFill, InfoCircle, List, PersonFill, XCircleFill } from 'react-bootstrap-icons'
 
 import './Nav.css'
 

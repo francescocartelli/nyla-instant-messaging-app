@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ChevronRight, Person, PlusCircleFill } from "react-bootstrap-icons"
+import { ChevronRight, PlusCircleFill } from "react-bootstrap-icons"
 import { Link } from "react-router-dom"
 
 import { PagesControl } from "components/Common/Layout"

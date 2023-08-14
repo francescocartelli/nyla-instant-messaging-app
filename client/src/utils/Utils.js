@@ -1,4 +1,3 @@
-import * as dayjs from 'dayjs'
 import ColorHash from 'color-hash'
 import { useState } from 'react'
 

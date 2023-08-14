@@ -1,5 +1,3 @@
-import { useRef, useState } from 'react'
-
 import './Inputs.css'
 
 function Text({ left, right, className = "", ...props }) {
