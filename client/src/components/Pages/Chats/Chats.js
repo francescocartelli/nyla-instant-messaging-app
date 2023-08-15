@@ -2,15 +2,15 @@ import { useEffect, useState } from "react"
 import { ChevronRight, PlusCircleFill } from "react-bootstrap-icons"
 import { Link } from "react-router-dom"
 
-import { PagesControl } from "components/Common/Layout"
-
-import { PeopleChat, PersonChat } from "components/Icons/Icons"
+import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 import { Button, LinkButton } from "components/Common/Buttons"
+import { FlowLayout, PagesControl } from "components/Common/Layout"
+import { PeopleChat, PersonChat } from "components/Icons/Icons"
 
 import { getDateAndTime } from "utils/Dates"
+import { FlowState } from "utils/Utils"
 
 import chatAPI from "api/chatAPI"
-
 
 function ChatCard({ chat }) {
     const [date, time] = getDateAndTime(chat.updatedAt)
@@ -42,13 +42,17 @@ function PersonalChats() {
     const [chatsPage, setChatsPage] = useState(1)
     const [chatsNPages, setChatsNPages] = useState(0)
 
+    const chatsFlow = FlowState()
+
     useEffect(() => {
         const controller = new AbortController()
 
         chatAPI.getChatPersonal(chatsPage, { signal: controller.signal }).then(({ page, nPages, chats }) => {
+            chatsFlow.setReady()
             setChatsNPages(nPages)
             setChats([...chats])
         }).catch(err => {
+            chatsFlow.setError()
             console.log(err)
         })
 
@@ -58,7 +62,11 @@ function PersonalChats() {
     return <div className="d-flex flex-column gap-3 mt-2 mb-2 align-self-stretch flex-grow-1 scroll-y h-0">
         <NewChatButton />
         <div className="d-flex flex-column gap-3 flex-grow-1">
-            {chats.map(chat => <ChatCard key={chat.id} chat={chat} />)}
+            <FlowLayout state={chatsFlow.get()}>
+                <loading><LoadingAlert/></loading>
+                <ready>{chats.map(chat => <ChatCard key={chat.id} chat={chat} />)}</ready>
+                <error><ErrorAlert/></error>
+            </FlowLayout>
         </div>
         <div className="align-self-center">
             <PagesControl page={chatsPage} nPages={chatsNPages}

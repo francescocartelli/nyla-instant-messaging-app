@@ -34,7 +34,6 @@ function PushContainer({ maxNoticationsN = 4 }) {
 
     useEffect(() => {
         const channelDefault = channelTypes.createMessage()
-        console.log("subscribed to:", channelDefault)
         subscribe(channelDefault, (message) => addNotification({
             id: message.id,
             title: `Message from ${message.sender}`,

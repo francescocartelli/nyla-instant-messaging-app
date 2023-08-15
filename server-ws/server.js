@@ -27,7 +27,7 @@ const boot = async () => {
                     console.log(`${user.id} disconnected`)
                 })
             } catch (err) {
-                ws.send(JSON.stringify(err))
+                console.log(err)
                 ws.close()
             }
         })

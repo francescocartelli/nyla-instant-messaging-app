@@ -21,24 +21,26 @@ function WebSocketProvider({ children, user }) {
     }
 
     useEffect(() => {
-        if (user) return
-
+        //console.log("useEffect: WebSocketProvider")
+        if (!user) {
+            // if user is absent ws cannot be opened
+            // if ws is open a logout was performed => close ws
+            ws.current?.close()
+            return
+        }
         ws.current = new WebSocket(process.env.REACT_APP_WSS_URL)
-        ws.current.onopen = () => { console.log('WebSocket connection established.') }
-        ws.current.onclose = () => { console.log('WebSocket connection closed.') }
+        ws.current.onopen = () => { console.log('WS open') }
+        ws.current.onclose = () => { console.log('WS close') }
         ws.current.onmessage = (message) => {
             const { type, data } = JSON.parse(message.data)
             const chatChannel = `${type}_${data.chat}`
             // lookup for a listening (is rendered) chat on message create or delete
+            // if no chat is listening (is rendered) send message into generic channel for push mechanism
             if (channels.current[chatChannel]) channels.current[chatChannel](data)
-            else {
-                // if no chat is listening (is rendered) send message into generic channel for push mechanism
-                channels.current[type]?.(data)
-            }
+            else channels.current[type]?.(data)
         }
-
         return () => { ws.current.close() }
-    }, [])
+    }, [user])
 
     return (
         <WebSocketContext.Provider value={[subscribe, unsubscribe]}>

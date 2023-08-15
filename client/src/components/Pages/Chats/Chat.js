@@ -4,18 +4,16 @@ import { Check2, ChevronRight, ThreeDots, ThreeDotsVertical, TrashFill } from "r
 
 import './Chats.css'
 
-import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
-
 import { FlowState } from "utils/Utils"
 import { getDateAndTime } from "utils/Dates"
 
+import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 import { FlowLayout } from "components/Common/Layout"
 import { TextArea } from "components/Common/Inputs"
 import { Button } from "components/Common/Buttons"
-
-import { ChatEditor } from "components/Pages/Chats/ChatEditor"
-
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
+import { ChatEditor } from "components/Pages/Chats/ChatEditor"
+import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
 
 import chatAPI from "api/chatAPI"
 
@@ -62,7 +60,7 @@ function MessageCard({ id, message, user, prev, users }) {
     const gap = changedSender ? 'mt-2' : ''
 
     const deleteMessage = () => {
-        chatAPI.deleteMessage(id, message.id).then(() => {}).catch(err => console.log(err))
+        chatAPI.deleteMessage(id, message.id).then(() => { }).catch(err => console.log(err))
     }
 
     return <>
@@ -143,6 +141,8 @@ function Chat({ user }) {
     useEffect(() => {
         const controller = new AbortController()
 
+        console.log("useEffect chat")
+
         getChat({ signal: controller.signal })
         getChatUsers({ signal: controller.signal })
         getMessages({ scrollTo: true, signal: controller.signal })
@@ -166,20 +166,20 @@ function Chat({ user }) {
         {isEditing ?
             <ChatEditor user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} close={() => setEditing(false)} /> :
             <>
-                <FlowLayout state={chatFlow.toString()}>
-                    <loading></loading>
-                    <ready>
-                        <div className="d-flex flex-row card-1 align-items-center gap-2">
+                <div className="d-flex flex-row card-1 align-items-center gap-2">
+                    <FlowLayout state={chatFlow.get()}>
+                        <loading><LoadingAlert/></loading>
+                        <ready>
                             {chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}
                             <div className="d-flex flex-column flex-grow-1">
                                 <p className="crd-title">{getChatName()}</p>
                                 {chat.isGroup && <p className="crd-subtitle">{`${users?.length} users`}</p>}
                             </div>
                             {chat.isGroup && <Button className='circle' onClick={() => setEditing(true)}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>}
-                        </div>
-                    </ready>
-                    <error></error>
-                </FlowLayout>
+                        </ready>
+                        <error><ErrorAlert /></error>
+                    </FlowLayout>
+                </div>
                 <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y">
                     {isNextVisible && <Button onClick={() => getMessages()}>Get Previous Messages...</Button>}
                     {messages.length === 0 && <EmptyMessages />}

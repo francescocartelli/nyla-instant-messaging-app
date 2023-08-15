@@ -89,7 +89,7 @@ function UsersSearchList({ onRenderItem = () => { } }) {
                 userSearchFlow.setReady()
             }}
             onError={(err) => userSearchFlow.setError()} />
-        <UserList users={users} flowState={userSearchFlow.toString()}
+        <UserList users={users} flowState={userSearchFlow.get()}
             onRenderItem={onRenderItem}
             onEmpty={() => userSearch === "" ? <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
                 <Person className="size-2 fore-2" />

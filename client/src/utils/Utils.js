@@ -10,7 +10,7 @@ var colorHash = new ColorHash({
 })
 
 function sleep(delay) {
-    return new Promise(res => setTimeout(res, delay));
+    return new Promise(res => setTimeout(res, delay))
 }
 
 const getColor = (text, opacity = '80') => {
@@ -18,28 +18,15 @@ const getColor = (text, opacity = '80') => {
 }
 
 const states = {
-    loading: 0,
-    ready: 1,
-    error: 2
+    loading: 'loading',
+    ready: 'ready',
+    error: 'error'
 }
 
-const FlowState = () => {
-    const [state, setState] = useState(states.loading)
+const FlowState = (initial = states.loading) => {
+    const [state, setState] = useState(initial)
 
     const get = () => { return state }
-
-    const toString = () => {
-        switch (state) {
-            case 0:
-                return 'loading'
-            case 1:
-                return 'ready'
-            case 2:
-                return 'error'
-            default:
-                return 'error'
-        }
-    }
 
     const isLoading = () => { return state === states.loading }
     const isReady = () => { return state === states.ready }
