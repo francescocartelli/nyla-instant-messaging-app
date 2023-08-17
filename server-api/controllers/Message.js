@@ -28,7 +28,7 @@ exports.getMessages = async (req, res) => {
 
         const messages = await messageServices.getMessages(idChat, cursor)
         const length = messages.length
-        let next = undefined
+        let next = null
         if (length > 0) next = messages[length - 1].id.toString()
 
         res.json(pagingMessage(messages, idChat, next))

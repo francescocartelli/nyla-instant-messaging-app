@@ -2,10 +2,12 @@ const { ObjectId } = require("mongodb")
 
 const { pagingChat } = require.main.require("./components/Chat")
 const { getPage } = require.main.require("./components/utils")
+const { mqDeleteChat } = require.main.require("./components/Redis")
 
 const chatServices = require.main.require('./services/Chat')
 const messagesServices = require.main.require("./services/Message")
 const usersServices = require.main.require("./services/User")
+const { sendToUsers } = require.main.require('./services/Redis')
 
 exports.getChat = async (req, res) => {
     try {
@@ -95,7 +97,10 @@ exports.deleteChat = async (req, res) => {
 
         const { deletedCount } = await chatServices.deleteChat(id)
 
-        if (deletedCount > 0) res.end()
+        if (deletedCount > 0) {
+            await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteChat({ chat: id })))
+            res.end()
+        }
         else res.status(304).json("No chat was deleted")
     } catch (err) {
         console.log(err)

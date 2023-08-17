@@ -11,3 +11,10 @@ exports.mqDeleteMessage = function (message) {
         data: message
     }
 }
+
+exports.mqDeleteChat = function (chat) {
+    return {
+        type: "CHAT_DELETE",
+        data: chat
+    }
+}

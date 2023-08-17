@@ -3,6 +3,7 @@ const { useEffect, createContext, useRef } = require("react")
 const channelTypes = {
     createMessageInChat: (idChat) => { return `MESSAGE_CREATE_${idChat}` },
     deleteMessageInChat: (idChat) => { return `MESSAGE_DELETE_${idChat}` },
+    deleteChat: (idChat) => { return `CHAT_DELETE_${idChat}` },
     createMessage: () => { return 'MESSAGE_CREATE' }
 }
 

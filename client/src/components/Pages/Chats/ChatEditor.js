@@ -1,13 +1,15 @@
 import { useState } from "react"
-import { Check2, Hourglass, Lock, Pencil, Person, PersonFill, Square, Unlock, X, XCircle } from "react-bootstrap-icons"
-import { redirect } from "react-router-dom"
+import { Check, Check2, ChevronDown, ChevronUp, Hourglass, Lock, Pencil, Person, PersonFill, Square, TrashFill, Unlock, X, XCircle } from "react-bootstrap-icons"
+import { useNavigate } from "react-router-dom"
 
 import { Button } from "components/Common/Buttons"
 import { Text } from "components/Common/Inputs"
 import { UserList, UsersSearchList } from "components/Pages/Users/Users"
-import { sleep } from "utils/Utils"
+import { FlowState } from "utils/Utils"
 
 import chatAPI from "api/chatAPI"
+import { FlowLayout } from "components/Common/Layout"
+import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 
 function UserCard({ user, onClick, onRemove, isSelected }) {
     const [isLoading, setLoading] = useState(false)
@@ -27,13 +29,17 @@ function UserCard({ user, onClick, onRemove, isSelected }) {
     </div>
 }
 
-function ChatEditor({user, chat, setChat, users, setUsers, close }) {
+function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) {
     const [chatName, setChatName] = useState(chat?.name)
 
     const [isSearchVisible, setSearchVisible] = useState(false)
 
     const [isEditingChat, setEditingChat] = useState(false)
     const [isEditingUsers, setEditingUsers] = useState(false)
+    const [isAdvancedSettings, setAdvancedSettings] = useState(false)
+    const [isDeletingChat, setDeletingChat] = useState(false)
+
+    const deleteFlow = FlowState('ready')
 
     const add = async (u, setLoading) => {
         setLoading(true)
@@ -51,7 +57,18 @@ function ChatEditor({user, chat, setChat, users, setUsers, close }) {
         }).catch(err => console.log(err))
     }
 
-    return <div className="d-flex flex-column flex-grow-1 gap-3">
+    const deleteChat = () => {
+        deleteFlow.setLoading()
+        chatAPI.deleteChat(chat.id).then(() => {
+            // no need to redirect here, await websocket message
+            deleteFlow.setReady()
+        }).catch(err => {
+            deleteFlow.setError()
+            console.log(err)
+        })
+    }
+
+    return <div className="d-flex flex-column flex-grow-1 gap-3 scroll-y h-0">
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
                 <p className="crd-title flex-grow-1">Edit chat:</p>
@@ -100,6 +117,27 @@ function ChatEditor({user, chat, setChat, users, setUsers, close }) {
                     <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>
                 </div>} />
         </>}
+        <div className="d-flex flex-column card-1 gap-2 ">
+            <FlowLayout state={deleteFlow.get()}>
+                <loading><LoadingAlert /></loading>
+                <ready>
+                    <div className="d-flex flex-row gap-2 align-items-center">
+                        <p className="crd-title flex-grow-1">Advanced Settings:</p>
+                        {isAdvancedSettings ?
+                            <Button onClick={() => setAdvancedSettings(false)}><ChevronUp className="fore-2-btn size-1" /></Button> :
+                            <Button onClick={() => setAdvancedSettings(true)}><ChevronDown className="fore-2-btn size-1" /></Button>
+                        }
+                    </div>
+                    {isAdvancedSettings && <div className="d-flex flex-row gap-2">
+                        {isDeletingChat ? <>
+                            <Button className="flex-grow-1" onClick={() => deleteChat()}>Confirm Delete <Check className="fore-danger size-1" /></Button>
+                            <Button className="flex-grow-1" onClick={() => setDeletingChat(false)}>Cancel Delete <X className="fore-2-btn size-1" /></Button>
+                        </> : <Button className="flex-grow-1" onClick={() => setDeletingChat(true)}>Delete Chat <TrashFill className="fore-danger size-1" /></Button>}
+                    </div>}
+                </ready>
+                <error><ErrorAlert /></error>
+            </FlowLayout>
+        </div>
     </div>
 }
 
@@ -109,11 +147,12 @@ function NewChatEditor({ user }) {
     const [isSearchVisible, setSearchVisible] = useState(false)
     const [isLoading, setLoading] = useState(false)
 
+    const navigate = useNavigate()
+
     const submit = () => {
-        sleep(3000)
         setLoading(true)
         chatAPI.createChat(chat).then((chat) => {
-            redirect(`/chats/${chat.id}`)
+            navigate(`/chats/${chat.id}`)
         }).catch(err => {
             setLoading(false)
         })
@@ -128,7 +167,7 @@ function NewChatEditor({ user }) {
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
                 <p className="crd-title flex-grow-1">Edit chat:</p>
-                <Button className='circle' onClick={() => { redirect('/chats') }}><X className="fore-2-btn size-1" /></Button>
+                <Button className='circle' onClick={() => { navigate('/chats') }}><X className="fore-2-btn size-1" /></Button>
             </div>
             <div className="d-flex flex-row gap-2">
                 <Text className="flex-grow-1" placeholder="Group name..." value={chat.name}

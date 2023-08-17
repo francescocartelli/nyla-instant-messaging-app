@@ -22,8 +22,9 @@ exports.messageProj = {
     _id: 0,
     id: '$_id',
     chat: { $concat: ["/api/chats/", { $toString: "$chat" }] },
+    idChat: "$chat",
     sender: { $concat: ["/api/users/", { $toString: "$sender" }] },
-    senderId: "$sender",
+    idSender: "$sender",
     content: 1,
     createdAt: 1
 }

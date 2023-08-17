@@ -11,7 +11,9 @@ function Text({ left, right, className = "", ...props }) {
 }
 
 function TextArea({ left, right, maxRows = 1, className = "", ...props }) {
-    return <div className={`input-wrap ${className}`}>
+    const disabled = props.disabled || props.readOnly ? ' disabled' : ''
+
+    return <div className={`input-wrap ${className} ${disabled}`}>
         {left}
         <textarea {...props}></textarea>
         {right}

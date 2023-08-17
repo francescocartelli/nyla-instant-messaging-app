@@ -89,6 +89,10 @@
     resize: none;
 }
 
+.input-wrap.disabled textarea {
+    color: #ffffffa0;
+}
+
 .input-wrap textarea:focus {
     border: 0;
     -webkit-appearance: none;

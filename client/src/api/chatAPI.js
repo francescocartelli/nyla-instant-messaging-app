@@ -109,6 +109,18 @@ async function deleteMessage(idChat, idMessage) {
     }
 }
 
-const chatAPI = { getChatPersonal, getChat, getChatUsers, getMessages, sendMessage, createChat, updateChat, addUserChat, removeUserChat, deleteMessage }
+async function deleteChat(idChat) {
+    const response = await fetch(`/api/chats/${idChat}`, {
+        method: 'DELETE'
+    })
+
+    if (response.ok) return true
+    else {
+        const error = await response.json()
+        return new Error(error.message)
+    }
+}
+
+const chatAPI = { getChatPersonal, getChat, getChatUsers, getMessages, sendMessage, createChat, updateChat, addUserChat, removeUserChat, deleteMessage, deleteChat }
 
 export default chatAPI
