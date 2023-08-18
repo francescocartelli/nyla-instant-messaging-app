@@ -31,24 +31,27 @@ function UserCard({ user, currentUser, onRedirect }) {
     </div>
 }
 
-function UsersSearchInput({ value, onChange, onLoading, onReady, onError }) {
+function UsersSearchInput({ value, onChange, onLoading, onReady, onError, debounceDelay = 1000 }) {
     const [userSearchDebounce, setUserSearchDebounce] = useState(null)
 
     useEffect(() => {
-        onLoading()
-        if (value === "") {
-            onReady([])
-            return
+        const controller = new AbortController()
+        
+        let timeoutId = null
+        if (userSearchDebounce) clearTimeout(userSearchDebounce)
+        if (value === "") onReady([])
+        else {
+            onLoading()
+            timeoutId = setTimeout(() => {
+                userAPI.getUsers(value, { signal: controller.signal }).then((u) => onReady(u)).catch(err => onError(err))
+            }, debounceDelay)
+            setUserSearchDebounce(timeoutId)
         }
 
-        if (userSearchDebounce) clearTimeout(userSearchDebounce)
-        setUserSearchDebounce(setTimeout(() => {
-            userAPI.getUsers(value).then((u) => {
-                onReady(u)
-            }).catch(err => {
-                onError(err)
-            })
-        }, 1000))
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId)
+            controller?.abort()
+        }
     }, [value])
 
     return <div className="d-flex flex-row gap-2" >
@@ -88,7 +91,10 @@ function UsersSearchList({ onRenderItem = () => { } }) {
                 setUsers(u)
                 userSearchFlow.setReady()
             }}
-            onError={(err) => userSearchFlow.setError()} />
+            onError={(err) => {
+                console.log(err)
+                userSearchFlow.setError()
+            }} />
         <UserList users={users} flowState={userSearchFlow.get()}
             onRenderItem={onRenderItem}
             onEmpty={() => userSearch === "" ? <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
@@ -109,7 +115,7 @@ function UsersSearch({ user }) {
     }
 
     return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2">
-        <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u} currentUser={user} onRedirect={onRedirect}/>} />
+        <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u} currentUser={user} onRedirect={onRedirect} />} />
     </div>
 }
 

@@ -1,20 +1,22 @@
-exports.mqCreateMessage = function (message) {
+exports.mqCreateMessage = function ({ id, sender, chat, content }) {
     return {
         type: "MESSAGE_CREATE",
-        data: message
+        chat: chat,
+        message: { id: id, idSender: sender, idChat: chat, content: content }
     }
 }
 
-exports.mqDeleteMessage = function (message) {
+exports.mqDeleteMessage = function ({ id, sender, chat, content }) {
     return {
         type: "MESSAGE_DELETE",
-        data: message
+        chat: chat,
+        message: { id: id, idSender: sender, idChat: chat, content: content }
     }
 }
 
-exports.mqDeleteChat = function (chat) {
+exports.mqDeleteChat = function ({ chat }) {
     return {
         type: "CHAT_DELETE",
-        data: chat
+        chat: chat
     }
 }

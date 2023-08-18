@@ -52,7 +52,7 @@ function MessageCard({ id, message, user, prev, users }) {
     const [date, time] = getDateAndTime(message?.createdAt)
     const [prevDate] = prev ? getDateAndTime(prev.createdAt) : [null, null]
 
-    const isFromOther = !message.sender.includes(user.id)
+    const isFromOther = user.id !== message.idSender
     const changedSender = prev ? message.sender.toString() !== prev.sender.toString() : true
     const alignment = isFromOther ? 'left' : 'right'
     const senderUsername = users.find(i => i.id === message.idSender)?.username
@@ -82,7 +82,7 @@ function EmptyMessages() {
     return <div className="d-flex justify-content-center align-items-center flex-grow-1">
         <div className="card-1">
             <p className="text-center m-0"><b>Wow, such an empty!</b></p>
-            <p className="text-center crd-subtitle">All the exhcnaged messages will be shown here!</p>
+            <p className="text-center crd-subtitle">All the exchanged messages will be shown here!</p>
         </div>
     </div>
 }
@@ -103,11 +103,10 @@ function Chat({ user }) {
     const [isEditing, setEditing] = useState(false)
 
     const lastRef = useRef(null)
-    const scrollToLast = () => { lastRef.current?.scrollIntoView() }
-
     const [subscribe, unsubscribe] = useContext(WebSocketContext)
-
     const navigate = useNavigate()
+
+    const scrollToLast = () => { lastRef.current?.scrollIntoView() }
 
     const getMessages = () => {
         setNextDisabled(true)
@@ -152,10 +151,10 @@ function Chat({ user }) {
 
     useEffect(() => {
         const channelCreateMessage = channelTypes.createMessageInChat(id)
-        subscribe(channelCreateMessage, (message) => setMessages(p => [...p, message]))
+        subscribe(channelCreateMessage, ({ message }) => setMessages(p => [...p, message]))
 
         const channelDeleteMessage = channelTypes.deleteMessageInChat(id)
-        subscribe(channelDeleteMessage, (message) => setMessages(p => p.filter(i => i.id !== message.id)))
+        subscribe(channelDeleteMessage, ({ message }) => setMessages(p => p.filter(i => i.id !== message.id)))
 
         const channelDeleteChat = channelTypes.deleteChat(id)
         subscribe(channelDeleteChat, () => navigate('/chats'))

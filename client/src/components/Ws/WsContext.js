@@ -22,7 +22,6 @@ function WebSocketProvider({ children, user }) {
     }
 
     useEffect(() => {
-        //console.log("useEffect: WebSocketProvider")
         if (!user) {
             // if user is absent ws cannot be opened
             // if ws is open a logout was performed => close ws
@@ -33,8 +32,8 @@ function WebSocketProvider({ children, user }) {
         ws.current.onopen = () => { console.log('WS open') }
         ws.current.onclose = () => { console.log('WS close') }
         ws.current.onmessage = (message) => {
-            const { type, data } = JSON.parse(message.data)
-            const chatChannel = `${type}_${data.chat}`
+            const { type, chat, ...data } = JSON.parse(message.data)
+            const chatChannel = `${type}_${chat}`
             // lookup for a listening (is rendered) chat on message create or delete
             // if no chat is listening (is rendered) send message into generic channel for push mechanism
             if (channels.current[chatChannel]) channels.current[chatChannel](data)

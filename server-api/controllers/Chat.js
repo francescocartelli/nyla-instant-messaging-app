@@ -25,12 +25,20 @@ exports.getChatsPersonal = async (req, res) => {
     try {
         const { id } = req.user
         const page = getPage(req.query.page)
+        const user = req.user
 
-        const [chats, nPages] = await Promise.all([
+        let [chats, nPages] = await Promise.all([
             chatServices.getChatsPersonal(id.toString(), page),
             chatServices.countChatsPages(id.toString())
         ])
-
+        // get names for non group chat
+        // consider username denormalization better performance
+        chats = await Promise.all(chats.map(async ({name, idUsers, ...c}) => {
+            const userIdForUsername = idUsers.find(u => u !== user.id)
+            const n = c.isGroup ? name : (await usersServices.getUser(userIdForUsername)).username
+            return {...c, name: n}
+        }))
+        
         res.json(pagingChat(page, nPages, chats))
     } catch (err) {
         console.log(err)
@@ -56,9 +64,7 @@ exports.createChat = async (req, res) => {
             const results = await chatServices.checkChatExistence(chat.users)
             if (results) return res.json({ id: results.id })
         }
-
         const { insertedId } = await chatServices.createChat(chat)
-
         if (insertedId) res.json({ id: insertedId })
         else res.status(304).json("No data has been created")
     } catch (err) {
@@ -76,7 +82,6 @@ exports.updateChat = async (req, res) => {
         if (!chat.isGroup) return res.status(409).json("Only group chats can change name")
 
         const { modifiedCount } = await chatServices.updateChat(id, chatUpdate)
-
         if (modifiedCount) res.end()
         else res.status(304).json("No data has been modified")
     } catch (err) {
@@ -92,11 +97,9 @@ exports.deleteChat = async (req, res) => {
         // cannot perform bulk operation on multiple collections
         // first delete messages
         const { acknowledged } = await messagesServices.deleteMessages(id)
-
         if (!acknowledged) return res.status(304).json("No messages were deleted")
 
         const { deletedCount } = await chatServices.deleteChat(id)
-
         if (deletedCount > 0) {
             await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteChat({ chat: id })))
             res.end()

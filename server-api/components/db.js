@@ -2,7 +2,7 @@ const { MongoClient } = require('mongodb')
 
 require('dotenv').config()
 
-const uri = process.env.DATABASE_URI
+const url = process.env.DATABASE_URL
 const options = { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000, serverSelectionTimeoutMS: 5000 }
 
 let _db
@@ -10,7 +10,7 @@ let _db
 module.exports = {
     connect: async (callback) => {
         try {
-            const client = await MongoClient.connect(uri, options)
+            const client = await MongoClient.connect(url, options)
             _db = client.db(process.env.DATABASE_NAME)
 
             console.log("Connected to Mongodb!")

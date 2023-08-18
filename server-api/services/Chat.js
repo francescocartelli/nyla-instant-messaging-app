@@ -21,7 +21,7 @@ exports.getChat = function (idChat, project = true) {
 
 exports.getChatsPersonal = function (idUser, page = 1) {
     return db.collection(db.collections.chat)
-        .find({ users: { $in: [new ObjectId(idUser)] } }, { projection: chatProj })
+        .find({ users: { $in: [new ObjectId(idUser)] } }, { projection: {...chatProj, idUsers: '$users'} })
         .sort({ updatedAt: -1 }).limit(db.configs.CHATS_PER_PAGE)
         .skip(db.configs.CHATS_PER_PAGE * (page - 1)).toArray()
 }

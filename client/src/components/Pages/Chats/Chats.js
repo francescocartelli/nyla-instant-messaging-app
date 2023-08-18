@@ -46,7 +46,6 @@ function PersonalChats() {
 
     useEffect(() => {
         const controller = new AbortController()
-
         chatAPI.getChatPersonal(chatsPage, { signal: controller.signal }).then(({ page, nPages, chats }) => {
             chatsFlow.setReady()
             setChatsNPages(nPages)
@@ -55,17 +54,19 @@ function PersonalChats() {
             chatsFlow.setError()
             console.log(err)
         })
-
-        return () => { controller?.abort() }
+        return () => {
+            controller?.abort()
+            setChats([])
+        }
     }, [chatsPage])
 
     return <div className="d-flex flex-column gap-3 mt-2 mb-2 align-self-stretch flex-grow-1 scroll-y h-0">
         <NewChatButton />
         <div className="d-flex flex-column gap-3 flex-grow-1">
             <FlowLayout state={chatsFlow.get()}>
-                <loading><LoadingAlert/></loading>
+                <loading><LoadingAlert /></loading>
                 <ready>{chats.map(chat => <ChatCard key={chat.id} chat={chat} />)}</ready>
-                <error><ErrorAlert/></error>
+                <error><ErrorAlert /></error>
             </FlowLayout>
         </div>
         <div className="align-self-center">

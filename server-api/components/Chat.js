@@ -1,6 +1,6 @@
 const { ObjectId } = require("mongodb")
 
-exports.newChat = function ({name, users, isGroup}) {
+exports.newChat = function ({ name, users, isGroup }) {
     return {
         name: isGroup ? name : null,
         users: users.map(u => new ObjectId(u)),
