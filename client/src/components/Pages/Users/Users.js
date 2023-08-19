@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Chat, Person, PersonFill, PersonXFill, Search, XCircleFill } from "react-bootstrap-icons"
-import { redirect } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 import './Users.css'
 
@@ -15,19 +15,25 @@ import userAPI from 'api/userAPI'
 import chatAPI from "api/chatAPI"
 
 function UserCard({ user, currentUser, onRedirect }) {
+    const [isLoading, setLoading] = useState(false)
+
     return <div className="row-center card-1">
         <div className="crd-icon"><PersonFill className="fore-2 size-2" /></div>
         <div className="d-flex flex-column flex-grow-1">
             <p className="crd-title">{user.username}</p>
             <p className="crd-subtitle c-gray"><i>{user.bio}</i></p>
         </div>
-        <Button onClick={() => {
+        {user.id !== currentUser.id ?<Button isDisabled={isLoading} onClick={() => {
+            setLoading(true)
             chatAPI.createChat({ name: null, users: [user, currentUser], isGroup: false }).then(chat => {
                 onRedirect(chat.id)
-            }).catch(err => console.log(err))
+            }).catch(err => {
+                console.log(err)
+                setLoading(false)
+            })
         }}>
-            <Chat className="size-2 fore-2-btn" />
-        </Button>
+            open chat <Chat className="size-2 fore-2-btn" />
+        </Button> : <div className="card-2"><p className="fore-2 m-0">You</p></div>}
     </div>
 }
 
@@ -110,8 +116,10 @@ function UsersSearchList({ onRenderItem = () => { } }) {
 }
 
 function UsersSearch({ user }) {
+    const navigate = useNavigate()
+
     const onRedirect = (idChat) => {
-        redirect(`/chats/${idChat}`)
+        navigate(`/chats/${idChat}`)
     }
 
     return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2">

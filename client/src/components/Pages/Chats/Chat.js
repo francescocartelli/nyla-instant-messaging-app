@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Check2, ChevronRight, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
+import { Check2, ChevronRight, Hourglass, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
 
 import './Chats.css'
 
@@ -48,31 +48,40 @@ function DateLabel({ date }) {
 
 function MessageCard({ id, message, user, prev, users }) {
     const [isExpanded, setExpanded] = useState(false)
+    const [isDeleting, setDeleting] = useState(false)
 
     const [date, time] = getDateAndTime(message?.createdAt)
     const [prevDate] = prev ? getDateAndTime(prev.createdAt) : [null, null]
 
     const isFromOther = user.id !== message.idSender
-    const changedSender = prev ? message.sender.toString() !== prev.sender.toString() : true
-    const alignment = isFromOther ? 'left' : 'right'
+    const changedSender = prev ? message.idSender?.toString() !== prev.idSender?.toString() : true
     const senderUsername = users.find(i => i.id === message.idSender)?.username
-    const gap = changedSender ? 'mt-2' : ''
 
     const deleteMessage = () => {
-        chatAPI.deleteMessage(id, message.id).then(() => { }).catch(err => console.log(err))
+        setDeleting(true)
+        chatAPI.deleteMessage(id, message.id).then().catch(err => {
+            setDeleting(false)
+            console.log(err)
+        })
+    }
+
+    const DeleteMessage = () => {
+        return <>
+            {isExpanded ? <>
+                {isDeleting ? <Hourglass className="fore-2" /> : <TrashFill className="fore-2-btn" onClick={() => deleteMessage()} />}
+                <ChevronRight onClick={() => setExpanded(false)} className="fore-2-btn" />
+            </> : <ThreeDots onClick={() => setExpanded(true)} className="fore-2-btn" />}
+        </>
     }
 
     return <>
         {date !== prevDate && <DateLabel date={date} />}
-        <div className={`d-flex flex-column card-1 limit-width ${alignment} ${gap}`}>
+        <div className={`d-flex flex-column card-1 crd-min-w limit-width ${isFromOther ? 'left' : 'right'} ${changedSender ? 'mt-2' : ''}`}>
             {isFromOther && changedSender && <p className="crd-title-small fore-2">{senderUsername}</p>}
             <p className="m-0">{message.content}</p>
             <div className="d-flex flex-row gap-1 align-items-center">
                 <p className="crd-subtitle pr-2 flex-grow-1">{time}</p>
-                {isExpanded ? <>
-                    <TrashFill className="fore-2-btn" onClick={() => deleteMessage()} />
-                    <ChevronRight onClick={() => setExpanded(false)} className="fore-2-btn" />
-                </> : <ThreeDots onClick={() => setExpanded(true)} className="fore-2-btn" />}
+                {!isFromOther && <DeleteMessage />}
             </div>
         </div>
     </>
@@ -151,7 +160,10 @@ function Chat({ user }) {
 
     useEffect(() => {
         const channelCreateMessage = channelTypes.createMessageInChat(id)
-        subscribe(channelCreateMessage, ({ message }) => setMessages(p => [...p, message]))
+        subscribe(channelCreateMessage, ({ message }) => {
+            console.log(message)
+            setMessages(p => [...p, message])
+        })
 
         const channelDeleteMessage = channelTypes.deleteMessageInChat(id)
         subscribe(channelDeleteMessage, ({ message }) => setMessages(p => p.filter(i => i.id !== message.id)))
@@ -181,7 +193,7 @@ function Chat({ user }) {
                                 <p className="crd-title">{getChatName()}</p>
                                 {chat.isGroup && <p className="crd-subtitle">{`${users?.length} users`}</p>}
                             </div>
-                            {chat.isGroup && <Button className='circle' onClick={() => setEditing(true)}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>}
+                            <Button className='circle' onClick={() => setEditing(true)}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
                         </ready>
                         <error><ErrorAlert /></error>
                     </FlowLayout>

@@ -25,6 +25,10 @@
     border-radius: 1.5em;
 }
 
+.crd-min-w {
+    min-width: 100px;
+}
+
 .limit-width {
     width: fit-content;
     max-width: 60%;

@@ -60,11 +60,16 @@ exports.createMessage = async (req, res) => {
 
 exports.deleteMessage = async (req, res) => {
     try {
-        const [idChat, idMessage] = [req.params.id, req.params.idm]
+        const [idChat, idMessage, user] = [req.params.id, req.params.idm, req.user]
+
+        const message = await messageServices.getMessage(idChat, idMessage)
+        if (!message) return res.status(404).json("Message not found with specified ids")
+        else if (message.idSender.toString() !== user.id.toString()) return res.status(401).json("Only the sender can delete the message")
+
         const { deletedCount } = await messageServices.deleteMessage(idChat, idMessage)
         if (deletedCount > 0) {
             // send message on mq
-            await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteMessage({ id: idMessage, chat: idChat})))
+            await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteMessage({ id: idMessage, chat: idChat })))
             res.end()
         } else res.status(304).json("No data has been deleted")
     } catch (err) {

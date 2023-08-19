@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "{APPNAME}",
-    "description": "REST APIs for interaction with {APPNAME}.",
+    "title": "Nyla - Instant Messaging App",
+    "description": "REST APIs for interaction with Nyla.",
     "termsOfService": "http://swagger.io/terms/",
     "license": {
       "name": "Apache 2.0",
@@ -64,7 +64,7 @@
                       "messages": "/api/chats/64cf2f4f8c8b0b38cc2a1fbb/messages"
                     },
                     {
-                      "name": null,
+                      "name": "Mark",
                       "isGroup": false,
                       "id": "64cb9ef64e37fe6678b19d13",
                       "users": "/api/chats/64cb9ef64e37fe6678b19d13/users",
@@ -990,7 +990,7 @@
         }
       }
     },
-    "/api/users/authenticate/signup": {
+    "/api/authenticate/signup": {
       "post": {
         "tags": [
           "authenticate"
@@ -1046,7 +1046,7 @@
         }
       }
     },
-    "/api/users/authenticate/signin": {
+    "/api/authenticate/signin": {
       "post": {
         "tags": [
           "authenticate"
@@ -1105,7 +1105,7 @@
         }
       }
     },
-    "/api/users/authenticate/logout": {
+    "/api/authenticate/logout": {
       "post": {
         "tags": [
           "authenticate"

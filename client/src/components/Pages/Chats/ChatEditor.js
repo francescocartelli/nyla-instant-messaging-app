@@ -34,6 +34,7 @@ function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) 
 
     const [isSearchVisible, setSearchVisible] = useState(false)
 
+    const [isUpdating, setUpdating] = useState(false)
     const [isEditingChat, setEditingChat] = useState(false)
     const [isEditingUsers, setEditingUsers] = useState(false)
     const [isAdvancedSettings, setAdvancedSettings] = useState(false)
@@ -61,7 +62,6 @@ function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) 
         deleteFlow.setLoading()
         chatAPI.deleteChat(chat.id).then(() => {
             // no need to redirect here, await websocket message
-            deleteFlow.setReady()
         }).catch(err => {
             deleteFlow.setError()
             console.log(err)
@@ -71,10 +71,10 @@ function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) 
     return <div className="d-flex flex-column flex-grow-1 gap-3 scroll-y h-0">
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
-                <p className="crd-title flex-grow-1">Edit chat:</p>
+                <p className="crd-title flex-grow-1">Settings:</p>
                 <Button className='circle' onClick={() => close()}><X className="fore-2-btn size-1" /></Button>
             </div>
-            <div className="d-flex flex-row gap-2">
+            {chat.isGroup && <div className="d-flex flex-row gap-2">
                 <Text className="flex-grow-1" placeholder="Group name..." disabled={!isEditingChat} value={chatName} onChange={(ev) => { setChatName(ev.target.value) }} />
                 <div>{isEditingChat ?
                     <div className="d-flex flex-row gap-2">
@@ -82,41 +82,48 @@ function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) 
                             setEditingChat(false)
                             setChatName(chat.name)
                         }}><XCircle className="fore-2-btn size-1" /></Button>
-                        <Button onClick={() => {
+                        <Button isDisabled={isUpdating} onClick={() => {
+                            setUpdating(true)
                             chatAPI.updateChat(chat.id, { name: chatName }).then(() => {
+                                setUpdating(false)
                                 setChat(p => { return { ...p, name: chatName } })
                                 setEditingChat(false)
-                            }).catch(() => console.log("error"))
+                            }).catch((err) => {
+                                setUpdating(false)
+                                setEditingChat(false)
+                                console.log(err)
+                            })
                         }}><Check2 className="fore-2-btn size-1" /></Button>
                     </div> : <Button onClick={() => setEditingChat(true)}><Pencil className="fore-2-btn size-1" /></Button>
                 }</div>
+            </div>}
+        </div>
+        {chat.isGroup &&<>
+            <div className="d-flex flex-row gap-2 card-1 align-items-center">
+                <p className="crd-title flex-grow-1">Users in chat: {users?.length}</p>
+                {isEditingUsers ?
+                    <Button onClick={() => { setEditingUsers(false) }}><Unlock className="fore-2 size-1" /></Button> :
+                    <Button onClick={() => { setEditingUsers(true) }}><Lock className="fore-2 size-1" /></Button>}
             </div>
-        </div>
-        <div className="d-flex flex-row gap-2 card-1 align-items-center">
-            <p className="crd-title flex-grow-1">Users in chat: {users?.length}</p>
-            {isEditingUsers ?
-                <Button onClick={() => { setEditingUsers(false) }}><Unlock className="fore-2 size-1" /></Button> :
-                <Button onClick={() => { setEditingUsers(true) }}><Lock className="fore-2 size-1" /></Button>}
-        </div>
-        {isEditingUsers && <Button onClick={() => setSearchVisible(p => !p)}>{
-            isSearchVisible ? 'Show users...' : 'Search users...'
-        }</Button>}
-        {isSearchVisible && <>
-            <UsersSearchList onRenderItem={(u) => {
-                const isSelected = users.find(i => i.id === u.id)
-                return <UserCard key={u.id} user={u} isSelected={isSelected} onClick={isSelected ? remove : add} />
-            }} /></>}
-        {!isSearchVisible && <>
-            <UserList users={users} flowState={'ready'} initialCondition={true}
-                onRenderItem={(u) => {
-                    const isUser = user.id === u.id
-                    return <UserCard key={u.id} user={u} onRemove={isEditingUsers && !isUser ? remove : false} />
-                }}
-                onEmpty={() => <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
-                    <Person className="size-2 fore-2" />
-                    <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>
-                </div>} />
-        </>}
+            {isEditingUsers && <Button onClick={() => setSearchVisible(p => !p)}>{
+                isSearchVisible ? 'Show users...' : 'Search users...'
+            }</Button>}
+            {isSearchVisible && <>
+                <UsersSearchList onRenderItem={(u) => {
+                    const isSelected = users.find(i => i.id === u.id)
+                    return <UserCard key={u.id} user={u} isSelected={isSelected} onClick={isSelected ? remove : add} />
+                }} /></>}
+            {!isSearchVisible && <>
+                <UserList users={users} flowState={'ready'} initialCondition={true}
+                    onRenderItem={(u) => {
+                        const isUser = user.id === u.id
+                        return <UserCard key={u.id} user={u} onRemove={isEditingUsers && !isUser ? remove : false} />
+                    }}
+                    onEmpty={() => <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
+                        <Person className="size-2 fore-2" />
+                        <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>
+                    </div>} />
+            </>}</>}
         <div className="d-flex flex-column card-1 gap-2 ">
             <FlowLayout state={deleteFlow.get()}>
                 <loading><LoadingAlert /></loading>
@@ -166,7 +173,7 @@ function NewChatEditor({ user }) {
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-3 mt-2">
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
-                <p className="crd-title flex-grow-1">Edit chat:</p>
+                <p className="crd-title flex-grow-1">Create a new chat:</p>
                 <Button className='circle' onClick={() => { navigate('/chats') }}><X className="fore-2-btn size-1" /></Button>
             </div>
             <div className="d-flex flex-row gap-2">

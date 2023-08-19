@@ -6,7 +6,7 @@ import './App.css'
 import 'styles/style.css'
 import 'styles/colors.css'
 
-import { IsNotLogged } from 'components/Common/Barriers'
+import { IsLogged, IsNotLogged } from 'components/Common/Barriers'
 
 import { Footer } from 'components/UI/Footer/Footer'
 import { Nav } from 'components/UI/Nav/Nav'
@@ -59,9 +59,10 @@ function App() {
             <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>
               <Routes>
                 <Route path="/about" element={<About />} />
-                <Route path="/account" element={<IsNotLogged isWaitingUser={isWaitingUser} user={user}>
-                  <Account setUser={setUser} />
-                </IsNotLogged>} />
+                <Route path="/account" element={<>
+                  <IsNotLogged isWaitingUser={isWaitingUser} user={user}><Account setUser={setUser} /> </IsNotLogged>
+                  <IsLogged isWaitingUser={isWaitingUser} user={user}><Navigate to="/" /></IsLogged>
+                  </>} />
                 <Route path="/chats/new" element={<AuthWall>
                   <NewChatEditor user={user} />
                 </AuthWall>} />
