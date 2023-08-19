@@ -68,13 +68,13 @@ function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) 
         })
     }
 
-    return <div className="d-flex flex-column flex-grow-1 gap-3 scroll-y h-0">
+    return <div className="d-flex flex-column flex-grow-1 gap-3 scroll-y mb-1 h-0">
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
                 <p className="crd-title flex-grow-1">Settings:</p>
                 <Button className='circle' onClick={() => close()}><X className="fore-2-btn size-1" /></Button>
             </div>
-            {chat.isGroup && <div className="d-flex flex-row gap-2">
+            {chat.isGroup && <div className="d-flex flex-row gap-2 align-items-center">
                 <Text className="flex-grow-1" placeholder="Group name..." disabled={!isEditingChat} value={chatName} onChange={(ev) => { setChatName(ev.target.value) }} />
                 <div>{isEditingChat ?
                     <div className="d-flex flex-row gap-2">
@@ -170,7 +170,7 @@ function NewChatEditor({ user }) {
 
     const isInvalid = () => { return chat.users?.length < 2 || chat.name === "" }
 
-    return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-3 mt-2">
+    return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-3 mt-2 mb-1 overflow-">
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
                 <p className="crd-title flex-grow-1">Create a new chat:</p>

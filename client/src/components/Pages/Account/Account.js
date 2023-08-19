@@ -29,7 +29,7 @@ function LoginTab({ signinSuccessful }) {
             loginFlow.setReady()
             signinSuccessful(response)
         }).catch((err) => {
-            loginFlow.setError()
+            loginFlow.setReady()
             setMessage(err.message)
         })
     }

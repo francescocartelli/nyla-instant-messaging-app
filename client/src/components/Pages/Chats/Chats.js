@@ -60,14 +60,16 @@ function PersonalChats() {
         }
     }, [chatsPage])
 
-    return <div className="d-flex flex-column gap-3 mt-2 mb-2 align-self-stretch flex-grow-1 scroll-y h-0">
-        <NewChatButton />
-        <div className="d-flex flex-column gap-3 flex-grow-1">
-            <FlowLayout state={chatsFlow.get()}>
-                <loading><LoadingAlert /></loading>
-                <ready>{chats.map(chat => <ChatCard key={chat.id} chat={chat} />)}</ready>
-                <error><ErrorAlert /></error>
-            </FlowLayout>
+    return <div className="d-flex flex-column gap-2 mt-2 mb-2 align-self-stretch flex-grow-1 ">
+        <div className="d-flex flex-column gap-3 align-self-stretch flex-grow-1 scroll-y h-0">
+            <NewChatButton />
+            <div className="d-flex flex-column gap-2 flex-grow-1">
+                <FlowLayout state={chatsFlow.get()}>
+                    <loading><LoadingAlert /></loading>
+                    <ready>{chats.map(chat => <ChatCard key={chat.id} chat={chat} />)}</ready>
+                    <error><ErrorAlert /></error>
+                </FlowLayout>
+            </div>
         </div>
         <div className="align-self-center">
             <PagesControl page={chatsPage} nPages={chatsNPages}
