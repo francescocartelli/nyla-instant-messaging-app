@@ -6,13 +6,13 @@ import 'styles/style.css'
 
 import { WebSocketContext, channelTypes } from 'components/Ws/WsContext'
 
-function Notification({ notification, onClose, delay = 2000 }) {
+function Notification({ notification, onClose, delay = 4000 }) {
     useState(() => {
         const timeout = setTimeout(() => onClose(), delay)
         return () => clearTimeout(timeout)
     }, [])
 
-    return <div className='d-flex flex-row align-items-center card-2 gap-2 box-glow'>
+    return <div className='d-flex flex-row align-items-center card-1 gap-2 box-glow'>
         <InfoCircle className='fore-2 size-2 flex-shrink-0' />
         <div className='d-flex flex-column flex-grow-1' style={{ minWidth: 0 }}>
             <p className='crd-subtitle text-truncate'>{notification.title}</p>
@@ -34,11 +34,13 @@ function PushContainer({ maxNoticationsN = 4 }) {
 
     useEffect(() => {
         const channelDefault = channelTypes.createMessage()
-        subscribe(channelDefault, ({ message }) => addNotification({
-            id: message.id,
-            title: `Message from ${message.sender}`,
-            text: message.content
-        }))
+        subscribe(channelDefault, ({ message }) => {
+            addNotification({
+                id: message.id,
+                title: message.chatName ? `Message from ${message.senderUsername} in ${message.chatName}` : `Message from ${message.senderUsername}`,
+                text: message.content
+            })
+        })
         return () => { unsubscribe(channelDefault) }
     }, [])
 

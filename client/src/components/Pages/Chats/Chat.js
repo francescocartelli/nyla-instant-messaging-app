@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Check2, ChevronRight, Hourglass, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
+import { ArrowDown, Check2, ChevronRight, Hourglass, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
 
 import './Chats.css'
 
@@ -110,6 +110,7 @@ function Chat({ user }) {
     const [isNextDisabled, setNextDisabled] = useState(false)
     const cursor = useRef(null)
     const [isEditing, setEditing] = useState(false)
+    const [isNewMessages, setnewMessages] = useState(false)
 
     const lastRef = useRef(null)
     const [subscribe, unsubscribe] = useContext(WebSocketContext)
@@ -162,6 +163,7 @@ function Chat({ user }) {
         const channelCreateMessage = channelTypes.createMessageInChat(id)
         subscribe(channelCreateMessage, ({ message }) => {
             console.log(message)
+            setnewMessages(true)
             setMessages(p => [...p, message])
         })
 
@@ -215,7 +217,20 @@ function Chat({ user }) {
                         <error><ErrorAlert /></error>
                     </FlowLayout>
                 </div>
-                <MessageEditor id={id} scrollTo={scrollToLast} />
+                <div className="rel">
+                    {isNewMessages && <div className="d-flex justify-content-center align-items-center flex-grow-1 new-messages-wrapper">
+                        <Button onClick={() => {
+                            setnewMessages(false)
+                            scrollToLast()
+                        }} className="card-1 d-flex flex-row gap-2 box-glow">
+                            <ArrowDown className="fore-2 size-1" />
+                            <p className="text-center m-0">New Messages!</p>
+                            <ArrowDown className="fore-2 size-1" />
+                        </Button>
+                    </div>}
+                    <MessageEditor id={id} scrollTo={scrollToLast} />
+
+                </div>
             </>}
     </div>
 }

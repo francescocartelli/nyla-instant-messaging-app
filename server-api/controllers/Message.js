@@ -42,7 +42,7 @@ exports.createMessage = async (req, res) => {
     try {
         const [user, message, idChat] = [req.user, req.body, req.params.id]
         // build message
-        let newMessage = { chat: idChat, sender: user.id, ...message }
+        let newMessage = { chat: idChat, sender: user.id, ...message, chatName: res.locals.chatName, senderUsername: user.username }
         // write message on database
         const { insertedId } = await messageServices.createMessage(newMessage)
         if (insertedId) {

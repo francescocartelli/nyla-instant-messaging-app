@@ -41,3 +41,15 @@
 .right {
     align-self: flex-end;
 }
+
+.new-messages-wrapper {
+    position: absolute;
+    z-index: 100;
+    top: -50px;
+    left: 0;
+    right: 0;
+}
+
+.rel {
+    position: relative;
+}

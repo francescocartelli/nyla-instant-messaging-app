@@ -73,7 +73,7 @@ At first, the app will start with an empty database, generated with the first wr
 		  server % npm start
 
 ### WS-Server (WS.js)
-1. In server-ws <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/server-api/.env">.env</a> file provide the basic configurations:
+1. In server-ws <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/server-ws/.env">.env</a> file provide the basic configurations:
    - Provide Redis MQ url and port configurations:
 
 			MQ_SERVER_URL=<redis_server_host:redis_server_port>
