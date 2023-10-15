@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Chat, Person, PersonFill, PersonXFill, Search, XCircleFill } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 
@@ -38,27 +38,32 @@ function UserCard({ user, currentUser, onRedirect }) {
 }
 
 function UsersSearchInput({ value, onChange, onLoading, onReady, onError, debounceDelay = 1000 }) {
-    const [userSearchDebounce, setUserSearchDebounce] = useState(null)
+    const userSearchDebounce = useRef(null)
+    const refOnLoading = useRef(onLoading)
+    const refOnReady = useRef(onReady)
+    const refOnError = useRef(onError)
 
     useEffect(() => {
         const controller = new AbortController()
         
         let timeoutId = null
-        if (userSearchDebounce) clearTimeout(userSearchDebounce)
-        if (value === "") onReady([])
+        if (userSearchDebounce.current) clearTimeout(userSearchDebounce.current)
+        if (value === "") refOnReady.current([])
         else {
-            onLoading()
+            refOnLoading.current()
             timeoutId = setTimeout(() => {
-                userAPI.getUsers(value, { signal: controller.signal }).then((u) => onReady(u)).catch(err => onError(err))
+                userAPI.getUsers(value, { signal: controller.signal })
+                .then((u) => refOnReady.current(u))
+                .catch(err => refOnError.current(err))
             }, debounceDelay)
-            setUserSearchDebounce(timeoutId)
+            userSearchDebounce.current = timeoutId
         }
 
         return () => {
             if (timeoutId) clearTimeout(timeoutId)
             controller?.abort()
         }
-    }, [value])
+    }, [value, debounceDelay])
 
     return <div className="d-flex flex-row gap-2" >
         <Text title="User search:" autoComplete="new-password" value={value} placeholder="Search by username..."

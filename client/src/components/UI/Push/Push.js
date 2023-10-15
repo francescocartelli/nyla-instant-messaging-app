@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { InfoCircle, XCircle } from 'react-bootstrap-icons'
 
 import './Push.css'
@@ -7,10 +7,11 @@ import 'styles/style.css'
 import { WebSocketContext, channelTypes } from 'components/Ws/WsContext'
 
 function Notification({ notification, onClose, delay = 4000 }) {
-    useState(() => {
-        const timeout = setTimeout(() => onClose(), delay)
+    const refOnClose = useRef(onClose)
+    useEffect(() => {
+        const timeout = setTimeout(() => refOnClose.current(), delay)
         return () => clearTimeout(timeout)
-    }, [])
+    }, [delay])
 
     return <div className='d-flex flex-row align-items-center card-1 gap-2 box-glow'>
         <InfoCircle className='fore-2 size-2 flex-shrink-0' />
@@ -26,13 +27,16 @@ function PushContainer({ maxNoticationsN = 4 }) {
     const [notifications, setNotifications] = useState([])
     const [subscribe, unsubscribe] = useContext(WebSocketContext)
 
-    // add notication and limit the number by removing the first if max is reached
-    const addNotification = (notification) => setNotifications(p => {
-        return p.length >= maxNoticationsN ? [...p.slice(1), notification] : [...p, notification]
-    })
     const removeNotication = ({ id }) => setNotifications(p => p.filter(i => i.id !== id))
 
     useEffect(() => {
+        console.log("PushContainer rendered")
+
+        // add notication and limit the number by removing the first if max is reached
+        const addNotification = (notification) => setNotifications(p => {
+            return p.length >= maxNoticationsN ? [...p.slice(1), notification] : [...p, notification]
+        })
+        
         const channelDefault = channelTypes.createMessage()
         subscribe(channelDefault, ({ message }) => {
             addNotification({
@@ -42,7 +46,7 @@ function PushContainer({ maxNoticationsN = 4 }) {
             })
         })
         return () => { unsubscribe(channelDefault) }
-    }, [])
+    }, [maxNoticationsN, subscribe, unsubscribe])
 
     return <div className='push-wrapper adaptive-p'>
         {notifications?.map(n => {
