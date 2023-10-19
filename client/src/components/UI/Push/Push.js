@@ -30,8 +30,6 @@ function PushContainer({ maxNoticationsN = 4 }) {
     const removeNotication = ({ id }) => setNotifications(p => p.filter(i => i.id !== id))
 
     useEffect(() => {
-        console.log("PushContainer rendered")
-
         // add notication and limit the number by removing the first if max is reached
         const addNotification = (notification) => setNotifications(p => {
             return p.length >= maxNoticationsN ? [...p.slice(1), notification] : [...p, notification]
