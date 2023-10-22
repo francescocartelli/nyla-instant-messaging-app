@@ -1,0 +1,16 @@
+# Environment Setup
+FROM node:14
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Move rest (consider dockerignore)
+COPY . .
+
+# Expose port
+EXPOSE 3001
+
+# Run
+CMD ["npm", "start"]
