@@ -1,0 +1,48 @@
+version: '3'
+services:
+  client:
+    build:
+      context: ./client
+    environment:
+      - REACT_APP_PROXY_URL=http://server-api:3001
+      - REACT_APP_WSS_URL=ws://server-ws:8080
+    ports:
+      - 3000:3000
+    depends_on:
+      - server-api
+      - server-ws
+
+  server-api:
+    build:
+      context: ./server-api
+    environment:
+      - DATABASE_URL=mongodb://mongo:27017
+      - DATABASE_NAME=messages_db
+      - MQ_SERVER_URL=redis:6379
+    ports:
+      - 3001:3001
+    depends_on:
+      - mongo
+      - redis
+
+  server-ws:
+    build:
+      context: ./server-ws
+    environment:
+      - API_SERVER_URL=server-api:3001
+      - MQ_SERVER_URL=redis:6379
+    ports:
+      - 8080:8080
+    depends_on:
+      - redis
+
+  mongo:
+    image: mongo
+    command: mongod --quiet --logpath /dev/null 
+    ports:
+      - 27017:27017
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379

@@ -19,7 +19,7 @@
 
 <br>
 
-## Requirements
+# Requirements
 - <a href="https://www.mongodb.com">MongoDB</a>
 - <a href="https://expressjs.com/">Express.js</a>
 - <a href="https://reactjs.org/">React.js</a>
@@ -28,18 +28,33 @@
 
 <br>
 
-## Architecture
+# Architecture
 Nyla is a centralized instant messaging application built with React.js front-end, Express.js back-end and MongoDB database. Real-time messaging is provided by Websockets as notification servers, coordinated using Redis message queue. The chosen architecture and overall server design allows for  horizontally scalability.
 <div align="center"><img width="80%" src='./images/architecture.png'/></div>
 <br>
 
-This repository contains the implementation of the web server (client folder), REST api server (server-api folder) and ws server (server-ws folder). MongoDB and Redis can be used simply by installing the relevant software; no other configuration (other than that provided in the folders listed above) is required.
+This repository contains the implementation of the web server (client folder), REST api server (<b>server-api</b> folder) and ws server (<b>server-ws</b> folder). MongoDB and Redis can be used simply by installing the relevant software; no other configuration (other than that provided in the folders listed above) is required.
 
 <br>
 
-## Getting started (local development build)
-To get started with the local development build (each server in single instance), set up the <b>back-end</b> (<i>MongoDB</i>, <i>Redis</i>, <i>REST-API server</i> and <i>WS server</i>) and <b>front-end </b>(<i>React Client App</i>) of the app by following the list below.
 
+
+# Getting started (local development build)
+To start with the local development build (each server in single instance), <b>docker-compose</b> can be used ( manual configuration is also described below).
+
+<br>
+
+## Using docker-compose (recommended)
+1. Start <b>Docker</b> application
+1. Navigate to the project root folder (where docker-compose.yaml file is located) and just run all the services using docker-compose:
+   
+			docker-compose up
+Wait for container creations, once client development server is ready, connect to the app using your browser.
+
+<br>
+
+## Manual Setup
+Setup <b>back-end</b> (<i>MongoDB</i>, <i>Redis</i>, <i>REST-API server</i> and <i>WS server</i>) and <b>front-end </b>(<i>React Client App</i>) of the app by following the list below.<br><br>
 <b>Configurations files are already set for local development build.</b>
 
 ### MongoDB
@@ -55,7 +70,7 @@ At first, the app will start with an empty database, generated with the first wr
         % redis-server
 
 ### REST-API Server (Express.js)
-1. In server-api <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/server-api/.env">.env</a> file provide the basic configurations:
+1. In <b>server-api</b> <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/server-api/.env">.env</a> file provide the basic configurations:
    - Provide database url and name: 
   
        		DATABASE_URL=mongodb://<database_host:database_port>
@@ -67,43 +82,47 @@ At first, the app will start with an empty database, generated with the first wr
    - Provide Redis MQ url and port:
   
         	MQ_SERVER_URL=<redis_server_host:redis_server_port>
-2. From the server root folder, install all required modules, then run the server:
+2. From the <b>server-api</b> root folder, install all required modules, then run the server:
    
     	  server % npm install
 		  server % npm start
 
 ### WS-Server (WS.js)
-1. In server-ws <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/server-ws/.env">.env</a> file provide the basic configurations:
+1. In <b>server-ws</b> <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/<b>server-ws</b>/.env">.env</a> file provide the basic configurations:
    - Provide Redis MQ url and port configurations:
 
 			MQ_SERVER_URL=<redis_server_host:redis_server_port>
 
-	- Provide server-api url:
+	- Provide <b>server-api</b> url:
 
 			API_SERVER_URL=<api_server_host:api_server_port>
 
-2. From the ws server root folder, install all required modules, then run the server:
+2. From the <b>server-ws</b> root folder, install all required modules, then run the server:
  
    		  server % npm install
 		  server % npm start
 
 ### Static Web Server (React.js)
-1. Before starting any client, set the endpoint of the WS connection. To do this, open the <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/client/.env">.env</a> file in the root of the client folder and set the URL variable, the variable will look like this:
+1. In <b>client</b> <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/client/.env">.env</a> file provide the basic configurations:
+   - Provide url for react-proxy server (to <b>server-api</b>):
+   
+		  REACT_APP_PROXY_URL=http://localhost:3001
+   - Provide the url for ws-server:
    
 		  REACT_APP_WSS_URL=ws://<ws_server_host:ws_server_port>
 
-2. From the client root folder, install the packages, then run the client:
+2. From the <b>client</b> root folder, install the packages, then run the client:
 
 		  client % npm install
 		  client % npm start
-<br>
+<br><br>
 
-## Open-API Swagger Documentation
+# Open-API Swagger Documentation
 The API documentation is generated using Swagger, and it provides a comprehensive overview of all available endpoints, their functionality, required parameters, and expected responses. You can access the Swagger documentation by visiting http://localhost:3001/api-docs after starting the API server.
 
-<br>
+<br><br>
 
-## Folder Structure
+# Folder Structure
 ```
 .
 ├── client
@@ -141,9 +160,9 @@ The API documentation is generated using Swagger, and it provides a comprehensiv
     └── services
 ```
 
-<br>
+<br><br>
 
-## Main Features (Images)
+# Main Features (Images)
 ### Create and track your personal chats
 Create and track your personal chats and find new users.<br>
 <img src="images/chats.png" width="200px">
@@ -159,17 +178,17 @@ Registration/authentication using username and password.<br>
   <img src="images/login.png" width="200px">
   <img src="images/registration.png" width="200px">
 
-<br>
+<br><br>
 
-## Curiosity
+# Curiosity
 Nyla is a short word inspired by <i>Nyarlathotep</i>, who is a fictional entity belonging to Howard Phillips Lovecraft's <i>Cthulhu Cycle</i>. Nyarlathotep acts according to the will of the Outer Gods and is their messenger.
 
-<br>
+<br><br>
 
-## Author
+# Author
 - <a href="https://github.com/francescocartelli">Francesco Cartelli</a>
 
-<br>
+<br><br>
 
-## License
+# License
 This project is licensed under the MIT License, which means you're free to use, modify, and distribute the code as long as you include the original license notice.
