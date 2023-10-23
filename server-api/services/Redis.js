@@ -4,10 +4,10 @@ require('dotenv').config()
 
 const [host, port] = process.env.MQ_SERVER_URL.split(':')
 
-const redisClient = redis.createClient({
+const redisClient = redis.createClient({socket: {
     host: host,
     port: port
-})
+}})
 
 exports.sendToUsers = async (users, message) => {
     if (!redisClient.isReady) await redisClient.connect()
