@@ -28,7 +28,8 @@ function WebSocketProvider({ children, user }) {
             ws.current?.close()
             return
         }
-        ws.current = new WebSocket(process.env.REACT_APP_WSS_URL)
+        const wsURL = new URL(process.env.REACT_APP_WSS_URL)
+        ws.current = new WebSocket(`ws://${window.location.hostname}:${wsURL.port}`)
         ws.current.onopen = () => { console.log('WS open') }
         ws.current.onclose = () => { console.log('WS close') }
         ws.current.onmessage = (message) => {
