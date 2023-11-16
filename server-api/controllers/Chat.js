@@ -25,7 +25,6 @@ exports.getChatsPersonal = async (req, res) => {
     try {
         const { id } = req.user
         const page = getPage(req.query.page)
-        const user = req.user
 
         let [chats, nPages] = await Promise.all([
             chatServices.getChatsPersonal(id.toString(), page),
@@ -34,7 +33,7 @@ exports.getChatsPersonal = async (req, res) => {
         // get names for non group chat
         // consider username denormalization better performance
         chats = await Promise.all(chats.map(async ({name, idUsers, ...c}) => {
-            const userIdForUsername = idUsers.find(u => u !== user.id)
+            const userIdForUsername = idUsers.find(u => u.toString() !== id.toString())
             const n = c.isGroup ? name : (await usersServices.getUser(userIdForUsername)).username
             return {...c, name: n}
         }))
