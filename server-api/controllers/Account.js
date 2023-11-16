@@ -79,6 +79,8 @@ module.exports.singIn = async (req, res) => {
 }
 
 module.exports.logOut = async (req, res) => {
-    req.logout()
-    res.clearCookie('jwt').end()
+    req.logOut(() => {
+        res.clearCookie('jwt')
+        res.redirect('/')
+    })
 }
