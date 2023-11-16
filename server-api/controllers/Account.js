@@ -29,13 +29,13 @@ module.exports.signUp = async (req, res) => {
         if (isUsername) errorMessage.push("Username already taken")
         if (isEmail) errorMessage.push("Email already registered")
 
-        if (errorMessage.length > 0) res.status(400).send(errorMessage.join("\n"))
+        if (errorMessage.length > 0) res.status(400).send({ message: errorMessage.join("\n") })
         else {
             const { password, ...u } = user
 
             bcrypt.hash(password, parseInt(process.env.SALT_OR_ROUNDS)).then(hash => {
-                usersServices.createUser(newUser({...u, hash: hash})).then((results) => {
-                    const regUser = {id: results.insertedId, username: user.username, email:user.email}
+                usersServices.createUser(newUser({ ...u, hash: hash })).then((results) => {
+                    const regUser = { id: results.insertedId, username: user.username, email: user.email }
 
                     const token = generateToken(regUser)
 
