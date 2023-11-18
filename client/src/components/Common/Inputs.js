@@ -1,7 +1,7 @@
 import './Inputs.css'
 import 'styles/style.css'
 
-import { BoxArrowInRight, CaretUp, Check2Circle, CheckCircle, ChevronUp, EnvelopeFill, ExclamationCircle, ExclamationCircleFill, EyeFill, EyeSlashFill, Lock, LockFill, PersonFill, PersonPlusFill, XCircle } from 'react-bootstrap-icons'
+import { CheckCircle, ChevronUp, ExclamationCircle } from 'react-bootstrap-icons'
 import { useState } from 'react'
 
 function Text({ left, right, className = "", ...props }) {

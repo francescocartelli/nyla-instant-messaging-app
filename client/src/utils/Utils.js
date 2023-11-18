@@ -1,20 +1,7 @@
-import ColorHash from 'color-hash'
 import { useState } from 'react'
-
-let seed = (Math.random() + 1).toString(36).substring(7)
-
-var colorHash = new ColorHash({
-    lightness: 0.6,
-    saturation: 0.6,
-    hue: { min: 170, max: 300 }
-})
 
 function sleep(delay) {
     return new Promise(res => setTimeout(res, delay))
-}
-
-const getColor = (text, opacity = '80') => {
-    return `${colorHash.hex(text + seed)}${opacity}`
 }
 
 const states = {
@@ -39,4 +26,4 @@ const FlowState = (initial = states.loading) => {
     return { get, isLoading, isReady, isError, setLoading, setReady, setError, toString }
 }
 
-export { sleep, getColor, FlowState }
+export { sleep, FlowState }
