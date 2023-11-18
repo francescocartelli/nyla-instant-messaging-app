@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import "./Account.css"
 
 import { ErrorAlert, LoadingAlert } from 'components/Alerts/Alerts'
-import { Text } from 'components/Common/Inputs'
+import { Text, TextVal } from 'components/Common/Inputs'
 import { Button } from 'components/Common/Buttons'
 import { FlowLayout, TabsLayout } from 'components/Common/Layout'
 import { Logo } from 'components/Icons/Icons'
@@ -23,33 +23,37 @@ function LoginTab({ signinSuccessful }) {
 
     const loginFlow = FlowState('ready')
 
-    const login = async () => {
+    function loginHanlder(ev) {
+        ev.preventDefault()
         loginFlow.setLoading()
         userAPI.signin(username, password).then((response) => {
             loginFlow.setReady()
             signinSuccessful(response)
         }).catch((err) => {
             loginFlow.setReady()
+            console.log(err)
             setMessage(err.message)
         })
     }
 
-    return <>
-        {message && <div className='alert'><p><i>{message}</i></p></div>}
-        <Text autoComplete="new-password" value={username} placeholder="Username or email..." onChange={(ev) => setUsername(ev.target.value)}
-            left={<PersonFill className='fore-2 size-1' />} />
-        <Text autoComplete="new-password" type={isShowPassword ? "text" : "password"} placeholder="Password..."
-            value={password} onChange={(ev) => setPassword(ev.target.value)}
-            left={<LockFill className='fore-2 size-1' />}
-            right={isShowPassword ?
-                <EyeFill className='fore-2-btn size-1' onClick={() => setShowPassword(false)} /> :
-                <EyeSlashFill className='fore-2-btn size-1' onClick={() => setShowPassword(true)} />
-            } />
+    return <form className='d-flex align-self-stretch flex-column gap-2' onSubmit={loginHanlder}>
+        {message && <div className='alert warning'><p><i>{message}</i></p></div>}
+        <div className='d-flex flex-column gap-1'>
+            <Text autoComplete="new-password" value={username} placeholder="Username or email..." onChange={(ev) => setUsername(ev.target.value)}
+                left={<PersonFill className='fore-2 size-1' />} />
+            <Text autoComplete="new-password" type={isShowPassword ? "text" : "password"} placeholder="Password..."
+                value={password} onChange={(ev) => setPassword(ev.target.value)}
+                left={<LockFill className='fore-2 size-1' />}
+                right={isShowPassword ?
+                    <EyeFill className='fore-2-btn size-1' onClick={() => setShowPassword(false)} /> :
+                    <EyeSlashFill className='fore-2-btn size-1' onClick={() => setShowPassword(true)} />
+                } />
+        </div>
         <FlowLayout state={loginFlow.get()}>
             <loading><LoadingAlert /></loading>
             <ready>
                 <div className='d-flex align-self-stretch'>
-                    <Button className="flex-grow-1" onClick={() => login()} isDisabled={!username || !password}>Login</Button>
+                    <Button className="flex-grow-1" type="submit" disabled={!username || !password}>Login</Button>
                 </div>
             </ready>
             <error><ErrorAlert /></error>
@@ -57,7 +61,7 @@ function LoginTab({ signinSuccessful }) {
         <p className='align-self-center' style={{ color: '#ffffff80', fontSize: '0.8em' }}>
             <i>You forgot your <Link to='/login/forgot/username'>username</Link> or <Link to='/login/forgot'>password</Link>?</i>
         </p>
-    </>
+    </form>
 }
 
 function RegistrationTab({ signupSuccessful }) {
@@ -66,51 +70,86 @@ function RegistrationTab({ signupSuccessful }) {
     const [passwordRepeat, setRepeatPassword] = useState("")
     const [email, setEMail] = useState("")
 
-    const [messages, setMessages] = useState([])
+    const [isUsernameInvalid, setUsernameInvalid] = useState(false)
+    const [isPasswordInvalid, setPasswordInvalid] = useState(false)
+    const [isPasswordRepeatInvalid, setPasswordRepeatInvalid] = useState(false)
+    const [isEmailInvalid, setEmailInvalid] = useState(false)
+
+    const [message, setMessage] = useState("")
 
     const registrationFlow = FlowState('ready')
 
     useEffect(() => {
-        const m = []
-        if (username === "" || password === "" || passwordRepeat === "" || passwordRepeat === "") m.push("All fields are required")
-        if (username !== "" && !usefullRegExp.usernameReg.test(username)) m.push("Username is not valid")
-        if (email !== "" && !usefullRegExp.emailReg.test(email)) m.push("Email is not valid")
-        if (password !== "" && !usefullRegExp.passwordReg.test(password)) m.push("Password is not valid")
-        if (password !== passwordRepeat) m.push('The passwords do not match')
-        setMessages([...m])
+        /*
+        if (username === "" || password === "" || passwordRepeat === "" || passwordRepeat === "") m.push({ text: "All fields are required", type: "info" })
+        m.push({ text: "Username is not valid", type: "warning" })
+        if (email !== "" && ) m.push({ text: "Email is not valid", type: "warning" })
+        if (password !== "" && ) m.push({ text: "Password is not valid", type: "warning" })
+        if () m.push({ text: "The passwords do not match", type: "warning" })
+        */
+        setUsernameInvalid(!usefullRegExp.usernameReg.test(username))
+        setPasswordInvalid(!usefullRegExp.passwordReg.test(password))
+        setPasswordRepeatInvalid(password !== passwordRepeat)
+        setEmailInvalid(!usefullRegExp.emailReg.test(email))
     }, [username, password, passwordRepeat, email])
 
-    const register = () => {
+    function registerHandler(e) {
+        e.preventDefault()
         registrationFlow.setLoading()
         userAPI.signup(username, password, email).then((response) => {
-            signupSuccessful(response)
             registrationFlow.setReady()
+            signupSuccessful(response)
         }).catch(err => {
-            setMessages(p => [...p, err.message])
-            registrationFlow.setError()
+            registrationFlow.setReady()
+            setMessage(err.message)
         })
     }
 
-    return <>
-        {messages.length > 0 && <div className='d-flex flex-column alert'>
-            {messages.map((m, i) => <p key={i}><i>{m}</i></p>)}
-        </div>}
-        <Text autoComplete="new-password" value={username} placeholder="Username..." onChange={(ev) => { setUsername(ev.target.value) }}
-            left={<PersonFill className='fore-2 size-1' />} />
-        <Text autoComplete="new-password" value={email} placeholder="Email..." onChange={(ev) => setEMail(ev.target.value)}
-            left={<EnvelopeFill className='fore-2 size-1' />} />
-        <Text autoComplete="new-password" type="password" placeholder="Password..." value={password} onChange={(ev) => setPassword(ev.target.value)}
-            left={<LockFill className='fore-2 size-1' />} />
-        <Text autoComplete="new-password" type="password" placeholder="Repeat password..." value={passwordRepeat} onChange={(ev) => setRepeatPassword(ev.target.value)}
-            left={<Lock className='fore-2 size-1' />} />
+    return <form className='d-flex flex-column align-self-stretch gap-2' onSubmit={registerHandler}>
+        {message && <div className='alert warning'><p><i>{message}</i></p></div>}
+        <div className='d-flex flex-column gap-1'>
+            <TextVal autoComplete="new-password" value={username} placeholder="Username..." onChange={(ev) => { setUsername(ev.target.value) }}
+                left={<PersonFill className='fore-2 size-1' />} isInvalid={isUsernameInvalid} message={
+                    <>
+                        <span><b>Required username pattern:</b></span>
+                        <span>Between 8 and 20 characters are required.</span>
+                    </>
+                } />
+            <TextVal autoComplete="new-password" value={email} placeholder="Email..." onChange={(ev) => setEMail(ev.target.value)}
+                left={<EnvelopeFill className='fore-2 size-1' />} isInvalid={isEmailInvalid}  message={
+                    <>
+                        <span><b>Required email pattern:</b></span>
+                        <span>Provide a valid email address.</span>
+                    </>
+                }  />
+            <TextVal autoComplete="new-password" type="password" placeholder="Password..." value={password} onChange={(ev) => setPassword(ev.target.value)}
+                left={<LockFill className='fore-2 size-1' />} isInvalid={isPasswordInvalid} message={
+                    <>
+                        <span><b>Required password pattern:</b></span>
+                        <span>At least 1 lowercase character is required.</span>
+                        <span>At least 1 uppercase character is required.</span>
+                        <span>At least 1 special character is required.</span>
+                        <span>At least 1 number is required.</span>
+                    </>
+                } />
+            <TextVal autoComplete="new-password" type="password" placeholder="Repeat password..." value={passwordRepeat} onChange={(ev) => setRepeatPassword(ev.target.value)}
+                left={<Lock className='fore-2 size-1' />} isInvalid={isPasswordRepeatInvalid} message={
+                    <>
+                        <span><b>Required repeat password rule:</b></span>
+                        <span>Passwords should match.</span>
+                    </>
+                } />
+        </div>
         <FlowLayout state={registrationFlow.get()}>
             <loading><LoadingAlert /></loading>
             <ready>
-                <div className='d-flex align-self-stretch'><Button className="flex-grow-1" isDisabled={messages.length > 0} onClick={() => register()}>Register</Button></div>
+                <div className='d-flex align-self-stretch'>
+                    <Button type="submit" className="flex-grow-1" disabled={isUsernameInvalid || isPasswordInvalid || isPasswordRepeatInvalid || isEmailInvalid}>Register</Button>
+                </div>
             </ready>
             <error><ErrorAlert /></error>
         </FlowLayout>
-    </>
+    </form>
 }
 
 function Account(props) {

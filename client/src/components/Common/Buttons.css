@@ -14,21 +14,21 @@
     transition: 0.2s linear;
 }
 
-.button-wrap.disabled {
-    opacity: 50%;
-    transition: 0.2s linear;
-}
-
-.button-wrap.disabled:hover {
-    opacity: 50%;
-    border: 1px solid #2A2F35;
-    transition: 0.2s linear;
-}
-
 .button-wrap:hover {
     background-color: #262c34;
     border: 1px solid #545b63;
     color: #ffffff;
     transition: 0.2s linear;
     text-decoration: none;
+}
+
+.button-wrap:disabled {
+    opacity: 50%;
+    transition: 0.2s linear;
+}
+
+.button-wrap:disabled:hover {
+    opacity: 50%;
+    border: 1px solid #2A2F35;
+    transition: 0.2s linear;
 }

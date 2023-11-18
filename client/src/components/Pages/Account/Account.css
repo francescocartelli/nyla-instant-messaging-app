@@ -1,9 +1,12 @@
 .alert {
-    background: #b6454580;
     border-radius: 0.5em !important;
-    border-color: #dc656580 !important;
     margin: 0px !important;
     width: 100%;
+}
+
+.warning {
+    border-color: #dc656580 !important;
+    background: #b6454580;
 }
 
 .alert p {

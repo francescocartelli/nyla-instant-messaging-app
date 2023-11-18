@@ -105,3 +105,28 @@
     font-style: oblique;
     color: #717A85;
 }
+
+.text-val {
+    position: relative;
+}
+
+.message-wrapper {
+    position: absolute;
+    border-radius: 0 0 0.5em 0.5em !important;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    z-index: 100;
+    width: 100%;
+}
+
+.message-wrapper-text {
+    font-size: 0.8em;
+}
+
+.message-wrapper-text span {
+    color: #ffffff !important;
+}
+
+.message-wrapper-text span b {
+    color: #717A85 !important;
+}

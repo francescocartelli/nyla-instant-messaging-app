@@ -26,7 +26,7 @@ function MessageEditor({ id, scrollTo = () => { } }) {
         <div className="d-flex flex-row gap-2 align-items-center">
             <TextArea rows={1} className="flex-grow-1" value={content} disabled={isSending} placeholder="Write yout message here..."
                 onChange={(ev) => setContent(ev.target.value)} />
-            <Button className={'circle'} isDisabled={isSendButtonDisabled()} onClick={() => {
+            <Button className={'circle'} disabled={isSendButtonDisabled()} onClick={() => {
                 setSending(true)
                 chatAPI.sendMessage(id, { content: content }).then((m) => {
                     setContent("")
@@ -204,7 +204,7 @@ function Chat({ user }) {
                     <FlowLayout state={messagesFlow}>
                         <loading><LoadingAlert /></loading>
                         <ready>
-                            {cursor.current !== null && <Button isDisabled={isNextDisabled} onClick={() => getMessages()}>Get Previous Messages...</Button>}
+                            {cursor.current !== null && <Button disabled={isNextDisabled} onClick={() => getMessages()}>Get Previous Messages...</Button>}
                             {messages.length === 0 && <EmptyMessages />}
                             {messages.map((message, i, arr) => <MessageCard key={message.id}
                                 id={id}

@@ -23,7 +23,7 @@ function UserCard({ user, currentUser, onRedirect }) {
             <p className="crd-title">{user.username}</p>
             <p className="crd-subtitle c-gray"><i>{user.bio}</i></p>
         </div>
-        {user.id !== currentUser.id ?<Button isDisabled={isLoading} onClick={() => {
+        {user.id !== currentUser.id ?<Button disabled={isLoading} onClick={() => {
             setLoading(true)
             chatAPI.createChat({ name: null, users: [user, currentUser], isGroup: false }).then(chat => {
                 onRedirect(chat.id)

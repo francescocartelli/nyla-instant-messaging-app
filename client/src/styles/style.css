@@ -41,17 +41,25 @@
 }
 
 .size-1 {
-    height: 1.5em;
+    min-height: 1.5em;
+    min-width: 1.5em;
     width: 1.5em;
+    height: 1.5em;
 }
 
 .size-2 {
+    min-height: 2em;
+    min-width: 2em;
     height: 2em;
     width: 2em;
 }
 
 .f-size-1 {
     font-size: 0.6em;
+}
+
+.f-size-2 {
+    font-size: 0.8em;
 }
 
 .circle {

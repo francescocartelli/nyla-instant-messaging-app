@@ -82,7 +82,7 @@ function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) 
                             setEditingChat(false)
                             setChatName(chat.name)
                         }}><XCircle className="fore-2-btn size-1" /></Button>
-                        <Button isDisabled={isUpdating} onClick={() => {
+                        <Button disabled={isUpdating} onClick={() => {
                             setUpdating(true)
                             chatAPI.updateChat(chat.id, { name: chatName }).then(() => {
                                 setUpdating(false)
@@ -204,7 +204,7 @@ function NewChatEditor({ user }) {
                     <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>
                 </div>} />
         </>}
-        <Button isDisabled={isLoading || isInvalid()} onClick={() => submit()}>Create Group Chat</Button>
+        <Button disabled={isLoading || isInvalid()} onClick={() => submit()}>Create Group Chat</Button>
     </div>
 }
 

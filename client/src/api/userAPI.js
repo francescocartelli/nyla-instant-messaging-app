@@ -1,4 +1,4 @@
-async function getUsers(username = "", options={}) {
+async function getUsers(username = "", options = {}) {
     const response = await fetch(`/api/users?username=${username}`, options)
     return response.json()
 }
@@ -25,23 +25,26 @@ async function signin(username, password) {
 }
 
 async function signup(username, password, email) {
-    try {
-        const response = await fetch('/api/authenticate/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: username, password: password, email: email })
-        })
+    const response = await fetch('/api/authenticate/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password, email: email })
+    })
 
-        if (!response.ok) {
-            const error = await response.json()
-            throw new Error(error.message)
+    if (!response.ok) {
+        let error = null
+        console.log(response)
+        try {
+            error = await response.json()
+        } catch (err) {
+            /* JSON parsing error, continue with default errorMessage */
+            console.log('weewewwe')
+            throw new Error(response.statusText)
         }
-
-        return response.json()
-    } catch (err) {
-        console.log("weeee")
-        console.log(err)
+        throw new Error(error.message)
     }
+
+    return response.json()
 }
 
 async function getCurrentUser() {
