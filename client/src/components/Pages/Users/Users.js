@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { Chat, Person, PersonFill, PersonXFill, Search, XCircleFill } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 
@@ -13,6 +13,7 @@ import { Button } from "components/Common/Buttons"
 
 import userAPI from 'api/userAPI'
 import chatAPI from "api/chatAPI"
+import { useDebounce } from "hooks/useDebounce"
 
 function UserCard({ user, currentUser, onRedirect }) {
     const [isLoading, setLoading] = useState(false)
@@ -37,40 +38,24 @@ function UserCard({ user, currentUser, onRedirect }) {
 }
 
 function UsersSearchInput({ value, onChange, onLoading, onReady, onError, debounceDelay = 1000 }) {
-    const userSearchDebounce = useRef(null)
-    const refOnLoading = useRef(onLoading)
-    const refOnReady = useRef(onReady)
-    const refOnError = useRef(onError)
+    const [onDebouncePlay, onDebounceStop] = useDebounce((v) => {
+        userAPI.getUsers(v)
+            .then((u) => onReady(u))
+            .catch(err => { console.log(err); onError(err) })
+    }, debounceDelay)
 
-    useEffect(() => {
-        const controller = new AbortController()
-
-        let timeoutId = null
-        if (userSearchDebounce.current) clearTimeout(userSearchDebounce.current)
-        if (value === "") refOnReady.current([])
-        else {
-            refOnLoading.current()
-            timeoutId = setTimeout(() => {
-                userAPI.getUsers(value, { signal: controller.signal })
-                    .then((u) => refOnReady.current(u))
-                    .catch(err => refOnError.current(err))
-            }, debounceDelay)
-            userSearchDebounce.current = timeoutId
-        }
-
-        return () => {
-            if (timeoutId) clearTimeout(timeoutId)
-            controller?.abort()
-        }
-    }, [value, debounceDelay])
-
-    const onChangeSearchByUsername = (ev) => onChange(ev.target.value)
-    const onClickCancelSearch = () => onChange("")
+    const onChangeValue = (ev) => {
+        const value = ev.target.value
+        onChange(value)
+        if (value === "") {
+            onReady([]); onDebounceStop()
+        } else { onLoading(); onDebouncePlay(value) }
+    }
 
     return <div className="d-flex flex-row gap-2" >
-        <Text title="User search:" autoComplete="new-password" value={value} placeholder="Search by username..." onChange={onChangeSearchByUsername}
+        <Text title="User search:" autoComplete="new-password" value={value} placeholder="Search by username..." onChange={onChangeValue}
             left={<Search className="size-1 fore-2" />}
-            right={value === "" ? <></> : <XCircleFill onClick={onClickCancelSearch} className="size-1 fore-2-btn" />} />
+            right={value === "" ? <></> : <XCircleFill onClick={() => onChangeValue({ target: { value: "" } })} className="size-1 fore-2-btn" />} />
     </div>
 }
 
@@ -94,7 +79,7 @@ function UsersSearchList({ onRenderItem = () => { } }) {
     const [users, setUsers] = useState([])
     const [userSearch, setUserSearch] = useState("")
 
-    const [userSearchStatus, userSearchStatusActions] = useStatus('loading')
+    const [userSearchStatus, userSearchStatusActions] = useStatus('ready')
 
     return <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y">
         <UsersSearchInput value={userSearch} onChange={setUserSearch}
