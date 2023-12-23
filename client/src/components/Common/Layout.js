@@ -23,9 +23,9 @@ function TabsLayout({ children }) {
     </>
 }
 
-function FlowLayout({ state, children }) {
+function FlowLayout({ status, children }) {
     return <>
-        {state && children.filter(child => child.type === state).map(i => i.props.children)}
+        {status && children.filter(child => child.type === status).map(i => i.props.children)}
     </>
 }
 

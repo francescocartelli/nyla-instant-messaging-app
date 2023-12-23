@@ -11,7 +11,7 @@ import { FlowLayout, TabsLayout } from 'components/Common/Layout'
 import { Logo } from 'components/Icons/Icons'
 
 import usefullRegExp from "utils/UsefullRegExp"
-import { FlowState } from 'utils/Utils'
+import { useStatus } from "hooks/useStatus"
 
 import userAPI from 'api/userAPI'
 
@@ -21,39 +21,44 @@ function LoginTab({ signinSuccessful }) {
     const [isShowPassword, setShowPassword] = useState(false)
     const [message, setMessage] = useState("")
 
-    const loginFlow = FlowState('ready')
+    const [loginStatus, loginStatusActions] = useStatus('ready')
 
-    function loginHanlder(ev) {
+    const onSubmit = (ev) => {
         ev.preventDefault()
-        loginFlow.setLoading()
+        loginStatusActions.setLoading()
         userAPI.signin(username, password).then((response) => {
-            loginFlow.setReady()
+            loginStatusActions.setReady()
             signinSuccessful(response)
         }).catch((err) => {
-            loginFlow.setReady()
+            loginStatusActions.setReady()
             console.log(err)
             setMessage(err.message)
         })
     }
 
-    return <form className='d-flex align-self-stretch flex-column gap-2' onSubmit={loginHanlder}>
+    const onChangeUsername = (ev) => setUsername(ev.target.value)
+    const onChangePassword = (ev) => setPassword(ev.target.value)
+    const onShowPassword = (ev) => setShowPassword(false)
+    const onHidePassword = (ev) => setShowPassword(true)
+
+    const passwordType = isShowPassword ? "text" : "password"
+    const isLoginButtonDisabled = !username || !password
+
+    return <form className='d-flex align-self-stretch flex-column gap-2' onSubmit={onSubmit}>
         {message && <div className='alert warning'><p><i>{message}</i></p></div>}
         <div className='d-flex flex-column gap-1'>
-            <Text autoComplete="new-password" value={username} placeholder="Username or email..." onChange={(ev) => setUsername(ev.target.value)}
-                left={<PersonFill className='fore-2 size-1' />} />
-            <Text autoComplete="new-password" type={isShowPassword ? "text" : "password"} placeholder="Password..."
-                value={password} onChange={(ev) => setPassword(ev.target.value)}
-                left={<LockFill className='fore-2 size-1' />}
+            <Text autoComplete="new-password" value={username} placeholder="Username or email..." onChange={onChangeUsername} left={<PersonFill className='fore-2 size-1' />} />
+            <Text autoComplete="new-password" type={passwordType} placeholder="Password..." value={password} onChange={onChangePassword} left={<LockFill className='fore-2 size-1' />}
                 right={isShowPassword ?
-                    <EyeFill className='fore-2-btn size-1' onClick={() => setShowPassword(false)} /> :
-                    <EyeSlashFill className='fore-2-btn size-1' onClick={() => setShowPassword(true)} />
+                    <EyeFill className='fore-2-btn size-1' onClick={onShowPassword} /> :
+                    <EyeSlashFill className='fore-2-btn size-1' onClick={onHidePassword} />
                 } />
         </div>
-        <FlowLayout state={loginFlow.get()}>
+        <FlowLayout status={loginStatus}>
             <loading><LoadingAlert /></loading>
             <ready>
                 <div className='d-flex align-self-stretch'>
-                    <Button className="flex-grow-1" type="submit" disabled={!username || !password}>Login</Button>
+                    <Button className="flex-grow-1" type="submit" disabled={isLoginButtonDisabled}>Login</Button>
                 </div>
             </ready>
             <error><ErrorAlert /></error>
@@ -77,52 +82,52 @@ function RegistrationTab({ signupSuccessful }) {
 
     const [message, setMessage] = useState("")
 
-    const registrationFlow = FlowState('ready')
+    const [registrationStatus, registrationStatusActions] = useStatus('ready')
 
     useEffect(() => {
-        /*
-        if (username === "" || password === "" || passwordRepeat === "" || passwordRepeat === "") m.push({ text: "All fields are required", type: "info" })
-        m.push({ text: "Username is not valid", type: "warning" })
-        if (email !== "" && ) m.push({ text: "Email is not valid", type: "warning" })
-        if (password !== "" && ) m.push({ text: "Password is not valid", type: "warning" })
-        if () m.push({ text: "The passwords do not match", type: "warning" })
-        */
         setUsernameInvalid(!usefullRegExp.usernameReg.test(username))
         setPasswordInvalid(!usefullRegExp.passwordReg.test(password))
         setPasswordRepeatInvalid(password !== passwordRepeat)
         setEmailInvalid(!usefullRegExp.emailReg.test(email))
     }, [username, password, passwordRepeat, email])
 
-    function registerHandler(e) {
+    const onRegister = (e) => {
         e.preventDefault()
-        registrationFlow.setLoading()
+        registrationStatusActions.setLoading()
         userAPI.signup(username, password, email).then((response) => {
-            registrationFlow.setReady()
+            registrationStatusActions.setReady()
             signupSuccessful(response)
         }).catch(err => {
-            registrationFlow.setReady()
+            registrationStatusActions.setReady()
             setMessage(err.message)
         })
     }
 
-    return <form className='d-flex flex-column align-self-stretch gap-2' onSubmit={registerHandler}>
+    const onUsernameChange = (ev) => setUsername(ev.target.value)
+    const onChangeEMail = (ev) => setEMail(ev.target.value)
+    const onChangePassword = (ev) => setPassword(ev.target.value)
+    const onChangeRepeatPassword = (ev) => setRepeatPassword(ev.target.value)
+
+    const isRegisterButtonDisabled = isUsernameInvalid || isPasswordInvalid || isPasswordRepeatInvalid || isEmailInvalid
+
+    return <form className='d-flex flex-column align-self-stretch gap-2' onSubmit={onRegister}>
         {message && <div className='alert warning'><p><i>{message}</i></p></div>}
         <div className='d-flex flex-column gap-1'>
-            <TextVal autoComplete="new-password" value={username} placeholder="Username..." onChange={(ev) => { setUsername(ev.target.value) }}
+            <TextVal autoComplete="new-password" value={username} placeholder="Username..." onChange={onUsernameChange}
                 left={<PersonFill className='fore-2 size-1' />} isInvalid={isUsernameInvalid} message={
                     <>
                         <span><b>Required username pattern:</b></span>
                         <span>Between 8 and 20 characters are required.</span>
                     </>
                 } />
-            <TextVal autoComplete="new-password" value={email} placeholder="Email..." onChange={(ev) => setEMail(ev.target.value)}
-                left={<EnvelopeFill className='fore-2 size-1' />} isInvalid={isEmailInvalid}  message={
+            <TextVal autoComplete="new-password" value={email} placeholder="Email..." onChange={onChangeEMail}
+                left={<EnvelopeFill className='fore-2 size-1' />} isInvalid={isEmailInvalid} message={
                     <>
                         <span><b>Required email pattern:</b></span>
                         <span>Provide a valid email address.</span>
                     </>
-                }  />
-            <TextVal autoComplete="new-password" type="password" placeholder="Password..." value={password} onChange={(ev) => setPassword(ev.target.value)}
+                } />
+            <TextVal autoComplete="new-password" type="password" placeholder="Password..." value={password} onChange={onChangePassword}
                 left={<LockFill className='fore-2 size-1' />} isInvalid={isPasswordInvalid} message={
                     <>
                         <span><b>Required password pattern:</b></span>
@@ -132,7 +137,7 @@ function RegistrationTab({ signupSuccessful }) {
                         <span>At least 1 number is required.</span>
                     </>
                 } />
-            <TextVal autoComplete="new-password" type="password" placeholder="Repeat password..." value={passwordRepeat} onChange={(ev) => setRepeatPassword(ev.target.value)}
+            <TextVal autoComplete="new-password" type="password" placeholder="Repeat password..." value={passwordRepeat} onChange={onChangeRepeatPassword}
                 left={<Lock className='fore-2 size-1' />} isInvalid={isPasswordRepeatInvalid} message={
                     <>
                         <span><b>Required repeat password rule:</b></span>
@@ -140,11 +145,11 @@ function RegistrationTab({ signupSuccessful }) {
                     </>
                 } />
         </div>
-        <FlowLayout state={registrationFlow.get()}>
+        <FlowLayout status={registrationStatus}>
             <loading><LoadingAlert /></loading>
             <ready>
                 <div className='d-flex align-self-stretch'>
-                    <Button type="submit" className="flex-grow-1" disabled={isUsernameInvalid || isPasswordInvalid || isPasswordRepeatInvalid || isEmailInvalid}>Register</Button>
+                    <Button type="submit" className="flex-grow-1" disabled={isRegisterButtonDisabled}>Register</Button>
                 </div>
             </ready>
             <error><ErrorAlert /></error>
@@ -152,24 +157,24 @@ function RegistrationTab({ signupSuccessful }) {
     </form>
 }
 
-function Account(props) {
+function Account({ setUser }) {
     const navigate = useNavigate()
 
-    const signinSuccessful = (response) => {
-        props.setUser(response)
+    const onSigninSuccessful = (response) => {
+        setUser(response)
         navigate('/')
     }
 
-    const signupSuccessful = (response) => {
-        props.setUser(response)
+    const onSignupSuccessful = (response) => {
+        setUser(response)
         navigate('/')
     }
 
     return <div className='d-flex flex-column align-self-center gap-2 align-items-center flex-grow-1 justify-content-center p-0 max-s'>
         <div style={{ marginTop: '-5em' }} className='align-self-center'><Logo fontSize={64} /></div>
         <TabsLayout>
-            <div title={<>Sign In <BoxArrowInRight className='size-1' /></>}><LoginTab signinSuccessful={signinSuccessful} /></div>
-            <div title={<>Sign Up <PersonPlusFill className='size-1' /></>}><RegistrationTab signupSuccessful={signupSuccessful} /></div>
+            <div title={<>Sign In <BoxArrowInRight className='size-1' /></>}><LoginTab signinSuccessful={onSigninSuccessful} /></div>
+            <div title={<>Sign Up <PersonPlusFill className='size-1' /></>}><RegistrationTab signupSuccessful={onSignupSuccessful} /></div>
         </TabsLayout>
     </div >
 }

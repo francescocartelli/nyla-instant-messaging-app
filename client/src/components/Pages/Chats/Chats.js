@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { ChevronRight, PlusCircleFill } from "react-bootstrap-icons"
 import { Link } from "react-router-dom"
 
@@ -8,7 +8,7 @@ import { FlowLayout, PagesControl } from "components/Common/Layout"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
 
 import { getDateAndTime } from "utils/Dates"
-import { FlowState } from "utils/Utils"
+import { useStatus } from "hooks/useStatus"
 
 import chatAPI from "api/chatAPI"
 
@@ -42,30 +42,31 @@ function PersonalChats() {
     const [chatsPage, setChatsPage] = useState(1)
     const [chatsNPages, setChatsNPages] = useState(0)
 
-    const chatsFlow = useRef()
-    chatsFlow.current = FlowState()
+    const [chatsStatus, chatsStatusActions] = useStatus()
 
     useEffect(() => {
         const controller = new AbortController()
         chatAPI.getChatPersonal(chatsPage, { signal: controller.signal }).then(({ page, nPages, chats }) => {
-            chatsFlow.current.setReady()
+            chatsStatusActions.setReady()
             setChatsNPages(nPages)
             setChats([...chats])
         }).catch(err => {
-            chatsFlow.current.setError()
+            chatsStatusActions.setError()
             console.log(err)
         })
         return () => {
             controller?.abort()
             setChats([])
         }
-    }, [chatsPage])
+    }, [chatsPage, chatsStatusActions])
+
+    const onClickChatsPage = (value) => setChatsPage(value)
 
     return <div className="d-flex flex-column gap-2 mt-2 mb-2 align-self-stretch flex-grow-1 ">
         <div className="d-flex flex-column gap-3 align-self-stretch flex-grow-1 scroll-y h-0">
             <NewChatButton />
             <div className="d-flex flex-column gap-2 flex-grow-1">
-                <FlowLayout state={chatsFlow.current.get()}>
+                <FlowLayout status={chatsStatus}>
                     <loading><LoadingAlert /></loading>
                     <ready>{chats.map(chat => <ChatCard key={chat.id} chat={chat} />)}</ready>
                     <error><ErrorAlert /></error>
@@ -73,8 +74,7 @@ function PersonalChats() {
             </div>
         </div>
         <div className="align-self-center">
-            <PagesControl page={chatsPage} nPages={chatsNPages}
-                onClick={(value) => setChatsPage(value)} />
+            <PagesControl page={chatsPage} nPages={chatsNPages} onClick={onClickChatsPage} />
         </div>
     </div>
 }

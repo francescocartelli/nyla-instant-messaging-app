@@ -15,6 +15,7 @@ import { ChatEditor } from "components/Pages/Chats/ChatEditor"
 import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
 
 import chatAPI from "api/chatAPI"
+import { useStatus } from "hooks/useStatus"
 
 function MessageEditor({ id, scrollTo = () => { } }) {
     const [content, setContent] = useState("")
@@ -22,20 +23,20 @@ function MessageEditor({ id, scrollTo = () => { } }) {
 
     const isSendButtonDisabled = () => { return isSending || content === "" }
 
+    const onChangeContent = (ev) => setContent(ev.target.value)
+    const onClickSendButton = () => {
+        setSending(true)
+        chatAPI.sendMessage(id, { content: content }).then((m) => {
+            setContent("")
+            setSending(false)
+            scrollTo()
+        }).catch(err => console.log(err))
+    }
+
     return <div className="card-1">
         <div className="d-flex flex-row gap-2 align-items-center">
-            <TextArea rows={1} className="flex-grow-1" value={content} disabled={isSending} placeholder="Write yout message here..."
-                onChange={(ev) => setContent(ev.target.value)} />
-            <Button className={'circle'} disabled={isSendButtonDisabled()} onClick={() => {
-                setSending(true)
-                chatAPI.sendMessage(id, { content: content }).then((m) => {
-                    setContent("")
-                    setSending(false)
-                    scrollTo()
-                }).catch(err => {
-                    console.log(err)
-                })
-            }}><Check2 className="fore-success size-1" /></Button>
+            <TextArea rows={1} className="flex-grow-1" value={content} disabled={isSending} placeholder="Write yout message here..." onChange={onChangeContent} />
+            <Button className={'circle'} disabled={isSendButtonDisabled()} onClick={onClickSendButton}><Check2 className="fore-success size-1" /></Button>
         </div>
     </div>
 }
@@ -57,7 +58,7 @@ function MessageCard({ id, message, user, prev, users }) {
     const changedSender = prev ? message.idSender?.toString() !== prev.idSender?.toString() : true
     const senderUsername = users.find(i => i.id === message.idSender)?.username
 
-    const deleteMessage = () => {
+    const onClickMessageDelete = () => {
         setDeleting(true)
         chatAPI.deleteMessage(id, message.id).then().catch(err => {
             setDeleting(false)
@@ -65,10 +66,10 @@ function MessageCard({ id, message, user, prev, users }) {
         })
     }
 
-    const DeleteMessage = () => {
+    const DeleteMessageControl = () => {
         return <>
             {isExpanded ? <>
-                {isDeleting ? <Hourglass className="fore-2" /> : <TrashFill className="fore-2-btn" onClick={() => deleteMessage()} />}
+                {isDeleting ? <Hourglass className="fore-2" /> : <TrashFill className="fore-2-btn" onClick={onClickMessageDelete} />}
                 <ChevronRight onClick={() => setExpanded(false)} className="fore-2-btn" />
             </> : <ThreeDots onClick={() => setExpanded(true)} className="fore-2-btn" />}
         </>
@@ -81,7 +82,7 @@ function MessageCard({ id, message, user, prev, users }) {
             <p className="m-0">{message.content}</p>
             <div className="d-flex flex-row gap-1 align-items-center">
                 <p className="crd-subtitle pr-2 flex-grow-1">{time}</p>
-                {!isFromOther && <DeleteMessage />}
+                {!isFromOther && <DeleteMessageControl />}
             </div>
         </div>
     </>
@@ -102,9 +103,9 @@ function Chat({ user }) {
     const [chat, setChat] = useState({})
     const [users, setUsers] = useState([])
 
-    const [chatFlow, setChatFlow] = useState('loading')
-    const [usersFlow, setUsersFlow] = useState('loading')
-    const [messagesFlow, setMessagesFlow] = useState('loading')
+    const [chatStatus, chatStatusActions] = useStatus()
+    const [usersStatus, userStatusActions] = useStatus()
+    const [messagesStatus, messagesStatusActions] = useStatus()
 
     const [messages, setMessages] = useState([])
     const [isNextDisabled, setNextDisabled] = useState(false)
@@ -131,33 +132,33 @@ function Chat({ user }) {
         const controller = new AbortController()
 
         chatAPI.getChat(id, { signal: controller.signal }).then(chat => {
+            chatStatusActions.setReady()
             setChat(chat)
-            setChatFlow('ready')
         }).catch(err => {
+            chatStatusActions.setError()
             console.log(err)
-            setChatFlow('error')
         })
 
         chatAPI.getChatUsers(id, { signal: controller.signal }).then(users => {
             setUsers(users)
-            setUsersFlow('ready')
+            userStatusActions.setReady()
         }).catch(err => {
             console.log(err)
-            setUsersFlow('error')
+            userStatusActions.setError()
         })
 
         chatAPI.getMessages(id, cursor.current, { signal: controller.signal }).then(({ messages, nextCursor }) => {
             setMessages(p => [...[...messages].reverse(), ...p])
             cursor.current = nextCursor
             scrollToLast()
-            setMessagesFlow('ready')
+            messagesStatusActions.setReady()
         }).catch(err => {
             console.log(err)
-            setMessagesFlow('error')
+            messagesStatusActions.setError()
         })
 
         return () => { controller?.abort() }
-    }, [id])
+    }, [id, chatStatusActions, userStatusActions, messagesStatusActions])
 
     useEffect(() => {
         const channelCreateMessage = channelTypes.createMessageInChat(id)
@@ -181,13 +182,16 @@ function Chat({ user }) {
     }, [id, subscribe, unsubscribe, navigate])
 
     const getChatName = () => { return chat.isGroup ? chat.name : `Chat with ${users.find(u => u.id !== user.id)?.username}` }
+    const onClickNewMessages = () => { setnewMessages(false); scrollToLast() }
+    const onCloseChatEditor = () => setEditing(false)
+    const onClickEditChat = () => setEditing(true)
 
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-3">
         {isEditing ?
-            <ChatEditor user={user} chat={chat} setChat={setChat} usersFlow={usersFlow} users={users} setUsers={setUsers} close={() => setEditing(false)} /> :
+            <ChatEditor user={user} chat={chat} setChat={setChat} usersFlow={usersStatus} users={users} setUsers={setUsers} close={onCloseChatEditor} /> :
             <>
                 <div className="d-flex flex-row card-1 align-items-center gap-2">
-                    <FlowLayout state={chatFlow}>
+                    <FlowLayout status={chatStatus}>
                         <loading><LoadingAlert /></loading>
                         <ready>
                             {chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}
@@ -195,23 +199,19 @@ function Chat({ user }) {
                                 <p className="crd-title">{getChatName()}</p>
                                 {chat.isGroup && <p className="crd-subtitle">{`${users?.length} users`}</p>}
                             </div>
-                            <Button className='circle' onClick={() => setEditing(true)}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
+                            <Button className='circle' onClick={onClickEditChat}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
                         </ready>
                         <error><ErrorAlert /></error>
                     </FlowLayout>
                 </div>
                 <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y">
-                    <FlowLayout state={messagesFlow}>
+                    <FlowLayout status={messagesStatus}>
                         <loading><LoadingAlert /></loading>
                         <ready>
-                            {cursor.current !== null && <Button disabled={isNextDisabled} onClick={() => getMessages()}>Get Previous Messages...</Button>}
+                            {cursor.current !== null && <Button disabled={isNextDisabled} onClick={getMessages}>Get Previous Messages...</Button>}
                             {messages.length === 0 && <EmptyMessages />}
-                            {messages.map((message, i, arr) => <MessageCard key={message.id}
-                                id={id}
-                                message={message}
-                                user={user}
-                                prev={i > 0 ? arr[i - 1] : null}
-                                users={users} />)}
+                            {messages.map((message, i, arr) => <MessageCard key={message.id} id={id} message={message}
+                                user={user} prev={i > 0 ? arr[i - 1] : null} users={users} />)}
                             <div ref={lastRef} />
                         </ready>
                         <error><ErrorAlert /></error>
@@ -219,17 +219,13 @@ function Chat({ user }) {
                 </div>
                 <div className="rel">
                     {isNewMessages && <div className="d-flex justify-content-center align-items-center flex-grow-1 new-messages-wrapper">
-                        <Button onClick={() => {
-                            setnewMessages(false)
-                            scrollToLast()
-                        }} className="card-1 d-flex flex-row gap-2 box-glow">
+                        <Button onClick={onClickNewMessages} className="card-1 d-flex flex-row gap-2 box-glow">
                             <ArrowDown className="fore-2 size-1" />
                             <p className="text-center m-0">New Messages!</p>
                             <ArrowDown className="fore-2 size-1" />
                         </Button>
                     </div>}
                     <MessageEditor id={id} scrollTo={scrollToLast} />
-
                 </div>
             </>}
     </div>

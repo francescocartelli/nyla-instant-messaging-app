@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 
 import './Users.css'
 
-import { FlowState } from "utils/Utils"
+import { useStatus } from 'hooks/useStatus'
 
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 import { Text } from "components/Common/Inputs"
@@ -17,23 +17,22 @@ import chatAPI from "api/chatAPI"
 function UserCard({ user, currentUser, onRedirect }) {
     const [isLoading, setLoading] = useState(false)
 
+    const onClickOpenChat = () => {
+        setLoading(true)
+        chatAPI.createChat({ name: null, users: [user, currentUser], isGroup: false })
+            .then(chat => onRedirect(chat.id))
+            .catch(err => { console.log(err); setLoading(false) })
+    }
+
     return <div className="row-center card-1">
         <div className="crd-icon"><PersonFill className="fore-2 size-2" /></div>
         <div className="d-flex flex-column flex-grow-1">
             <p className="crd-title">{user.username}</p>
             <p className="crd-subtitle c-gray"><i>{user.bio}</i></p>
         </div>
-        {user.id !== currentUser.id ?<Button disabled={isLoading} onClick={() => {
-            setLoading(true)
-            chatAPI.createChat({ name: null, users: [user, currentUser], isGroup: false }).then(chat => {
-                onRedirect(chat.id)
-            }).catch(err => {
-                console.log(err)
-                setLoading(false)
-            })
-        }}>
-            open chat <Chat className="size-2 fore-2-btn" />
-        </Button> : <div className="card-2"><p className="fore-2 m-0">You</p></div>}
+        {user.id !== currentUser.id ?
+            <Button disabled={isLoading} onClick={onClickOpenChat}>open chat <Chat className="size-2 fore-2-btn" /></Button> :
+            <div className="card-2"><p className="fore-2 m-0">You</p></div>}
     </div>
 }
 
@@ -45,7 +44,7 @@ function UsersSearchInput({ value, onChange, onLoading, onReady, onError, deboun
 
     useEffect(() => {
         const controller = new AbortController()
-        
+
         let timeoutId = null
         if (userSearchDebounce.current) clearTimeout(userSearchDebounce.current)
         if (value === "") refOnReady.current([])
@@ -53,8 +52,8 @@ function UsersSearchInput({ value, onChange, onLoading, onReady, onError, deboun
             refOnLoading.current()
             timeoutId = setTimeout(() => {
                 userAPI.getUsers(value, { signal: controller.signal })
-                .then((u) => refOnReady.current(u))
-                .catch(err => refOnError.current(err))
+                    .then((u) => refOnReady.current(u))
+                    .catch(err => refOnError.current(err))
             }, debounceDelay)
             userSearchDebounce.current = timeoutId
         }
@@ -65,17 +64,19 @@ function UsersSearchInput({ value, onChange, onLoading, onReady, onError, deboun
         }
     }, [value, debounceDelay])
 
+    const onChangeSearchByUsername = (ev) => onChange(ev.target.value)
+    const onClickCancelSearch = () => onChange("")
+
     return <div className="d-flex flex-row gap-2" >
-        <Text title="User search:" autoComplete="new-password" value={value} placeholder="Search by username..."
-            onChange={(ev) => onChange(ev.target.value)}
+        <Text title="User search:" autoComplete="new-password" value={value} placeholder="Search by username..." onChange={onChangeSearchByUsername}
             left={<Search className="size-1 fore-2" />}
-            right={value === "" ? <></> : <XCircleFill onClick={() => onChange("")} className="size-1 fore-2-btn" />} />
+            right={value === "" ? <></> : <XCircleFill onClick={onClickCancelSearch} className="size-1 fore-2-btn" />} />
     </div>
 }
 
-function UserList({ users, flowState, onEmpty, onRenderItem }) {
+function UserList({ users, status, onEmpty, onRenderItem }) {
     return <div className="d-flex flex-column gap-3 flex-grow-1">
-        <FlowLayout state={flowState}>
+        <FlowLayout status={status}>
             <loading>
                 <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>
             </loading>
@@ -93,20 +94,14 @@ function UsersSearchList({ onRenderItem = () => { } }) {
     const [users, setUsers] = useState([])
     const [userSearch, setUserSearch] = useState("")
 
-    const userSearchFlow = FlowState()
+    const [userSearchStatus, userSearchStatusActions] = useStatus('loading')
 
     return <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y">
         <UsersSearchInput value={userSearch} onChange={setUserSearch}
-            onLoading={() => userSearchFlow.setLoading()}
-            onReady={(u) => {
-                setUsers(u)
-                userSearchFlow.setReady()
-            }}
-            onError={(err) => {
-                console.log(err)
-                userSearchFlow.setError()
-            }} />
-        <UserList users={users} flowState={userSearchFlow.get()}
+            onLoading={() => userSearchStatusActions.setLoading()}
+            onReady={(u) => { setUsers(u); userSearchStatusActions.setReady() }}
+            onError={(err) => { console.log(err); userSearchStatusActions.setError() }} />
+        <UserList users={users} status={userSearchStatus}
             onRenderItem={onRenderItem}
             onEmpty={() => userSearch === "" ? <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
                 <Person className="size-2 fore-2" />
@@ -123,9 +118,7 @@ function UsersSearchList({ onRenderItem = () => { } }) {
 function UsersSearch({ user }) {
     const navigate = useNavigate()
 
-    const onRedirect = (idChat) => {
-        navigate(`/chats/${idChat}`)
-    }
+    const onRedirect = (idChat) => navigate(`/chats/${idChat}`)
 
     return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2">
         <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u} currentUser={user} onRedirect={onRedirect} />} />
