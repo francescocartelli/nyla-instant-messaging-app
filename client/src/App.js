@@ -56,7 +56,7 @@ function App() {
             <PushContainer />
             <Nav isWaitingUser={isWaitingUser} user={user} setUser={setUser} logout={() => usersAPI.logout()} />
             <div className='mt-nav'><p>-</p></div>
-            <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>
+            <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p pt-2'>
               <Routes>
                 <Route path="/about" element={<About />} />
                 <Route path="/account" element={<>

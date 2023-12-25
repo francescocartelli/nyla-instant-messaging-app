@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react"
+import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { ArrowDown, Check2, ChevronRight, Hourglass, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
 
@@ -8,7 +8,7 @@ import { getDateAndTime } from "utils/Dates"
 
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 import { FlowLayout } from "components/Common/Layout"
-import { TextArea } from "components/Common/Inputs"
+import { Text } from "components/Common/Inputs"
 import { Button } from "components/Common/Buttons"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
 import { ChatEditor } from "components/Pages/Chats/ChatEditor"
@@ -16,28 +16,29 @@ import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
 
 import chatAPI from "api/chatAPI"
 import { useStatus } from "hooks/useStatus"
+import { useIsInViewport } from "hooks/useOnViewport"
 
-function MessageEditor({ id, scrollTo = () => { } }) {
+function MessageEditor({ id }) {
     const [content, setContent] = useState("")
     const [isSending, setSending] = useState(false)
 
     const isSendButtonDisabled = () => { return isSending || content === "" }
 
     const onChangeContent = (ev) => setContent(ev.target.value)
-    const onClickSendButton = () => {
+    const onSubmitMessage = (ev) => {
+        ev.preventDefault()
         setSending(true)
         chatAPI.sendMessage(id, { content: content }).then((m) => {
             setContent("")
             setSending(false)
-            scrollTo()
         }).catch(err => console.log(err))
     }
 
     return <div className="card-1">
-        <div className="d-flex flex-row gap-2 align-items-center">
-            <TextArea rows={1} className="flex-grow-1" value={content} disabled={isSending} placeholder="Write yout message here..." onChange={onChangeContent} />
-            <Button className={'circle'} disabled={isSendButtonDisabled()} onClick={onClickSendButton}><Check2 className="fore-success size-1" /></Button>
-        </div>
+        <form className="d-flex flex-row gap-2 align-items-center" onSubmit={onSubmitMessage}>
+            <Text className="flex-grow-1" value={content} disabled={isSending} placeholder="Write yout message here..." onChange={onChangeContent} />
+            <Button type="submit" className={'circle'} disabled={isSendButtonDisabled()}><Check2 className="fore-success size-1" /></Button>
+        </form>
     </div>
 }
 
@@ -109,21 +110,24 @@ function Chat({ user }) {
 
     const [messages, setMessages] = useState([])
     const [isNextDisabled, setNextDisabled] = useState(false)
-    const cursor = useRef(null)
+    const messagesCursor = useRef(null)
+
     const [isEditing, setEditing] = useState(false)
-    const [isNewMessages, setnewMessages] = useState(false)
+    const [isNewMessageButtonVisible, setNewMessageButtonVisible] = useState(false)
 
     const lastRef = useRef(null)
+    const isLastInViewport = useIsInViewport(lastRef)
+
     const [subscribe, unsubscribe] = useContext(WebSocketContext)
     const navigate = useNavigate()
 
-    const scrollToLast = () => { lastRef.current?.scrollIntoView() }
+    const scrollToLastMessage = () => { lastRef.current?.scrollIntoView() }
 
     const getMessages = () => {
         setNextDisabled(true)
-        chatAPI.getMessages(id, cursor.current, {}).then(({ messages, nextCursor }) => {
+        chatAPI.getMessages(id, messagesCursor.current, {}).then(({ messages, nextCursor }) => {
             setNextDisabled(false)
-            cursor.current = nextCursor
+            messagesCursor.current = nextCursor
             setMessages(p => [...[...messages].reverse(), ...p])
         }).catch(err => console.log(err))
     }
@@ -147,11 +151,11 @@ function Chat({ user }) {
             userStatusActions.setError()
         })
 
-        chatAPI.getMessages(id, cursor.current, { signal: controller.signal }).then(({ messages, nextCursor }) => {
+        chatAPI.getMessages(id, messagesCursor.current, { signal: controller.signal }).then(({ messages, nextCursor }) => {
             setMessages(p => [...[...messages].reverse(), ...p])
-            cursor.current = nextCursor
-            scrollToLast()
+            messagesCursor.current = nextCursor
             messagesStatusActions.setReady()
+            scrollToLastMessage()
         }).catch(err => {
             console.log(err)
             messagesStatusActions.setError()
@@ -160,12 +164,19 @@ function Chat({ user }) {
         return () => { controller?.abort() }
     }, [id, chatStatusActions, userStatusActions, messagesStatusActions])
 
+    const updateScroll = useCallback((message) => {
+        if (user.id !== message.idSender) {
+            if (isLastInViewport) scrollToLastMessage()
+            else setNewMessageButtonVisible(true)
+        } else scrollToLastMessage()
+    }, [isLastInViewport, user.id])
+
     useEffect(() => {
         const channelCreateMessage = channelTypes.createMessageInChat(id)
         subscribe(channelCreateMessage, ({ message }) => {
-            console.log(message)
-            setnewMessages(true)
+            // console.log(message)
             setMessages(p => [...p, message])
+            updateScroll(message)
         })
 
         const channelDeleteMessage = channelTypes.deleteMessageInChat(id)
@@ -179,10 +190,10 @@ function Chat({ user }) {
             unsubscribe(channelDeleteMessage)
             unsubscribe(channelDeleteChat)
         }
-    }, [id, subscribe, unsubscribe, navigate])
+    }, [id, subscribe, unsubscribe, navigate, isLastInViewport, updateScroll])
 
     const getChatName = () => { return chat.isGroup ? chat.name : `Chat with ${users.find(u => u.id !== user.id)?.username}` }
-    const onClickNewMessages = () => { setnewMessages(false); scrollToLast() }
+    const onClickNewMessages = () => {setNewMessageButtonVisible(false); scrollToLastMessage()}
     const onCloseChatEditor = () => setEditing(false)
     const onClickEditChat = () => setEditing(true)
 
@@ -208,24 +219,24 @@ function Chat({ user }) {
                     <FlowLayout status={messagesStatus}>
                         <loading><LoadingAlert /></loading>
                         <ready>
-                            {cursor.current !== null && <Button disabled={isNextDisabled} onClick={getMessages}>Get Previous Messages...</Button>}
-                            {messages.length === 0 && <EmptyMessages />}
-                            {messages.map((message, i, arr) => <MessageCard key={message.id} id={id} message={message}
+                            {messagesCursor.current !== null && <Button disabled={isNextDisabled} onClick={getMessages}>Get Previous Messages...</Button>}
+                            {messages?.length === 0 && <EmptyMessages />}
+                            {messages?.map((message, i, arr) => <MessageCard key={message.id} id={id} message={message}
                                 user={user} prev={i > 0 ? arr[i - 1] : null} users={users} />)}
-                            <div ref={lastRef} />
                         </ready>
                         <error><ErrorAlert /></error>
                     </FlowLayout>
+                    <div ref={lastRef}></div>
                 </div>
                 <div className="rel">
-                    {isNewMessages && <div className="d-flex justify-content-center align-items-center flex-grow-1 new-messages-wrapper">
-                        <Button onClick={onClickNewMessages} className="card-1 d-flex flex-row gap-2 box-glow">
+                    {isNewMessageButtonVisible && <div className="d-flex justify-content-center align-items-center flex-grow-1 new-messages-wrapper">
+                        <Button onClick={onClickNewMessages} className="box-glow">
                             <ArrowDown className="fore-2 size-1" />
                             <p className="text-center m-0">New Messages!</p>
                             <ArrowDown className="fore-2 size-1" />
                         </Button>
                     </div>}
-                    <MessageEditor id={id} scrollTo={scrollToLast} />
+                    <MessageEditor id={id} />
                 </div>
             </>}
     </div>

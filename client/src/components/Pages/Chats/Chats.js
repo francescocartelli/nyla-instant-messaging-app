@@ -62,10 +62,10 @@ function PersonalChats() {
 
     const onClickChatsPage = (value) => setChatsPage(value)
 
-    return <div className="d-flex flex-column gap-2 mt-2 mb-2 align-self-stretch flex-grow-1 ">
+    return <div className="d-flex flex-column gap-3 mt-2 mb-2 align-self-stretch flex-grow-1 ">
         <div className="d-flex flex-column gap-3 align-self-stretch flex-grow-1 scroll-y h-0">
             <NewChatButton />
-            <div className="d-flex flex-column gap-2 flex-grow-1">
+            <div className="d-flex flex-column gap-3 flex-grow-1">
                 <FlowLayout status={chatsStatus}>
                     <loading><LoadingAlert /></loading>
                     <ready>{chats.map(chat => <ChatCard key={chat.id} chat={chat} />)}</ready>

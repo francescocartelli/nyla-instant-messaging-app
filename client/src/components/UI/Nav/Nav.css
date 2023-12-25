@@ -10,13 +10,16 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0.25em;
+    gap: 0.5em;
+    padding: 0.5em;
+}
+
+.nav-item span {
+    color: #f0f0f0;
+    font-weight: 600;
     text-decoration: none;
-    font-weight: 500;
-    color: #ffffff;
     white-space: nowrap;
     overflow: hidden;
-    padding: 0.5em;
 }
 
 .nav-item.border {
@@ -26,12 +29,23 @@
 }
 
 .nav-item svg {
-    font-size: 1.5em;
+    font-size: 1.8em;
 }
 
 .nav-item:hover {
     text-decoration: none;
+}
+
+.nav-item:hover svg {
+    text-decoration: none;
     color: #ffffff;
+    transition: 0.5s;
+}
+
+.nav-item:hover span {
+    text-decoration: none;
+    color: #ffffff;
+    transition: 0.5s;
 }
 
 .nav-gap {

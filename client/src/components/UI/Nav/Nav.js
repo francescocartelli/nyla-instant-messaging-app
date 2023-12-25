@@ -26,22 +26,22 @@ function Nav({ isWaitingUser, user, setUser, logout }) {
     return <div className="d-flex flex-column align-items-stretch navbar adaptive-p gap-2 back-2">
         <div className='show-small flex-row justify-content-between align-items-center'>
             <NavItem to='/' className="pt-0 pb-0"><LogoGrad className="size-1" /></NavItem>
-            <NavItem to='#' onClick={() => setCollapsed(p => !p)}>{isCollapsed ? <List /> : <XCircleFill />}</NavItem>
+            <NavItem to='#' onClick={() => setCollapsed(p => !p)}>{isCollapsed ? <List className='fore-2'/> : <XCircleFill className='fore-2'/>}</NavItem>
         </div>
         <div className={`${isCollapsed ? "hide-small" : "d-flex"} flex-row-col-adaptive gap-3`}>
-            <NavItem to={"/"} className="hide-small pt-0 pb-0"><Logo className="size-1" /><b>nyla</b></NavItem>
-            <NavItem to={"/about"}><InfoCircle className='fore-2' />About</NavItem>
+            <NavItem to={"/"} className="hide-small pt-0 pb-0"><Logo className="size-1" /><span><b>nyla</b></span></NavItem>
+            <NavItem to={"/about"}><InfoCircle className='fore-2' /><span>About</span></NavItem>
             <IsLogged isWaitingUser={isWaitingUser} user={user}>
-                <NavItem to={"/chats"}><ChatFill className='fore-2' />Chats</NavItem>
-                <NavItem to={"/users"}><PersonFill className='fore-2' />Users</NavItem>
+                <NavItem to={"/chats"}><ChatFill className='fore-2' /><span>Chats</span></NavItem>
+                <NavItem to={"/users"}><PersonFill className='fore-2' /><span>Users</span></NavItem>
                 <Sep />
                 <NavItem to='#' className="border" onClick={() => {
                     logout().then(() => { setUser(false) }).catch(err => console.log(err))
-                }}><BoxArrowRight className='fore-2' /> Logout</NavItem>
+                }}><BoxArrowRight className='fore-2' /> <span>Logout</span></NavItem>
             </IsLogged>
             <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
                 <Sep />
-                <NavItem to={"/account"} className="card-2">Login</NavItem>
+                <NavItem to={"/account"} className="card-2"><span>Login</span></NavItem>
             </IsNotLogged>
             <div className='show-small row justify-content-center'><Footer /></div>
         </div>
