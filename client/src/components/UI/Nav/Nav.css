@@ -14,26 +14,34 @@
     padding: 0.5em;
 }
 
+.nav-item:hover {
+    text-decoration: none;
+}
+
 .nav-item span {
     color: #f0f0f0;
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
     overflow: hidden;
+    transition: 0.5s;
 }
 
-.nav-item.border {
-    border: 1px solid #2A2F35 !important;
-    border-radius: 0.5em;
-    width: fit-content;
+.nav-item:hover span {
+    text-decoration: none;
+    color: #ffffff;
+    transition: 0.5s;
 }
 
 .nav-item svg {
     font-size: 1.8em;
+    color: #717A85;
+    transition: 0.5s;
 }
 
-.nav-item:hover {
-    text-decoration: none;
+.nav-item.active svg {
+    color: #f0f0f0;
+    transition: 0.5s;
 }
 
 .nav-item:hover svg {
@@ -42,10 +50,10 @@
     transition: 0.5s;
 }
 
-.nav-item:hover span {
-    text-decoration: none;
-    color: #ffffff;
-    transition: 0.5s;
+.nav-item.border {
+    border: 1px solid #2A2F35 !important;
+    border-radius: 0.5em;
+    width: fit-content;
 }
 
 .nav-gap {

@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { Link } from "react-router-dom"
-import { BoxArrowRight, ChatFill, InfoCircle, List, PersonFill, XCircleFill } from 'react-bootstrap-icons'
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from "react-router-dom"
+import { BoxArrowInRight, BoxArrowRight, ChatFill, InfoCircle, List, PersonFill, XCircleFill } from 'react-bootstrap-icons'
 
 import './Nav.css'
 
@@ -15,33 +15,38 @@ function Sep() {
 function Nav({ isWaitingUser, user, setUser, logout }) {
     const [isCollapsed, setCollapsed] = useState(true)
 
-    function NavItem({ className, children, onClick, ...props }) {
-        const defaultBehaviorOnClick = () => setCollapsed(true)
+    const onClickLogout = () => logout().then(() => { setUser(false) }).catch(err => console.log(err))
 
-        return <Link {...props} className={`nav-item ${className}`} onClick={onClick ? onClick : defaultBehaviorOnClick}>
+    function NavItem({ children, onClick, className = "", to = '#', exactPath = false, ...props }) {
+        const location = useLocation()
+
+        const defaultBehaviorOnClick = () => setCollapsed(true)
+        const selected = exactPath ? location?.pathname === to : location?.pathname.startsWith(to)
+
+        return <Link {...props} to={to}
+            onClick={onClick ? onClick : defaultBehaviorOnClick}
+            className={`nav-item ${selected ? "active" : ""} ${className}`}>
             {children}
-        </Link>
+        </ Link>
     }
 
     return <div className="d-flex flex-column align-items-stretch navbar adaptive-p gap-2 back-2">
         <div className='show-small flex-row justify-content-between align-items-center'>
-            <NavItem to='/' className="pt-0 pb-0"><LogoGrad className="size-1" /></NavItem>
-            <NavItem to='#' onClick={() => setCollapsed(p => !p)}>{isCollapsed ? <List className='fore-2'/> : <XCircleFill className='fore-2'/>}</NavItem>
+            <NavItem to='/' exactPath={true} className="pt-0 pb-0"><LogoGrad className="size-1" /></NavItem>
+            <NavItem to='#' onClick={() => setCollapsed(p => !p)}>{isCollapsed ? <List /> : <XCircleFill />}</NavItem>
         </div>
         <div className={`${isCollapsed ? "hide-small" : "d-flex"} flex-row-col-adaptive gap-3`}>
-            <NavItem to={"/"} className="hide-small pt-0 pb-0"><Logo className="size-1" /><span><b>nyla</b></span></NavItem>
-            <NavItem to={"/about"}><InfoCircle className='fore-2' /><span>About</span></NavItem>
+            <NavItem to={"/"} exactPath={true} className="hide-small pt-0 pb-0"><Logo className="size-1" /><span><b>nyla</b></span></NavItem>
+            <NavItem to={"/about"}><InfoCircle /><span>About</span></NavItem>
             <IsLogged isWaitingUser={isWaitingUser} user={user}>
-                <NavItem to={"/chats"}><ChatFill className='fore-2' /><span>Chats</span></NavItem>
-                <NavItem to={"/users"}><PersonFill className='fore-2' /><span>Users</span></NavItem>
+                <NavItem to={"/chats"}><ChatFill /><span>Chats</span></NavItem>
+                <NavItem to={"/users"}><PersonFill /><span>Users</span></NavItem>
                 <Sep />
-                <NavItem to='#' className="border" onClick={() => {
-                    logout().then(() => { setUser(false) }).catch(err => console.log(err))
-                }}><BoxArrowRight className='fore-2' /> <span>Logout</span></NavItem>
+                <NavItem to='#' onClick={onClickLogout}><BoxArrowRight /> <span>Logout</span></NavItem>
             </IsLogged>
             <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
                 <Sep />
-                <NavItem to={"/account"} className="card-2"><span>Login</span></NavItem>
+                <NavItem to={"/account"}><BoxArrowInRight /> <span>Login</span></NavItem>
             </IsNotLogged>
             <div className='show-small row justify-content-center'><Footer /></div>
         </div>
