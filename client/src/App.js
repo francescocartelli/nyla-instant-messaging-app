@@ -20,6 +20,8 @@ import { UsersSearch } from 'components/Pages/Users/Users'
 import { PersonalChats } from 'components/Pages/Chats/Chats'
 import { Chat } from 'components/Pages/Chats/Chat'
 import { NewChatEditor } from 'components/Pages/Chats/ChatEditor'
+import { NotFound } from 'components/Pages/NotFound/NotFound'
+import { Settings } from 'components/Pages/Settings/Settings'
 
 import usersAPI from 'api/userAPI'
 
@@ -62,7 +64,7 @@ function App() {
                 <Route path="/account" element={<>
                   <IsNotLogged isWaitingUser={isWaitingUser} user={user}><Account setUser={setUser} /> </IsNotLogged>
                   <IsLogged isWaitingUser={isWaitingUser} user={user}><Navigate to="/" /></IsLogged>
-                  </>} />
+                </>} />
                 <Route path="/chats/new" element={<AuthWall>
                   <NewChatEditor user={user} />
                 </AuthWall>} />
@@ -75,7 +77,11 @@ function App() {
                 <Route path="/users" element={<AuthWall>
                   <UsersSearch user={user} />
                 </AuthWall>} />
-                <Route path="/" element={<Home />} />
+                <Route path="/settings" element={<AuthWall>
+                  <Settings />
+                </AuthWall>} />
+                <Route exact path="/" element={<Home />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
             <div className="flex-row justify-content-center hide-small gap-2">

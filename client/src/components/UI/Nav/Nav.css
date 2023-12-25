@@ -3,6 +3,9 @@
     left: 0;
     right: 0;
     z-index: 100;
+}
+
+.b-bottom {
     border-bottom: 1px solid #2A2F35;
 }
 
@@ -65,6 +68,10 @@
     flex-direction: row;
 }
 
+.gap-3-adaptive {
+    gap: 1em;
+}
+
 @media only screen and (max-width: 600px) {
     .flex-row-col-adaptive {
         flex-direction: column;
@@ -73,5 +80,9 @@
     .nav-gap {
         flex-grow: 0;
         margin-bottom: 1em;
+    }
+
+    .gap-3-adaptive {
+        gap: 0.5em;
     }
 }
