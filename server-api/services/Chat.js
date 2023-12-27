@@ -19,10 +19,10 @@ exports.getChat = function (idChat, project = true) {
     return db.collection(db.collections.chat).findOne({ _id: new ObjectId(idChat) }, options)
 }
 
-exports.getChatsPersonal = function (idUser, page = 1) {
+exports.getChatsPersonal = function (idUser, page = 1, asc=false) {
     return db.collection(db.collections.chat)
         .find({ users: { $in: [new ObjectId(idUser)] } }, { projection: {...chatProj, idUsers: '$users'} })
-        .sort({ updatedAt: -1 }).limit(db.configs.CHATS_PER_PAGE)
+        .sort({ updatedAt: asc ? 1 : -1 }).limit(db.configs.CHATS_PER_PAGE)
         .skip(db.configs.CHATS_PER_PAGE * (page - 1)).toArray()
 }
 

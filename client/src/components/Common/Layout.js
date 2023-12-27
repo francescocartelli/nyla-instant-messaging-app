@@ -23,7 +23,7 @@ function TabsLayout({ children }) {
     </>
 }
 
-function FlowLayout({ status, children }) {
+function StatusLayout({ status, children }) {
     return <>
         {status && children.filter(child => child.type === status).map(i => i.props.children)}
     </>
@@ -41,4 +41,4 @@ function PagesControl({ page, nPages, onClick = () => { } }) {
     </div>
 }
 
-export { TabsLayout, FlowLayout, PagesControl }
+export { TabsLayout, StatusLayout, PagesControl }

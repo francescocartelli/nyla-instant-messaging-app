@@ -1,7 +1,7 @@
 const { ObjectId } = require("mongodb")
 
 const { pagingChat } = require.main.require("./components/Chat")
-const { getPage } = require.main.require("./components/utils")
+const { getPage, getBool } = require.main.require("./components/utils")
 const { mqDeleteChat } = require.main.require("./components/Redis")
 
 const chatServices = require.main.require('./services/Chat')
@@ -25,9 +25,10 @@ exports.getChatsPersonal = async (req, res) => {
     try {
         const { id } = req.user
         const page = getPage(req.query.page)
+        const asc = getBool(req.query.asc)
 
         let [chats, nPages] = await Promise.all([
-            chatServices.getChatsPersonal(id.toString(), page),
+            chatServices.getChatsPersonal(id.toString(), page, asc),
             chatServices.countChatsPages(id.toString())
         ])
         // get names for non group chat

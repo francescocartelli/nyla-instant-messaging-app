@@ -7,7 +7,7 @@ import "./Account.css"
 import { ErrorAlert, LoadingAlert } from 'components/Alerts/Alerts'
 import { Text, TextVal } from 'components/Common/Inputs'
 import { Button } from 'components/Common/Buttons'
-import { FlowLayout, TabsLayout } from 'components/Common/Layout'
+import { StatusLayout, TabsLayout } from 'components/Common/Layout'
 import { Logo } from 'components/Icons/Icons'
 
 import usefullRegExp from "utils/UsefullRegExp"
@@ -54,7 +54,7 @@ function LoginTab({ signinSuccessful }) {
                     <EyeSlashFill className='fore-2-btn size-1' onClick={onHidePassword} />
                 } />
         </div>
-        <FlowLayout status={loginStatus}>
+        <StatusLayout status={loginStatus}>
             <loading><LoadingAlert /></loading>
             <ready>
                 <div className='d-flex align-self-stretch'>
@@ -62,7 +62,7 @@ function LoginTab({ signinSuccessful }) {
                 </div>
             </ready>
             <error><ErrorAlert /></error>
-        </FlowLayout>
+        </StatusLayout>
         <p className='align-self-center' style={{ color: '#ffffff80', fontSize: '0.8em' }}>
             <i>You forgot your <Link to='/login/forgot/username'>username</Link> or <Link to='/login/forgot'>password</Link>?</i>
         </p>
@@ -145,7 +145,7 @@ function RegistrationTab({ signupSuccessful }) {
                     </>
                 } />
         </div>
-        <FlowLayout status={registrationStatus}>
+        <StatusLayout status={registrationStatus}>
             <loading><LoadingAlert /></loading>
             <ready>
                 <div className='d-flex align-self-stretch'>
@@ -153,7 +153,7 @@ function RegistrationTab({ signupSuccessful }) {
                 </div>
             </ready>
             <error><ErrorAlert /></error>
-        </FlowLayout>
+        </StatusLayout>
     </form>
 }
 

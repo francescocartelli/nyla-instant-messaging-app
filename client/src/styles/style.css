@@ -54,16 +54,38 @@
     width: 2em;
 }
 
-.f-size-1 {
+.fs-60 {
     font-size: 0.6em;
 }
 
-.f-size-2 {
+.fs-80 {
     font-size: 0.8em;
+}
+
+.fs-120 {
+    font-size: 1.2em;
 }
 
 .circle {
     border-radius: 50% !important;
+}
+
+.crd-icon-25 {
+    height: 2.5em;
+    width: 2.5em;
+    text-align: center;
+    line-height: 2.5em;
+    background-color: #181d20;
+    border-radius: 1.25em;
+}
+
+.crd-icon-30 {
+    height: 3em;
+    width: 3em;
+    text-align: center;
+    line-height: 3em;
+    background-color: #181d20;
+    border-radius: 1.5em;
 }
 
 .hide-small {

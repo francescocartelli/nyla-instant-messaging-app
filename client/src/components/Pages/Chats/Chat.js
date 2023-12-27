@@ -2,12 +2,12 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { ArrowDown, Check2, ChevronRight, Hourglass, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
 
-import './Chats.css'
+import "./Chats.css"
 
 import { getDateAndTime } from "utils/Dates"
 
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
-import { FlowLayout } from "components/Common/Layout"
+import { StatusLayout } from "components/Common/Layout"
 import { Text } from "components/Common/Inputs"
 import { Button } from "components/Common/Buttons"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
@@ -37,7 +37,7 @@ function MessageEditor({ id }) {
     return <div className="card-1">
         <form className="d-flex flex-row gap-2 align-items-center" onSubmit={onSubmitMessage}>
             <Text className="flex-grow-1" value={content} disabled={isSending} placeholder="Write yout message here..." onChange={onChangeContent} />
-            <Button type="submit" className={'circle'} disabled={isSendButtonDisabled()}><Check2 className="fore-success size-1" /></Button>
+            <Button type="submit" className={"circle"} disabled={isSendButtonDisabled()}><Check2 className="fore-success size-1" /></Button>
         </form>
     </div>
 }
@@ -78,7 +78,7 @@ function MessageCard({ id, message, user, prev, users }) {
 
     return <>
         {date !== prevDate && <DateLabel date={date} />}
-        <div className={`d-flex flex-column card-1 crd-min-w limit-width ${isFromOther ? 'left' : 'right'} ${changedSender ? 'mt-2' : ''}`}>
+        <div className={`d-flex flex-column card-1 crd-min-w limit-width ${isFromOther ? "left" : "right"} ${changedSender ? "mt-2" : ""}`}>
             {isFromOther && changedSender && <p className="crd-title-small fore-2">{senderUsername}</p>}
             <p className="m-0">{message.content}</p>
             <div className="d-flex flex-row gap-1 align-items-center">
@@ -183,7 +183,7 @@ function Chat({ user }) {
         subscribe(channelDeleteMessage, ({ message }) => setMessages(p => p.filter(i => i.id !== message.id)))
 
         const channelDeleteChat = channelTypes.deleteChat(id)
-        subscribe(channelDeleteChat, () => navigate('/chats'))
+        subscribe(channelDeleteChat, () => navigate("/chats"))
 
         return () => {
             unsubscribe(channelCreateMessage)
@@ -202,7 +202,7 @@ function Chat({ user }) {
             <ChatEditor user={user} chat={chat} setChat={setChat} usersFlow={usersStatus} users={users} setUsers={setUsers} close={onCloseChatEditor} /> :
             <>
                 <div className="d-flex flex-row card-1 align-items-center gap-2">
-                    <FlowLayout status={chatStatus}>
+                    <StatusLayout status={chatStatus}>
                         <loading><LoadingAlert /></loading>
                         <ready>
                             {chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}
@@ -210,13 +210,13 @@ function Chat({ user }) {
                                 <p className="crd-title">{getChatName()}</p>
                                 {chat.isGroup && <p className="crd-subtitle">{`${users?.length} users`}</p>}
                             </div>
-                            <Button className='circle' onClick={onClickEditChat}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
+                            <Button className="circle" onClick={onClickEditChat}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
                         </ready>
                         <error><ErrorAlert /></error>
-                    </FlowLayout>
+                    </StatusLayout>
                 </div>
                 <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y">
-                    <FlowLayout status={messagesStatus}>
+                    <StatusLayout status={messagesStatus}>
                         <loading><LoadingAlert /></loading>
                         <ready>
                             {messagesCursor.current !== null && <Button disabled={isNextDisabled} onClick={getMessages}>Get Previous Messages...</Button>}
@@ -225,7 +225,7 @@ function Chat({ user }) {
                                 user={user} prev={i > 0 ? arr[i - 1] : null} users={users} />)}
                         </ready>
                         <error><ErrorAlert /></error>
-                    </FlowLayout>
+                    </StatusLayout>
                     <div ref={lastRef}></div>
                 </div>
                 <div className="rel">

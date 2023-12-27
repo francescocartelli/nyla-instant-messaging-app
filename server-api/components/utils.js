@@ -21,3 +21,7 @@ exports.getPage = (p) => {
 exports.getCursor = (c) => {
     return ObjectId.isValid(c) ? c : undefined
 }
+
+exports.getBool = (b) => {
+    return b?.toLowerCase?.() === 'true'
+}

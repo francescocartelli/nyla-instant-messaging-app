@@ -8,7 +8,7 @@ import { useStatus } from 'hooks/useStatus'
 
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 import { Text } from "components/Common/Inputs"
-import { FlowLayout } from "components/Common/Layout"
+import { StatusLayout } from "components/Common/Layout"
 import { Button } from "components/Common/Buttons"
 
 import userAPI from 'api/userAPI'
@@ -26,7 +26,7 @@ function UserCard({ user, currentUser, onRedirect }) {
     }
 
     return <div className="row-center card-1">
-        <div className="crd-icon"><PersonFill className="fore-2 size-2" /></div>
+        <div className="crd-icon-30"><PersonFill className="fore-2 size-2" /></div>
         <div className="d-flex flex-column flex-grow-1">
             <p className="crd-title">{user.username}</p>
             <p className="crd-subtitle c-gray"><i>{user.bio}</i></p>
@@ -61,7 +61,7 @@ function UsersSearchInput({ value, onChange, onLoading, onReady, onError, deboun
 
 function UserList({ users, status, onEmpty, onRenderItem }) {
     return <div className="d-flex flex-column gap-3 flex-grow-1">
-        <FlowLayout status={status}>
+        <StatusLayout status={status}>
             <loading>
                 <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>
             </loading>
@@ -71,7 +71,7 @@ function UserList({ users, status, onEmpty, onRenderItem }) {
             <error>
                 <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><ErrorAlert /></div>
             </error>
-        </FlowLayout>
+        </StatusLayout>
     </div>
 }
 

@@ -1,5 +1,5 @@
-async function getChatPersonal(page = 0, options = {}) {
-    const response = await fetch(`/api/chats/personal?page=${page}`, options)
+async function getChatPersonal(page = 0, asc=false, options = {}) {
+    const response = await fetch(`/api/chats/personal?page=${page}&asc=${asc}`, options)
 
     const res = await response.json()
     if (response.ok) return res

@@ -39,10 +39,20 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "asc",
+            "in": "query",
+            "description": "Get chats sorted by ascending order of last update..",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
           }
         ],
         "summary": "Retrieve personal chats",
-        "description": "Retrieve a personal chats page based on the user that is requesting it and the page number used as query parameter.<br> User retrieves the chats in which she belong.<br> Chats are sorted starting from the one that received the most recent message to the oldest.",
+        "description": "Retrieve personal chats page based on the user that is requesting it and the page number used as query parameter.<br> User retrieves the chats in which she belong.<br> Chats are sorted starting from the one that received the most recent message to the oldest, order can be inverted using the asc query parameter.",
         "responses": {
           "200": {
             "description": "Successful operation",
