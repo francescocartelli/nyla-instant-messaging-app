@@ -20,7 +20,6 @@ function ChatCard({ chat }) {
         <div className="d-flex flex-column flex-grow-1">
             <p className="crd-title">{chat.name}</p>
             <p className="crd-subtitle c-gray">Last activity on {date} at {time}</p>
-            {chat.nChatters > 1 && <p>{chat.nChatters}</p>}
         </div>
         <Link to={`/chats/${chat.id}`}><ChevronRight className="size-2 fore-2-btn" /></Link>
     </div>
@@ -38,8 +37,8 @@ function ChatsOptions({ isAsc = false, setAsc = () => { } }) {
         <span className="fore-2"><i>Sort chats by date: <b>{isAsc ? "ascending" : "descending"}</b></i></span>
         <Button onClick={() => setAsc(p => !p)}>
             {isAsc ?
-                <ArrowUp className="fore-2 size-1" /> :
-                <ArrowDown className="fore-2 size-1" />}
+                <ArrowUp className="fore-1 size-1" /> :
+                <ArrowDown className="fore-1 size-1" />}
         </Button>
     </div>
 }

@@ -15,25 +15,14 @@ import userAPI from 'api/userAPI'
 import chatAPI from "api/chatAPI"
 import { useDebounce } from "hooks/useDebounce"
 
-function UserCard({ user, currentUser, onRedirect }) {
-    const [isLoading, setLoading] = useState(false)
-
-    const onClickOpenChat = () => {
-        setLoading(true)
-        chatAPI.createChat({ name: null, users: [user, currentUser], isGroup: false })
-            .then(chat => onRedirect(chat.id))
-            .catch(err => { console.log(err); setLoading(false) })
-    }
-
+function UserCard({ user, children }) {
     return <div className="row-center card-1">
         <div className="crd-icon-30"><PersonFill className="fore-2 size-2" /></div>
         <div className="d-flex flex-column flex-grow-1">
             <p className="crd-title">{user.username}</p>
             <p className="crd-subtitle c-gray"><i>{user.bio}</i></p>
         </div>
-        {user.id !== currentUser.id ?
-            <Button disabled={isLoading} onClick={onClickOpenChat}>open chat <Chat className="size-2 fore-2-btn" /></Button> :
-            <div className="card-2"><p className="fore-2 m-0">You</p></div>}
+        {children}
     </div>
 }
 
@@ -103,11 +92,25 @@ function UsersSearchList({ onRenderItem = () => { } }) {
 function UsersSearch({ user }) {
     const navigate = useNavigate()
 
+    const [redirectStatus, redirectStatusActions] = useStatus("ready")
+
     const onRedirect = (idChat) => navigate(`/chats/${idChat}`)
 
+    const onClickOpenChat = (u) => {
+        redirectStatusActions.setLoading()
+        chatAPI.createChat({ name: null, users: [u, user], isGroup: false })
+            .then(chat => { onRedirect(chat.id); redirectStatusActions.setReady() })
+            .catch(err => { console.log(err); redirectStatusActions.setError() })
+    }
+
     return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2">
-        <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u} currentUser={user} onRedirect={onRedirect} />} />
+        <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u}>
+            {user.id === u.id ?
+                <div className="card-2"><p className="fore-2 m-0">You</p></div> :
+                <Button disabled={redirectStatus === "loading"} onClick={() => onClickOpenChat(u)}>open chat <Chat className="size-2 fore-2-btn" /></Button>
+            }
+        </UserCard>} />
     </div>
 }
 
-export { UsersSearch, UsersSearchList, UsersSearchInput, UserList }
+export { UsersSearch, UsersSearchList, UsersSearchInput, UserList, UserCard }

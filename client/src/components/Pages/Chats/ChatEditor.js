@@ -1,10 +1,10 @@
 import { useState } from "react"
-import { Check, Check2, ChevronDown, ChevronUp, Hourglass, Lock, Pencil, Person, PersonFill, Square, TrashFill, Unlock, X, XCircle } from "react-bootstrap-icons"
+import { Check, Check2, Check2Square, ChevronDown, ChevronUp, Hourglass, Lock, Pencil, Person, TrashFill, Unlock, X, XCircle } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 
 import { Button } from "components/Common/Buttons"
 import { Text } from "components/Common/Inputs"
-import { UserList, UsersSearchList } from "components/Pages/Users/Users"
+import { UserCard, UserList, UsersSearchList } from "components/Pages/Users/Users"
 import { useStatus } from "hooks/useStatus"
 
 import { StatusLayout } from "components/Common/Layout"
@@ -12,48 +12,50 @@ import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 
 import chatAPI from "api/chatAPI"
 
-function UserCard({ user, onClick, onRemove, isSelected }) {
-    const [isLoading, setLoading] = useState(false)
-
-    const onClickAddUser = () => onClick(user, setLoading)
-    const onClickRemoveUser = () => onRemove(user, setLoading)
-
-    return <div className="row-center card-1">
-        <div className="crd-icon-30"><PersonFill className="fore-2 size-2" /></div>
-        <div className="d-flex flex-column flex-grow-1">
-            <p className="crd-title">{user.username}</p>
-            <p className="crd-subtitle c-gray"><i>{user.bio}</i></p>
-        </div>
-        {isLoading ? <Hourglass className="fore-2 size-1" /> : <>
-            {onClick && <Button onClick={onClickAddUser}>
-                {isSelected ? <>Added<Check2 className="fore-success size-1" /></> : <> Add<Square className="fore-2 size-1" /></>}
-            </Button>}
-            {onRemove && <Button onClick={onClickRemoveUser}><XCircle className="fore-danger size-1" /></Button>}
-        </>}
+function EmptyUserList() {
+    return <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
+        <Person className="size-2 fore-2" />
+        <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>
     </div>
 }
 
-function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) {
+function UserCardInChat({ user, onAdd, onRemove, isEditing = false, isSelected = false, isUser = false }) {
+    const [isLoading, setLoading] = useState(false)
+
+    return <UserCard user={user}>
+        {isEditing && <>{isLoading ? <Hourglass className="fore-2 size-1" /> :
+            <>
+                {isUser ? <div className="card-2"><p className="fore-2 m-0">You</p></div> : <>
+                    {isSelected ?
+                        <Button onClick={() => onRemove(user, setLoading)}>Remove <XCircle className="fore-danger size-1" /></Button> :
+                        <Button onClick={() => onAdd(user, setLoading)}>Add <Check2Square className="fore-success size-1" /></Button>}
+                </>}
+            </>}
+        </>}
+    </UserCard>
+}
+
+function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
     const [chatName, setChatName] = useState(chat?.name)
 
     const [isSearchVisible, setSearchVisible] = useState(false)
 
-    const [isUpdating, setUpdating] = useState(false)
     const [isEditingChat, setEditingChat] = useState(false)
     const [isEditingUsers, setEditingUsers] = useState(false)
     const [isAdvancedSettings, setAdvancedSettings] = useState(false)
     const [isDeletingChat, setDeletingChat] = useState(false)
 
+    const [chatNameStatus, chatNameStatusActions] = useStatus("ready")
     const [deleteStatus, deleteStatusActions] = useStatus("ready")
 
-    const add = async (u, setLoading) => {
+    const addUser = async (u, setLoading) => {
         setLoading(true)
         chatAPI.addUserChat(chat.id, u.id).then(() => {
             setLoading(false)
             setUsers(p => [...p, u])
         }).catch(err => console.log(err))
     }
-    const remove = async (u, setLoading) => {
+    const removeUser = async (u, setLoading) => {
         setLoading(true)
         chatAPI.removeUserChat(chat.id, u.id).then(() => {
             setLoading(false)
@@ -69,22 +71,30 @@ function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) 
     const onClickEditChat = () => setEditingChat(true)
     const onClickCancelEditChatName = () => { setEditingChat(false); setChatName(chat.name) }
     const onClickConfirmEditChatName = () => {
-        setUpdating(true)
+        chatNameStatusActions.setLoading()
         chatAPI.updateChat(chat.id, { name: chatName }).then(() => {
-            setUpdating(false)
+            chatNameStatusActions.setReady()
             setChat(p => { return { ...p, name: chatName } })
             setEditingChat(false)
         }).catch((err) => {
-            setUpdating(false)
+            chatNameStatusActions.setError()
             setEditingChat(false)
             console.log(err)
         })
     }
     const onChangeChatName = (ev) => setChatName(ev.target.value)
-    const onClickEditUsers = () => { setEditingUsers(false) }
-    const onClickCancelEditUsers = () => { setEditingUsers(true) }
+    const onClickEditUsers = () => { setEditingUsers(true) }
+    const onClickCancelEditUsers = () => { setEditingUsers(false); setSearchVisible(false) }
+    const renderUser = (u) => {
+        return <UserCardInChat key={u.id} user={u}
+            onAdd={addUser} onRemove={removeUser}
+            isEditing={isEditingUsers}
+            isSelected={users.find(i => i.id === u.id)}
+            isUser={u.id === user.id}>
+        </UserCardInChat>
+    }
 
-    return <div className="d-flex flex-column flex-grow-1 gap-3 scroll-y mb-1 h-0">
+    return <div className="d-flex flex-column flex-grow-1 gap-3 mb-1 h-0">
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
                 <p className="crd-title flex-grow-1">Settings:</p>
@@ -95,7 +105,7 @@ function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) 
                 <div>{isEditingChat ?
                     <div className="d-flex flex-row gap-2">
                         <Button onClick={onClickCancelEditChatName}><XCircle className="fore-2-btn size-1" /></Button>
-                        <Button disabled={isUpdating} onClick={onClickConfirmEditChatName}><Check2 className="fore-2-btn size-1" /></Button>
+                        <Button disabled={chatNameStatus === "loading"} onClick={onClickConfirmEditChatName}><Check2 className="fore-2-btn size-1" /></Button>
                     </div> : <Button onClick={onClickEditChat}><Pencil className="fore-2-btn size-1" /></Button>
                 }</div>
             </div>}
@@ -103,27 +113,18 @@ function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) 
         {chat.isGroup && <>
             <div className="d-flex flex-row gap-2 card-1 align-items-center">
                 <p className="crd-title flex-grow-1">Users in chat: {users?.length}</p>
-                {isEditingUsers ?
-                    <Button onClick={onClickEditUsers}><Unlock className="fore-2 size-1" /></Button> :
-                    <Button onClick={onClickCancelEditUsers}><Lock className="fore-2 size-1" /></Button>}
+                {isEditingUsers ? <>
+                    <Button onClick={() => setSearchVisible(p => !p)}>{isSearchVisible ? "Show users" : "Add new users"}</Button>
+                    <Button onClick={onClickCancelEditUsers}><Unlock className="fore-2 size-1" /></Button>
+                </> : <Button onClick={onClickEditUsers}><Lock className="fore-2 size-1" /></Button>}
             </div>
-            {isEditingUsers && <Button onClick={() => setSearchVisible(p => !p)}>{isSearchVisible ? "Show users..." : "Search users..."}</Button>}
-            {isSearchVisible && <>
-                <UsersSearchList onRenderItem={(u) => {
-                    const isSelected = users.find(i => i.id === u.id)
-                    return <UserCard key={u.id} user={u} isSelected={isSelected} onClick={isSelected ? remove : add} />
-                }} /></>}
-            {!isSearchVisible && <>
-                <UserList users={users} status={"ready"} initialCondition={true}
-                    onRenderItem={(u) => {
-                        const isUser = user.id === u.id
-                        return <UserCard key={u.id} user={u} onRemove={isEditingUsers && !isUser ? remove : false} />
-                    }}
-                    onEmpty={() => <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
-                        <Person className="size-2 fore-2" />
-                        <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>
-                    </div>} />
-            </>}</>}
+            <div className="d-flex flex-grow-1 scroll-y h-0">
+                {isSearchVisible ?
+                    <UsersSearchList onRenderItem={(u) => renderUser(u)} /> :
+                    <UserList users={users} status={"ready"} onRenderItem={(u) => renderUser(u)} onEmpty={() => <EmptyUserList />} />
+                }
+            </div>
+        </>}
         <div className="d-flex flex-column card-1 gap-2 ">
             <StatusLayout status={deleteStatus}>
                 <loading><LoadingAlert /></loading>
@@ -137,8 +138,8 @@ function ChatEditor({ user, chat, setChat, usersFlow, users, setUsers, close }) 
                     </div>
                     {isAdvancedSettings && <div className="d-flex flex-row gap-2">
                         {isDeletingChat ? <>
-                            <Button className="flex-grow-1" onClick={() => deleteChat()}>Confirm Delete <Check className="fore-danger size-1" /></Button>
-                            <Button className="flex-grow-1" onClick={() => setDeletingChat(false)}>Cancel Delete <X className="fore-2-btn size-1" /></Button>
+                            <Button className="flex-grow-1" onClick={() => deleteChat()}>Confirm <Check className="fore-danger size-1" /></Button>
+                            <Button className="flex-grow-1" onClick={() => setDeletingChat(false)}>Cancel <X className="fore-2-btn size-1" /></Button>
                         </> : <Button className="flex-grow-1" onClick={() => setDeletingChat(true)}>Delete Chat <TrashFill className="fore-danger size-1" /></Button>}
                     </div>}
                 </ready>
@@ -162,11 +163,18 @@ function NewChatEditor({ user }) {
             .then((chat) => navigate(`/chats/${chat.id}`))
             .catch(err => setLoading(false))
     }
-
     const addUser = (u) => setChat(p => { return { ...p, users: [...p.users, u] } })
     const removeUser = (u) => setChat(p => { return { ...p, users: p.users.filter(i => i.id !== u.id) } })
     const onChangeGroupName = (ev) => setChat(p => { return { ...p, name: ev.target.value } })
     const onClickNewChatExit = () => navigate("/chats")
+    const renderUser = (u) => {
+        return <UserCardInChat key={u.id} user={u}
+            onAdd={addUser} onRemove={removeUser}
+            isEditing={true}
+            isSelected={chat.users.find(i => i.id === u.id)}
+            isUser={u.id === user.id}>
+        </UserCardInChat>
+    }
 
     const isSubmitButtonDisabled = isLoading || chat.users?.length < 2 || chat.name === ""
 
@@ -182,25 +190,12 @@ function NewChatEditor({ user }) {
         </div>
         <div className="d-flex flex-row gap-2 card-1 align-items-center">
             <p className="crd-title flex-grow-1">Users in chat: {chat.users?.length}</p>
+            <Button onClick={() => setSearchVisible(p => !p)}>{isSearchVisible ? "Show actual users" : "Add new users"}</Button>
         </div>
-        <Button onClick={() => setSearchVisible(p => !p)}>{isSearchVisible ? "Show users..." : "Search users..."}</Button>
-        {isSearchVisible && <>
-            <UsersSearchList onRenderItem={(u) => {
-                const isSelected = chat.users?.find(i => i.id === u.id)
-                const isUser = u.id === user.id
-                return <UserCard key={u.id} user={u} isSelected={isSelected} onClick={isUser ? false : (isSelected ? removeUser : addUser)} />
-            }} /></>}
-        {!isSearchVisible && <>
-            <UserList users={chat.users} status={"ready"} initialCondition={true}
-                onRenderItem={(u) => {
-                    const isUser = u.id === user.id
-                    return <UserCard key={u.id} user={u} onRemove={isUser ? false : removeUser} />
-                }}
-                onEmpty={() => <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
-                    <Person className="size-2 fore-2" />
-                    <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>
-                </div>} />
-        </>}
+        {isSearchVisible ?
+            <UsersSearchList onRenderItem={(u) => renderUser(u)} /> :
+            <UserList users={chat.users} status={"ready"} onRenderItem={(u) => renderUser(u)} onEmpty={() => <EmptyUserList />} />
+        }
         <Button disabled={isSubmitButtonDisabled} onClick={onSubmit}>Create Group Chat</Button>
     </div>
 }
