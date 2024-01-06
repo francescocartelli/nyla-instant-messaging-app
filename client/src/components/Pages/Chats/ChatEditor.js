@@ -2,10 +2,11 @@ import { useState } from "react"
 import { Check, Check2, Check2Square, ChevronDown, ChevronUp, Hourglass, Lock, Pencil, Person, TrashFill, Unlock, X, XCircle } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 
+import { useStatus } from "hooks"
+
 import { Button } from "components/Common/Buttons"
 import { Text } from "components/Common/Inputs"
 import { UserCard, UserList, UsersSearchList } from "components/Pages/Users/Users"
-import { useStatus } from "hooks/useStatus"
 
 import { StatusLayout } from "components/Common/Layout"
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"

@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import "./Account.css"
 
+import { useStatus } from "hooks"
+
 import { ErrorAlert, LoadingAlert } from 'components/Alerts/Alerts'
 import { Text, TextVal } from 'components/Common/Inputs'
 import { Button } from 'components/Common/Buttons'
@@ -11,7 +13,6 @@ import { StatusLayout, TabsLayout } from 'components/Common/Layout'
 import { Logo } from 'components/Icons/Icons'
 
 import usefullRegExp from "utils/UsefullRegExp"
-import { useStatus } from "hooks/useStatus"
 
 import userAPI from 'api/userAPI'
 

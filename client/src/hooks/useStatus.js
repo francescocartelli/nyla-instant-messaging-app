@@ -14,4 +14,4 @@ function useStatus(initial = 'loading') {
     return [status, setStatusActions]
 }
 
-export { useStatus }
+export default useStatus

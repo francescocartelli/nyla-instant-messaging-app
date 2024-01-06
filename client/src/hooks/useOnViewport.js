@@ -14,4 +14,4 @@ function useIsInViewport(ref) {
     return isIntersecting
 }
 
-export { useIsInViewport }
+export default useIsInViewport

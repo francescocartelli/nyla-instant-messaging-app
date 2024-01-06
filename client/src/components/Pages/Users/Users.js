@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 
 import './Users.css'
 
-import { useStatus } from 'hooks/useStatus'
+import { useStatus, useDebounce } from 'hooks'
 
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 import { Text } from "components/Common/Inputs"
@@ -13,7 +13,6 @@ import { Button } from "components/Common/Buttons"
 
 import userAPI from 'api/userAPI'
 import chatAPI from "api/chatAPI"
-import { useDebounce } from "hooks/useDebounce"
 
 function UserCard({ user, children }) {
     return <div className="row-center card-1">

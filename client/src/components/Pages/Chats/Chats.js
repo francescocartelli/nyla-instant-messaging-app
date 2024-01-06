@@ -2,13 +2,12 @@ import { useEffect, useState } from "react"
 import { ArrowDown, ArrowUp, ChevronRight, ClockHistory, PeopleFill, PlusCircleFill, Sliders, XCircleFill } from "react-bootstrap-icons"
 import { Link } from "react-router-dom"
 
+import { useStatus, useRelativeDateTime } from "hooks"
+
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 import { Button, LinkButton } from "components/Common/Buttons"
 import { StatusLayout, PagesControl } from "components/Common/Layout"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
-
-import { useStatus } from "hooks/useStatus"
-import { useRelativeDateTime } from "hooks/useRelativeDateTime"
 
 import chatAPI from "api/chatAPI"
 

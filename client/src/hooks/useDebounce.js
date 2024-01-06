@@ -15,4 +15,4 @@ function useDebounce(callback, delay) {
     return [onPlay, onStop]
 }
 
-export { useDebounce }
+export default useDebounce

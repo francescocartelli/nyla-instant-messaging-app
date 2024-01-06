@@ -5,6 +5,8 @@ import { ArrowDown, Check2, ChevronRight, Hourglass, ThreeDots, ThreeDotsVertica
 import "./Chats.css"
 import "styles/style.css"
 
+import { useStatus, useIsInViewport } from "hooks"
+
 import { getDateAndTime } from "utils/Dates"
 
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
@@ -16,8 +18,6 @@ import { ChatEditor } from "components/Pages/Chats/ChatEditor"
 import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
 
 import chatAPI from "api/chatAPI"
-import { useStatus } from "hooks/useStatus"
-import { useIsInViewport } from "hooks/useOnViewport"
 
 function MessageEditor({ id }) {
     const [content, setContent] = useState("")

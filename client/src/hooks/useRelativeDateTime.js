@@ -16,4 +16,4 @@ function useRelativeDateTime(dt) {
     return getRelative
 }
 
-export { useRelativeDateTime }
+export default useRelativeDateTime
