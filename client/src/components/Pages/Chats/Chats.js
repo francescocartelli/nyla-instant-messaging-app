@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ArrowDown, ArrowUp, ChevronRight, PlusCircleFill, Sliders, XCircleFill } from "react-bootstrap-icons"
+import { ArrowDown, ArrowUp, ChevronRight, ClockHistory, PeopleFill, PlusCircleFill, Sliders, XCircleFill } from "react-bootstrap-icons"
 import { Link } from "react-router-dom"
 
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
@@ -7,19 +7,20 @@ import { Button, LinkButton } from "components/Common/Buttons"
 import { StatusLayout, PagesControl } from "components/Common/Layout"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
 
-import { getDateAndTime } from "utils/Dates"
 import { useStatus } from "hooks/useStatus"
+import { useRelativeDateTime } from "hooks/useRelativeDateTime"
 
 import chatAPI from "api/chatAPI"
 
-function ChatCard({ chat }) {
-    const [date, time] = getDateAndTime(chat.updatedAt)
-
+function ChatCard({ chat, relativeDateTime }) {
     return <div className="row-center card-1">
         <div className="crd-icon-30">{chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}</div>
         <div className="d-flex flex-column flex-grow-1">
-            <p className="crd-title">{chat.name}</p>
-            <p className="crd-subtitle c-gray">Last activity on {date} at {time}</p>
+            <span className="crd-title">{chat.name}</span>
+            <div className="d-flex flex-row align-items-center gap-3 crd-subtitle">
+                <span><ClockHistory className="size-1 fore-2" /> <i>Last activity <b>{relativeDateTime}</b> ago</i></span>
+                {chat.isGroup && <span><PeopleFill className="size-1 fore-2" /> <i><b>{chat.nUsers}</b> users</i></span>}
+            </div>
         </div>
         <Link to={`/chats/${chat.id}`}><ChevronRight className="size-2 fore-2-btn" /></Link>
     </div>
@@ -48,10 +49,11 @@ function PersonalChats() {
     const [chatsPage, setChatsPage] = useState(1)
     const [chatsNPages, setChatsNPages] = useState(0)
     const [isAsc, setAsc] = useState(false)
-
     const [selectedOption, setSelectedOption] = useState("none")
 
     const [chatsStatus, chatsStatusActions] = useStatus()
+
+    const getRelative = useRelativeDateTime() 
 
     useEffect(() => {
         const controller = new AbortController()
@@ -89,7 +91,7 @@ function PersonalChats() {
             <div className="d-flex flex-column gap-3 flex-grow-1">
                 <StatusLayout status={chatsStatus}>
                     <loading><LoadingAlert /></loading>
-                    <ready>{chats.map(chat => <ChatCard key={chat.id} chat={chat} />)}</ready>
+                    <ready>{chats.map(chat => <ChatCard key={chat.id} chat={chat} relativeDateTime={getRelative(chat.updatedAt)}/>)}</ready>
                     <error><ErrorAlert /></error>
                 </StatusLayout>
             </div>

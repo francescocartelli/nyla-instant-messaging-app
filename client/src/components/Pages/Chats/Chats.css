@@ -1,19 +1,15 @@
 .crd-title {
-    font-size: 1.1em;
+    font-size: 1.2em;
     font-weight: 500;
-    margin: 0;
 }
 
 .crd-title-small {
     font-size: 0.8em;
     font-weight: 600;
-    margin: 0;
 }
 
 .crd-subtitle {
     font-size: 0.8em;
-    opacity: 0.5;
-    margin: 0;
 }
 
 .crd-min-w {

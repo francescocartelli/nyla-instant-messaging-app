@@ -20,7 +20,7 @@ function UserCard({ user, children }) {
         <div className="crd-icon-30"><PersonFill className="fore-2 size-2" /></div>
         <div className="d-flex flex-column flex-grow-1">
             <p className="crd-title">{user.username}</p>
-            <p className="crd-subtitle c-gray"><i>{user.bio}</i></p>
+            <p className="crd-subtitle"><i>{user.bio}</i></p>
         </div>
         {children}
     </div>

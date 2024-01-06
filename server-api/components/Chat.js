@@ -26,6 +26,7 @@ exports.chatProj = {
     id: '$_id',
     name: 1,
     users: { $concat: ["/api/chats/", { $toString: "$_id" }, "/users"] },
+    nUsers: { $size: "$users"},
     messages: { $concat: ["/api/chats/", { $toString: "$_id" }, "/messages"] },
     isGroup: 1,
     createdAt: 1,

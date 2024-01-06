@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { ArrowDown, Check2, ChevronRight, Hourglass, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
 
 import "./Chats.css"
+import "styles/style.css"
 
 import { getDateAndTime } from "utils/Dates"
 
@@ -43,8 +44,8 @@ function MessageEditor({ id }) {
 }
 
 function DateLabel({ date }) {
-    return <div className="card-2">
-        <p className="crd-subtitle text-center">{date}</p>
+    return <div className="d-flex align-items-center card-2 text-center align-self-center">
+        <span className="fs-80 fore-2 pr-2 pl-2">{date}</span>
     </div>
 }
 
@@ -79,10 +80,10 @@ function MessageCard({ id, message, user, prev, users }) {
     return <>
         {date !== prevDate && <DateLabel date={date} />}
         <div className={`d-flex flex-column card-1 crd-min-w limit-width ${isFromOther ? "left" : "right"} ${changedSender ? "mt-2" : ""}`}>
-            {isFromOther && changedSender && <p className="crd-title-small fore-2">{senderUsername}</p>}
+            {isFromOther && changedSender && <span className="fore-2 fs-80 fw-600">{senderUsername}</span>}
             <p className="m-0">{message.content}</p>
             <div className="d-flex flex-row gap-1 align-items-center">
-                <p className="crd-subtitle pr-2 flex-grow-1">{time}</p>
+                <span className="fore-2 fs-70 pr-2 flex-grow-1">{time}</span>
                 {!isFromOther && <DeleteMessageControl />}
             </div>
         </div>
@@ -93,7 +94,7 @@ function EmptyMessages() {
     return <div className="d-flex justify-content-center align-items-center flex-grow-1">
         <div className="card-1">
             <p className="text-center m-0"><b>Wow, such an empty!</b></p>
-            <p className="text-center crd-subtitle">All the exchanged messages will be shown here!</p>
+            <span className="fore-2 fs-80 text-center">All the exchanged messages will be shown here!</span>
         </div>
     </div>
 }
