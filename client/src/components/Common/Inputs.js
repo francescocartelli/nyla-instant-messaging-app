@@ -27,12 +27,11 @@ function TextArea({ left, right, maxRows = 1, className = "", ...props }) {
 function TextVal({ isInvalid, value, message, ...props }) {
     const [isMessageVisible, setMessageVisible] = useState(false)
 
-    /* apply suggestion visibility only when focus is lost, value is not empty and content is invalid */
-    const onBlur = () => setMessageVisible(value !== "" && isInvalid)
+    const applyVisibility = () => setMessageVisible(value !== "" && isInvalid)
 
     return <div className='text-val'>
-        <Text onBlur={onBlur} right={value !== "" && (isInvalid ?
-            <ExclamationCircle className='fore-danger size-1' /> :
+        <Text onBlur={applyVisibility} onClick={applyVisibility} right={value !== "" && (isInvalid ?
+            <ExclamationCircle onClick={applyVisibility} className='fore-danger size-1' /> :
             <CheckCircle className='fore-success size-1' />)}
             {...props} value={value} />
         {message && <>

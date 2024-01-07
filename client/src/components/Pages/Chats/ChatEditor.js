@@ -179,7 +179,7 @@ function NewChatEditor({ user }) {
 
     const isSubmitButtonDisabled = isLoading || chat.users?.length < 2 || chat.name === ""
 
-    return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-3 mt-2 mb-1 overflow-">
+    return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-3 mt-2 mb-1 h-0">
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
                 <p className="crd-title flex-grow-1">Create a new chat:</p>

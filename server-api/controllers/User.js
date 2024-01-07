@@ -2,14 +2,15 @@ const usersServices = require.main.require('./services/User')
 
 module.exports.getUsers = async (req, res) => {
     const username = req.query.username
+    const searchType = req.query.searchType
 
-    if (!username || username === "") return res.json([])
-
-    usersServices.getUsers(username).then((users) => {
+    try {
+        const users = await usersServices.getUsers(username, searchType)
         res.json(users)
-    }).catch((err) => {
-        res.status(500).json(err)
-    })
+    } catch (err) {
+        if (err instanceof TypeError) res.status(400).send(err.message)
+        else res.status(500).json(err)
+    }
 }
 
 module.exports.getUser = async (req, res) => {

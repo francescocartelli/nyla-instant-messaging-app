@@ -48,7 +48,7 @@ function UsersSearchInput({ value, onChange, onLoading, onReady, onError, deboun
 }
 
 function UserList({ users, status, onEmpty, onRenderItem }) {
-    return <div className="d-flex flex-column gap-3 flex-grow-1">
+    return <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y">
         <StatusLayout status={status}>
             <loading>
                 <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>
@@ -102,7 +102,7 @@ function UsersSearch({ user }) {
             .catch(err => { console.log(err); redirectStatusActions.setError() })
     }
 
-    return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2">
+    return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2 h-0">
         <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u}>
             {user.id === u.id ?
                 <div className="card-2"><p className="fore-2 m-0">You</p></div> :

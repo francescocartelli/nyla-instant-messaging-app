@@ -5,9 +5,23 @@ const mongo = require.main.require('./components/db')
 
 const db = mongo.get()
 
-exports.getUsers = (username) => {
-    let query = { username: { $regex: username, $options: 'i' } }
-    return db.collection(db.collections.user).find(query, { projection: userProjection }).limit(db.configs.USERS_PER_PAGE).toArray()
+exports.getUsers = (username = "", searchType = "contains") => {
+    const queries = {
+        "exact": { username: { $regex: `^${username}$`, $options: 'i' } },
+        "contains": { username: { $regex: username, $options: 'i' } }
+    }
+
+    const query = queries[searchType]
+    if (!query) {
+        const formatTypes = Object.keys(queries).map(i => `"${i}"`).join(", ")
+        throw new TypeError(`"${searchType}" is not a valid search type.\nAvailable ones are: ${formatTypes}`)
+    }
+
+    return username === "" ?
+        Promise.resolve([]) :
+        db.collection(db.collections.user)
+            .find(query, { projection: userProjection })
+            .limit(db.configs.USERS_PER_PAGE).toArray()
 }
 
 exports.getUser = (user = {}) => {

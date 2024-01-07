@@ -1,5 +1,5 @@
-async function getUsers(username = "", options = {}) {
-    const response = await fetch(`/api/users?username=${username}`, options)
+async function getUsers(username = "", searchType="contains", options = {}) {
+    const response = await fetch(`/api/users?username=${username}&searchType=${searchType}`, options)
     return response.json()
 }
 
