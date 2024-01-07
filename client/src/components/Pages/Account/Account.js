@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { BoxArrowInRight, Check2, EnvelopeFill, EyeFill, EyeSlashFill, Hourglass, Lock, LockFill, PersonFill, PersonPlusFill, XCircle } from "react-bootstrap-icons"
 import { Link, useNavigate } from "react-router-dom"
 
