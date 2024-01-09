@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowDown, Check2, ChevronRight, Hourglass, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
+import { ArrowDown, Check2, ChevronRight, Hourglass, QuestionCircle, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
 
 import "./Chats.css"
 import "styles/style.css"
@@ -9,13 +9,14 @@ import { useStatus, useIsInViewport } from "hooks"
 
 import { getDateAndTime } from "utils/Dates"
 
-import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
+import { LoadingAlert } from "components/Alerts/Alerts"
 import { StatusLayout } from "components/Common/Layout"
 import { Text } from "components/Common/Inputs"
 import { Button } from "components/Common/Buttons"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
 import { ChatEditor } from "components/Pages/Chats/ChatEditor"
 import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
+import { InformationBox, SomethingWentWrong } from "components/Common/Misc"
 
 import chatAPI from "api/chatAPI"
 
@@ -90,15 +91,6 @@ function MessageCard({ id, message, user, prev, users }) {
     </>
 }
 
-function EmptyMessages() {
-    return <div className="d-flex justify-content-center align-items-center flex-grow-1">
-        <div className="card-1">
-            <p className="text-center m-0"><b>Wow, such an empty!</b></p>
-            <span className="fore-2 fs-80 text-center">All the exchanged messages will be shown here!</span>
-        </div>
-    </div>
-}
-
 function Chat({ user }) {
     const { id } = useParams()
 
@@ -106,7 +98,7 @@ function Chat({ user }) {
     const [users, setUsers] = useState([])
 
     const [chatStatus, chatStatusActions] = useStatus()
-    const [usersStatus, userStatusActions] = useStatus()
+    const [_, userStatusActions] = useStatus()
     const [messagesStatus, messagesStatusActions] = useStatus()
 
     const [messages, setMessages] = useState([])
@@ -126,41 +118,36 @@ function Chat({ user }) {
 
     const getMessages = () => {
         setNextDisabled(true)
-        chatAPI.getMessages(id, messagesCursor.current, {}).then(({ messages, nextCursor }) => {
-            setNextDisabled(false)
-            messagesCursor.current = nextCursor
-            setMessages(p => [...[...messages].reverse(), ...p])
-        }).catch(err => console.log(err))
+        chatAPI.getMessages(id, messagesCursor.current, {})
+            .then(({ messages, nextCursor }) => {
+                setNextDisabled(false)
+                messagesCursor.current = nextCursor
+                setMessages(p => [...[...messages].reverse(), ...p])
+            }).catch(err => console.log(err))
     }
 
     useEffect(() => {
         const controller = new AbortController()
 
-        chatAPI.getChat(id, { signal: controller.signal }).then(chat => {
-            chatStatusActions.setReady()
-            setChat(chat)
-        }).catch(err => {
-            chatStatusActions.setError()
-            console.log(err)
-        })
+        chatAPI.getChat(id, { signal: controller.signal })
+            .then(res => res.json()).then(chat => {
+                chatStatusActions.setReady()
+                setChat(chat)
+            }).catch(() => chatStatusActions.setError())
 
-        chatAPI.getChatUsers(id, { signal: controller.signal }).then(users => {
-            setUsers(users)
-            userStatusActions.setReady()
-        }).catch(err => {
-            console.log(err)
-            userStatusActions.setError()
-        })
+        chatAPI.getChatUsers(id, { signal: controller.signal })
+            .then(res => res.json()).then(users => {
+                setUsers(users)
+                userStatusActions.setReady()
+            }).catch(() => userStatusActions.setError())
 
-        chatAPI.getMessages(id, messagesCursor.current, { signal: controller.signal }).then(({ messages, nextCursor }) => {
-            setMessages(p => [...[...messages].reverse(), ...p])
-            messagesCursor.current = nextCursor
-            messagesStatusActions.setReady()
-            scrollToLastMessage()
-        }).catch(err => {
-            console.log(err)
-            messagesStatusActions.setError()
-        })
+        chatAPI.getMessages(id, messagesCursor.current, { signal: controller.signal })
+            .then(res => res.json()).then(({ messages, nextCursor }) => {
+                setMessages(p => [...[...messages].reverse(), ...p])
+                messagesCursor.current = nextCursor
+                messagesStatusActions.setReady()
+                scrollToLastMessage()
+            }).catch(() => messagesStatusActions.setError())
 
         return () => { controller?.abort() }
     }, [id, chatStatusActions, userStatusActions, messagesStatusActions])
@@ -194,17 +181,17 @@ function Chat({ user }) {
     }, [id, subscribe, unsubscribe, navigate, isLastInViewport, updateScroll])
 
     const getChatName = () => { return chat.isGroup ? chat.name : `Chat with ${users.find(u => u.id !== user.id)?.username}` }
-    const onClickNewMessages = () => {setNewMessageButtonVisible(false); scrollToLastMessage()}
+    const onClickNewMessages = () => { setNewMessageButtonVisible(false); scrollToLastMessage() }
     const onCloseChatEditor = () => setEditing(false)
     const onClickEditChat = () => setEditing(true)
 
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-3">
         {isEditing ?
-            <ChatEditor user={user} chat={chat} setChat={setChat} usersFlow={usersStatus} users={users} setUsers={setUsers} close={onCloseChatEditor} /> :
+            <ChatEditor user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} close={onCloseChatEditor} /> :
             <>
                 <div className="d-flex flex-row card-1 align-items-center gap-2">
                     <StatusLayout status={chatStatus}>
-                        <loading><LoadingAlert /></loading>
+                        <loading></loading>
                         <ready>
                             {chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}
                             <div className="d-flex flex-column flex-grow-1">
@@ -213,7 +200,13 @@ function Chat({ user }) {
                             </div>
                             <Button className="circle" onClick={onClickEditChat}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
                         </ready>
-                        <error><ErrorAlert /></error>
+                        <error>
+                            <QuestionCircle className="size-2 fore-2" />
+                            <div className="d-flex flex-column flex-grow-1">
+                                <p className="crd-title">The requested chat cannot be loaded...</p>
+                                <p className="crd-subtitle">Maybe the chat was deleted or the link is compromised</p>
+                            </div>
+                        </error>
                     </StatusLayout>
                 </div>
                 <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y">
@@ -221,11 +214,11 @@ function Chat({ user }) {
                         <loading><LoadingAlert /></loading>
                         <ready>
                             {messagesCursor.current !== null && <Button disabled={isNextDisabled} onClick={getMessages}>Get Previous Messages...</Button>}
-                            {messages?.length === 0 && <EmptyMessages />}
+                            {messages?.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!"/>}
                             {messages?.map((message, i, arr) => <MessageCard key={message.id} id={id} message={message}
                                 user={user} prev={i > 0 ? arr[i - 1] : null} users={users} />)}
                         </ready>
-                        <error><ErrorAlert /></error>
+                        <error><SomethingWentWrong explanation="It is not possible to load any message!"/></error>
                     </StatusLayout>
                     <div ref={lastRef}></div>
                 </div>

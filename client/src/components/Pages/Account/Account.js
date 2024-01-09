@@ -32,7 +32,6 @@ function LoginTab({ signinSuccessful }) {
             signinSuccessful(response)
         }).catch((err) => {
             loginStatusActions.setReady()
-            console.log(err)
             setMessage(err.message)
         })
     }
@@ -70,35 +69,123 @@ function LoginTab({ signinSuccessful }) {
     </form>
 }
 
+function UsernameRegistration({ username, setUsername, setInvalid, ...props }) {
+    const [isUsernameInvalid, setUsernameInvalid] = useState(true)
+    const [isUsernameTaken, setUsernameTaken] = useState(false)
+
+    const [usernameTakenStatus, usernameTakenStatusActions] = useStatus("ready")
+
+    const onUsernameChange = (ev) => {
+        const [value, usernameInvalid] = [ev.target.value, !usefullRegExp.usernameReg.test(ev.target.value)]
+        setUsername(value)
+        setUsernameInvalid(usernameInvalid)
+        setInvalid(true) // just for now, if username is valid, bebounce will fix this transition
+        if (usernameInvalid || username === "") {
+            usernameTakenStatusActions.setReady()
+            stopUsernameDebounce()
+        } else {
+            usernameTakenStatusActions.setLoading()
+            checkUsernameDebounce(value, usernameInvalid)
+        }
+    }
+
+    const [checkUsernameDebounce, stopUsernameDebounce] = useDebounce((u, usernameInvalid) => {
+        userAPI.getUsers(u, "exact").then(users => {
+            const taken = users.length > 0
+            setUsernameTaken(taken)
+            setInvalid(usernameInvalid || taken)
+            usernameTakenStatusActions.setReady()
+        }).catch((err) => usernameTakenStatusActions.setError())
+    }, 2000)
+
+    return <>
+        <TextVal autoComplete="new-password" value={username} placeholder="Username..." onChange={onUsernameChange}
+            left={<PersonFill className="fore-2 size-1" />} isInvalid={isUsernameInvalid} message={
+                <>
+                    <span><b>Required username pattern:</b></span>
+                    <span>Between 8 and 20 characters are required.</span>
+                </>
+            } {...props} />
+        {!isUsernameInvalid && username !== "" && <StatusLayout status={usernameTakenStatus}>
+            <loading>
+                <div className="card-1 d-flex flex-row gap-2 align-items-center">
+                    <span className="fore-2 fs-80 flex-grow-1">Checking username uniqueness...</span> <Hourglass className="size-1 fore-2" />
+                </div>
+            </loading>
+            <ready>
+                {isUsernameTaken ?
+                    <div className="card-1 d-flex flex-row gap-2 align-items-center">
+                        <span className="fore-2 fs-80 flex-grow-1">Username is already taken.</span> <XCircle className="size-1 fore-danger" />
+                    </div> :
+                    <div className="card-1 d-flex flex-row gap-2 align-items-center">
+                        <span className="fore-2 fs-80 flex-grow-1">Username is unique.</span> <Check2 className="size-1 fore-success" />
+                    </div>}
+            </ready>
+            <error></error>
+        </StatusLayout>}
+    </>
+}
+
+function PasswordRegistration({ password, setPassword, setInvalid, ...props }) {
+    /* password is managed outside for father form visibility */
+    const [passwordRepeat, setPasswordRepeat] = useState("")
+
+    /* invalidity is collapsed for father form visibility */
+    const [isPasswordInvalid, setPasswordInvalid] = useState(true)
+    const [isPasswordRepeatInvalid, setPasswordRepeatInvalid] = useState(true)
+
+    const onChangePassword = (ev) => {
+        const passwordInvalid = !usefullRegExp.passwordReg.test(ev.target.value)
+        const repeatPasswordInvalid = ev.target.value !== passwordRepeat
+        setPassword(ev.target.value)
+        setPasswordInvalid(passwordInvalid)
+        setPasswordRepeatInvalid(repeatPasswordInvalid)
+        setInvalid(passwordInvalid || repeatPasswordInvalid)
+    }
+
+    const onChangeRepeatPassword = (ev) => {
+        const repeatPasswordInvalid = ev.target.value !== password
+        setPasswordRepeat(ev.target.value)
+        setPasswordRepeatInvalid(repeatPasswordInvalid)
+        setInvalid(isPasswordInvalid || repeatPasswordInvalid)
+    }
+
+    return <>
+        <TextVal autoComplete="new-password" type="password" placeholder="Password..." value={password} onChange={onChangePassword}
+            left={<LockFill className="fore-2 size-1" />} isInvalid={isPasswordInvalid} message={
+                <>
+                    <span><b>Required password pattern:</b></span>
+                    <span>At least 1 lowercase character is required.</span>
+                    <span>At least 1 uppercase character is required.</span>
+                    <span>At least 1 special character is required.</span>
+                    <span>At least 1 number is required.</span>
+                </>
+            } {...props} />
+        <TextVal autoComplete="new-password" type="password" placeholder="Repeat password..." value={passwordRepeat} onChange={onChangeRepeatPassword}
+            left={<Lock className="fore-2 size-1" />} isInvalid={isPasswordRepeatInvalid} message={
+                <>
+                    <span><b>Required repeat password rule:</b></span>
+                    <span>Passwords should match.</span>
+                </>
+            } {...props} />
+    </>
+}
+
 function RegistrationTab({ signupSuccessful }) {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
-    const [passwordRepeat, setPasswordRepeat] = useState("")
     const [email, setEMail] = useState("")
 
-    const [isUsernameTaken, setUsernameTaken] = useState(false)
-
-    const [isUsernameInvalid, setUsernameInvalid] = useState(true)
-    const [isPasswordInvalid, setPasswordInvalid] = useState(true)
-    const [isPasswordRepeatInvalid, setPasswordRepeatInvalid] = useState(true)
+    const [isUsernameInvalidOrTaken, setUsernameInvalidOrTaken] = useState(true)
+    const [isAnyPasswordInvalid, setAnyPasswordInvalid] = useState(true)
     const [isEmailInvalid, setEmailInvalid] = useState(true)
 
     const [message, setMessage] = useState("")
 
-    const [checkUsernameDebounce, stopUsernameDebounce] = useDebounce((u) => {
-        userAPI.getUsers(u, "exact").then(users => {
-            const taken = users.length > 0
-            setUsernameTaken(taken)
-            console.log(taken)
-            usernameTakenStatusActions.setReady()
-        }).catch((err) => { console.log(err); usernameTakenStatusActions.setError() })
-    }, 2000)
-
     const [registrationStatus, registrationStatusActions] = useStatus("ready")
-    const [usernameTakenStatus, usernameTakenStatusActions] = useStatus("ready")
 
-    const onRegister = (e) => {
-        e.preventDefault()
+    const onRegister = (ev) => {
+        ev.preventDefault()
         userAPI.signup(username, password, email).then((response) => {
             registrationStatusActions.setReady()
             signupSuccessful(response)
@@ -108,69 +195,18 @@ function RegistrationTab({ signupSuccessful }) {
         })
     }
 
-    const onUsernameChange = (ev) => {
-        const value = ev.target.value
-        const isInvalid = !usefullRegExp.usernameReg.test(value)
-        setUsername(value)
-        setUsernameInvalid(isInvalid)
-
-        if (!isInvalid && username !== "") {
-            usernameTakenStatusActions.setLoading()
-            checkUsernameDebounce(value)
-        } else {
-            usernameTakenStatusActions.setReady()
-            stopUsernameDebounce()
-        }
-    }
-
     const onChangeEMail = (ev) => {
         const value = ev.target.value
         setEMail(value)
         setEmailInvalid(!usefullRegExp.emailReg.test(value))
     }
 
-    const onChangePassword = (ev) => {
-        const value = ev.target.value
-        setPassword(value)
-        setPasswordInvalid(!usefullRegExp.passwordReg.test(value))
-        setPasswordRepeatInvalid(value !== passwordRepeat)
-    }
-
-    const onChangeRepeatPassword = (ev) => {
-        const value = ev.target.value
-        setPasswordRepeat(ev.target.value)
-        setPasswordRepeatInvalid(password !== value)
-    }
-
-    const isRegisterButtonDisabled = isUsernameInvalid || isPasswordInvalid || isPasswordRepeatInvalid || isEmailInvalid || isUsernameTaken
+    const isRegisterButtonDisabled = isUsernameInvalidOrTaken || isAnyPasswordInvalid || isEmailInvalid
 
     return <form className="d-flex flex-column align-self-stretch gap-3" onSubmit={onRegister}>
         {message && <div className="alert warning"><p><i>{message}</i></p></div>}
         <div className="d-flex flex-column gap-2">
-            <TextVal autoComplete="new-password" value={username} placeholder="Username..." onChange={onUsernameChange}
-                left={<PersonFill className="fore-2 size-1" />} isInvalid={isUsernameInvalid} message={
-                    <>
-                        <span><b>Required username pattern:</b></span>
-                        <span>Between 8 and 20 characters are required.</span>
-                    </>
-                } />
-            {!isUsernameInvalid && username !== "" && <StatusLayout status={usernameTakenStatus}>
-                <loading>
-                    <div className="card-1 d-flex flex-row gap-2 align-items-center">
-                        <span className="fore-2 fs-80 flex-grow-1">Checking username uniqueness...</span> <Hourglass className="size-1 fore-2" />
-                    </div>
-                </loading>
-                <ready>
-                    {isUsernameTaken ?
-                        <div className="card-1 d-flex flex-row gap-2 align-items-center">
-                            <span className="fore-2 fs-80 flex-grow-1">Username is already taken.</span> <XCircle className="size-1 fore-danger" />
-                        </div> :
-                        <div className="card-1 d-flex flex-row gap-2 align-items-center">
-                            <span className="fore-2 fs-80 flex-grow-1">Username is unique.</span> <Check2 className="size-1 fore-success" />
-                        </div>}
-                </ready>
-                <error></error>
-            </StatusLayout>}
+            <UsernameRegistration username={username} setUsername={setUsername} setInvalid={setUsernameInvalidOrTaken}/>
             <TextVal autoComplete="new-password" value={email} placeholder="Email..." onChange={onChangeEMail}
                 left={<EnvelopeFill className="fore-2 size-1" />} isInvalid={isEmailInvalid} message={
                     <>
@@ -178,23 +214,7 @@ function RegistrationTab({ signupSuccessful }) {
                         <span>Provide a valid email address.</span>
                     </>
                 } />
-            <TextVal autoComplete="new-password" type="password" placeholder="Password..." value={password} onChange={onChangePassword}
-                left={<LockFill className="fore-2 size-1" />} isInvalid={isPasswordInvalid} message={
-                    <>
-                        <span><b>Required password pattern:</b></span>
-                        <span>At least 1 lowercase character is required.</span>
-                        <span>At least 1 uppercase character is required.</span>
-                        <span>At least 1 special character is required.</span>
-                        <span>At least 1 number is required.</span>
-                    </>
-                } />
-            <TextVal autoComplete="new-password" type="password" placeholder="Repeat password..." value={passwordRepeat} onChange={onChangeRepeatPassword}
-                left={<Lock className="fore-2 size-1" />} isInvalid={isPasswordRepeatInvalid} message={
-                    <>
-                        <span><b>Required repeat password rule:</b></span>
-                        <span>Passwords should match.</span>
-                    </>
-                } />
+            <PasswordRegistration password={password} setPassword={setPassword} setInvalid={setAnyPasswordInvalid} />
         </div>
         <StatusLayout status={registrationStatus}>
             <loading><LoadingAlert /></loading>
@@ -211,15 +231,8 @@ function RegistrationTab({ signupSuccessful }) {
 function Account({ setUser }) {
     const navigate = useNavigate()
 
-    const onSigninSuccessful = (response) => {
-        setUser(response)
-        navigate("/")
-    }
-
-    const onSignupSuccessful = (response) => {
-        setUser(response)
-        navigate("/")
-    }
+    const onSigninSuccessful = (response) => { setUser(response); navigate("/") }
+    const onSignupSuccessful = (response) => { setUser(response); navigate("/") }
 
     return <div className="d-flex flex-column align-self-center gap-2 align-items-center flex-grow-1 justify-content-center p-0 max-s">
         <div style={{ marginTop: "-5em" }} className="align-self-center"><Logo fontSize={64} /></div>
@@ -230,4 +243,4 @@ function Account({ setUser }) {
     </div >
 }
 
-export { Account }
+export { Account, UsernameRegistration, PasswordRegistration }

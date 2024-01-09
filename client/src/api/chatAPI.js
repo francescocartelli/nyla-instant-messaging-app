@@ -9,25 +9,22 @@ async function getChatPersonal(page = 0, asc=false, options = {}) {
 async function getChat(id, options) {
     const response = await fetch(`/api/chats/${id}`, options)
 
-    const res = await response.json()
-    if (response.ok) return res
-    else throw new Error(res.message)
+    if (response.ok) return response
+    else throw new Error(response)
 }
 
 async function getChatUsers(id, options) {
     const response = await fetch(`/api/chats/${id}/users`, options)
 
-    const res = await response.json()
-    if (response.ok) return res
-    else throw new Error(res.message)
+    if (response.ok) return response
+    else throw new Error(response)
 }
 
 async function getMessages(idChat, cursor, options) {
     const response = await fetch(`/api/chats/${idChat}/messages?cursor=${cursor}`, options)
 
-    const res = await response.json()
-    if (response.ok) return res
-    else throw new Error(res.message)
+    if (response.ok) return response
+    else throw new Error(response)
 }
 
 async function createChat({ name, users, isGroup }) {

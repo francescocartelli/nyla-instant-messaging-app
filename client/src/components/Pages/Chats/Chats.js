@@ -4,10 +4,11 @@ import { Link } from "react-router-dom"
 
 import { useStatus, useRelativeDateTime } from "hooks"
 
-import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
+import { LoadingAlert } from "components/Alerts/Alerts"
 import { Button, LinkButton } from "components/Common/Buttons"
 import { StatusLayout, PagesControl } from "components/Common/Layout"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
+import { InformationBox, SomethingWentWrong } from "components/Common/Misc"
 
 import chatAPI from "api/chatAPI"
 
@@ -52,7 +53,7 @@ function PersonalChats() {
 
     const [chatsStatus, chatsStatusActions] = useStatus()
 
-    const getRelative = useRelativeDateTime() 
+    const getRelative = useRelativeDateTime()
 
     useEffect(() => {
         const controller = new AbortController()
@@ -75,7 +76,7 @@ function PersonalChats() {
     const toggleOptions = (option) => setSelectedOption(selectedOption === option ? "none" : option)
 
     return <div className="d-flex flex-column gap-3 mt-2 mb-2 align-self-stretch flex-grow-1 ">
-        <div className="d-flex flex-column gap-3 align-self-stretch flex-grow-1 scroll-y h-0">
+        <div className="d-flex flex-column gap-3 align-self-stretch flex-grow-1">
             <div className="d-flex flex-wrap gap-2">
                 <Button onClick={() => toggleOptions("group")}><PlusCircleFill className="fore-2-btn size-1" /></Button>
                 <Button onClick={() => toggleOptions("order")}><Sliders className="fore-2 size-1" /></Button>
@@ -87,11 +88,14 @@ function PersonalChats() {
                 </StatusLayout>
                 {selectedOption !== "none" && <Button onClick={() => setSelectedOption("none")}><XCircleFill className="fore-2 size-1" /></Button>}
             </div>
-            <div className="d-flex flex-column gap-3 flex-grow-1">
+            <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y h-0">
                 <StatusLayout status={chatsStatus}>
                     <loading><LoadingAlert /></loading>
-                    <ready>{chats.map(chat => <ChatCard key={chat.id} chat={chat} relativeDateTime={getRelative(chat.updatedAt)}/>)}</ready>
-                    <error><ErrorAlert /></error>
+                    <ready>
+                        {chats.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the chats related to you will be shown here!" />}
+                        {chats.map(chat => <ChatCard key={chat.id} chat={chat} relativeDateTime={getRelative(chat.updatedAt)} />)}
+                    </ready>
+                    <error><SomethingWentWrong explanation="It is not possible to load your personal chats!"/></error>
                 </StatusLayout>
             </div>
         </div>

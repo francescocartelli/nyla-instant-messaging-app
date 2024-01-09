@@ -766,6 +766,20 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "searchType",
+            "in": "query",
+            "description": "Type of search logic for username on users",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "exact",
+                "contains"
+              ],
+              "default": "contains"
+            }
           }
         ],
         "responses": {
