@@ -196,7 +196,7 @@ function Chat({ user }) {
                             {chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}
                             <div className="d-flex flex-column flex-grow-1">
                                 <p className="crd-title">{getChatName()}</p>
-                                {chat.isGroup && <p className="crd-subtitle">{`${users?.length} users`}</p>}
+                                {chat.isGroup && <p className="crd-subtitle">{`${chat.nUsers} users`}</p>}
                             </div>
                             <Button className="circle" onClick={onClickEditChat}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
                         </ready>
@@ -214,11 +214,11 @@ function Chat({ user }) {
                         <loading><LoadingAlert /></loading>
                         <ready>
                             {messagesCursor.current !== null && <Button disabled={isNextDisabled} onClick={getMessages}>Get Previous Messages...</Button>}
-                            {messages?.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!"/>}
+                            {messages?.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
                             {messages?.map((message, i, arr) => <MessageCard key={message.id} id={id} message={message}
                                 user={user} prev={i > 0 ? arr[i - 1] : null} users={users} />)}
                         </ready>
-                        <error><SomethingWentWrong explanation="It is not possible to load any message!"/></error>
+                        <error><SomethingWentWrong explanation="It is not possible to load any message!" /></error>
                     </StatusLayout>
                     <div ref={lastRef}></div>
                 </div>

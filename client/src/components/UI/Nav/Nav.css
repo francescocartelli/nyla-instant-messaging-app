@@ -22,7 +22,6 @@
 }
 
 .nav-item span {
-    color: #f0f0f0;
     font-weight: 500;
     text-decoration: none;
     white-space: nowrap;
@@ -72,6 +71,14 @@
     gap: 1em;
 }
 
+.nav-item-options {
+    position: absolute;
+    width: fit-content;
+    right: 0;
+    top: 4.5em;
+    margin-right: 1em;
+}
+
 @media only screen and (max-width: 600px) {
     .flex-row-col-adaptive {
         flex-direction: column;
@@ -84,5 +91,14 @@
 
     .gap-3-adaptive {
         gap: 0.5em;
+    }
+
+    .nav-item-options {
+        border: 0;
+        padding: 0;
+        top: 0;
+        position: relative;
+        display: flex;
+        flex-direction: column;
     }
 }
