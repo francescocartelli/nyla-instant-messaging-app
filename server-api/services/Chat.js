@@ -19,16 +19,22 @@ exports.getChat = function (idChat, project = true) {
     return db.collection(db.collections.chat).findOne({ _id: new ObjectId(idChat) }, options)
 }
 
-exports.getChatsPersonal = function (idUser, page = 1, asc=false) {
+exports.getChatsPersonal = function (idUser, { page = 1, asc = false, isGroup = null }) {
     return db.collection(db.collections.chat)
-        .find({ users: { $in: [new ObjectId(idUser)] } }, { projection: {...chatProj, idUsers: '$users'} })
+        .find({
+            users: { $in: [new ObjectId(idUser)] },
+            ...(isGroup !== null ? { isGroup } : {})
+        }, { projection: { ...chatProj, idUsers: '$users' } })
         .sort({ updatedAt: asc ? 1 : -1 }).limit(db.configs.CHATS_PER_PAGE)
         .skip(db.configs.CHATS_PER_PAGE * (page - 1)).toArray()
 }
 
-exports.countChatsPages = function (idUser) {
+exports.countChatsPages = function (idUser, { isGroup = null }) {
     return new Promise((resolve, reject) => {
-        db.collection(db.collections.chat).countDocuments({ users: { $in: [new ObjectId(idUser)] } }).then((count) => {
+        db.collection(db.collections.chat).countDocuments({
+            users: { $in: [new ObjectId(idUser)] },
+            ...(isGroup !== null ? { isGroup } : {})
+        }).then((count) => {
             resolve(Math.ceil(count / db.configs.CHATS_PER_PAGE))
         }).catch(err => {
             reject(err)

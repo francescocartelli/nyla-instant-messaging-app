@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
-import { ArrowDown, ArrowUp, ChevronRight, ClockHistory, PeopleFill, PlusCircleFill, Sliders, XCircleFill } from "react-bootstrap-icons"
+import { ArrowDownUp, ChevronRight, ClockHistory, Funnel, PeopleFill, PlusCircleFill, SortNumericDown, SortNumericUp, XCircleFill } from "react-bootstrap-icons"
 import { Link } from "react-router-dom"
 
 import { useStatus, useRelativeDateTime } from "hooks"
 
 import { LoadingAlert } from "components/Alerts/Alerts"
 import { Button, LinkButton } from "components/Common/Buttons"
-import { StatusLayout, PagesControl } from "components/Common/Layout"
+import { StatusLayout, PagesControl, Tab } from "components/Common/Layout"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
 import { InformationBox, SomethingWentWrong } from "components/Common/Misc"
 
@@ -33,14 +33,27 @@ function NewChatButton() {
     </div>
 }
 
-function ChatsOptions({ isAsc = false, setAsc = () => { } }) {
-    return <div className="d-flex flex-row align-items-center gap-2">
-        <span className="fore-2"><i>Sort chats by date: <b>{isAsc ? "ascending" : "descending"}</b></i></span>
+function OrderOption({ isAsc = false, setAsc = () => { } }) {
+    return <div className="d-flex flex-row gap-2 align-items-center">
+        <span className="fore-2"><i>Chats sorted by date: <b>{isAsc ? "ascending" : "descending"}</b></i></span>
         <Button onClick={() => setAsc(p => !p)}>
             {isAsc ?
-                <ArrowUp className="fore-1 size-1" /> :
-                <ArrowDown className="fore-1 size-1" />}
+                <SortNumericUp className="fore-1 size-1" /> :
+                <SortNumericDown className="fore-1 size-1" />}
         </Button>
+    </div>
+}
+
+function FilterOption({ isGroup = false, setGroup = () => { } }) {
+    return <div className="d-flex flex-row gap-2 align-items-center">
+        <span className="fore-2"><i>Filter by:</i></span>
+        <div className="d-flex flex-row gap-2 align-items-center">
+            <div className="tabs-layout card-1 gap-1 p-0">
+                <Tab onClick={() => setGroup(null)} isActive={isGroup === null}>None</Tab>
+                <Tab onClick={() => setGroup(true)} isActive={isGroup === true}>Group</Tab>
+                <Tab onClick={() => setGroup(false)} isActive={isGroup === false}>Direct</Tab>
+            </div>
+        </div>
     </div>
 }
 
@@ -49,7 +62,8 @@ function PersonalChats() {
     const [chatsPage, setChatsPage] = useState(1)
     const [chatsNPages, setChatsNPages] = useState(0)
     const [isAsc, setAsc] = useState(false)
-    const [selectedOption, setSelectedOption] = useState("none")
+    const [isGroup, setGroup] = useState(null)
+    const [selectedOption, setSelectedOption] = useState(null)
 
     const [chatsStatus, chatsStatusActions] = useStatus()
 
@@ -58,36 +72,39 @@ function PersonalChats() {
     useEffect(() => {
         const controller = new AbortController()
         chatsStatusActions.setLoading()
-        chatAPI.getChatPersonal(chatsPage, isAsc, { signal: controller.signal }).then(({ page, nPages, chats }) => {
-            chatsStatusActions.setReady()
-            setChatsNPages(nPages)
-            setChats([...chats])
-        }).catch(err => {
-            chatsStatusActions.setError()
-            console.log(err)
-        })
+        chatAPI.getChatPersonal(chatsPage, isAsc, isGroup, { signal: controller.signal })
+            .then(({ page, nPages, chats }) => {
+                chatsStatusActions.setReady()
+                setChatsNPages(nPages)
+                setChats([...chats])
+            }).catch(err => {
+                chatsStatusActions.setError()
+                console.log(err)
+            })
         return () => {
             controller?.abort()
             setChats([])
         }
-    }, [chatsPage, chatsStatusActions, isAsc])
+    }, [chatsPage, chatsStatusActions, isAsc, isGroup])
 
     const onClickChatsPage = (value) => setChatsPage(value)
-    const toggleOptions = (option) => setSelectedOption(selectedOption === option ? "none" : option)
+    const toggleOptions = (option) => setSelectedOption(selectedOption === option ? null : option)
 
-    return <div className="d-flex flex-column gap-3 mt-2 mb-2 align-self-stretch flex-grow-1 ">
+    return <div className="d-flex flex-column gap-3 mt-2 mb-2 align-self-stretch flex-grow-1">
         <div className="d-flex flex-column gap-3 align-self-stretch flex-grow-1">
-            <div className="d-flex flex-wrap gap-2">
+            <div className="d-flex flex-row gap-2">
                 <Button onClick={() => toggleOptions("group")}><PlusCircleFill className="fore-2-btn size-1" /></Button>
-                <Button onClick={() => toggleOptions("order")}><Sliders className="fore-2 size-1" /></Button>
+                <Button onClick={() => toggleOptions("order")}><ArrowDownUp className="fore-2 size-1" /></Button>
+                <Button onClick={() => toggleOptions("filter")}><Funnel className="fore-2 size-1" /></Button>
                 <div className="flex-grow-1"></div>
-                <StatusLayout status={selectedOption}>
-                    <none></none>
-                    <group><NewChatButton /></group>
-                    <order><ChatsOptions isAsc={isAsc} setAsc={setAsc} /></order>
-                </StatusLayout>
-                {selectedOption !== "none" && <Button onClick={() => setSelectedOption("none")}><XCircleFill className="fore-2 size-1" /></Button>}
+                {selectedOption !== null && <Button onClick={() => setSelectedOption(null)}><XCircleFill className="fore-2 size-1" /></Button>}
             </div>
+            <StatusLayout status={selectedOption}>
+                <none></none>
+                <group><NewChatButton /></group>
+                <order><OrderOption isAsc={isAsc} setAsc={setAsc} /></order>
+                <filter><FilterOption isGroup={isGroup} setGroup={setGroup} /></filter>
+            </StatusLayout>
             <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y h-0">
                 <StatusLayout status={chatsStatus}>
                     <loading><LoadingAlert /></loading>
@@ -95,7 +112,7 @@ function PersonalChats() {
                         {chats.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the chats related to you will be shown here!" />}
                         {chats.map(chat => <ChatCard key={chat.id} chat={chat} relativeDateTime={getRelative(chat.updatedAt)} />)}
                     </ready>
-                    <error><SomethingWentWrong explanation="It is not possible to load your personal chats!"/></error>
+                    <error><SomethingWentWrong explanation="It is not possible to load your personal chats!" /></error>
                 </StatusLayout>
             </div>
         </div>

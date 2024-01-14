@@ -14,5 +14,6 @@ exports.userProjection = {
     _id: 0, 
     id: '$_id', 
     username: 1, 
+    bio: 1,
     confirmed: 1
 }

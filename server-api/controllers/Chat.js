@@ -14,7 +14,7 @@ exports.getChat = async (req, res) => {
         const chat = await chatServices.getChat(req.params.id)
 
         if (chat) res.json(chat)
-        else res.status(404).json("Chat not found with the specified id")
+        else res.status(404).json({ message: "Chat not found with the specified id" })
     } catch (err) {
         console.log(err)
         res.status(500).json(err)
@@ -26,23 +26,24 @@ exports.getChatsPersonal = async (req, res) => {
         const { id } = req.user
         const page = getPage(req.query.page)
         const asc = getBool(req.query.asc)
+        const isGroup = getBool(req.query.isGroup)
 
         let [chats, nPages] = await Promise.all([
-            chatServices.getChatsPersonal(id.toString(), page, asc),
-            chatServices.countChatsPages(id.toString())
+            chatServices.getChatsPersonal(id.toString(), { page, asc, isGroup }),
+            chatServices.countChatsPages(id.toString(), { isGroup })
         ])
         // get names for non group chat
         // consider username denormalization better performance
-        chats = await Promise.all(chats.map(async ({name, idUsers, ...c}) => {
+        chats = await Promise.all(chats.map(async ({ name, idUsers, ...c }) => {
             const userIdForUsername = idUsers.find(u => u.toString() !== id.toString())
             const n = c.isGroup ? name : (await usersServices.getUser(userIdForUsername)).username
-            return {...c, name: n}
+            return { ...c, name: n }
         }))
-        
-        res.json(pagingChat(page, nPages, chats))
+
+        res.json(pagingChat(page, nPages, chats, { asc, isGroup }))
     } catch (err) {
-        console.log(err)
-        res.status(500).json(err)
+        if (err instanceof TypeError) return res.status(400).json({ message: err.message })
+        return res.status(500).json(err)
     }
 }
 

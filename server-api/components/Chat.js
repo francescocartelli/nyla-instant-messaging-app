@@ -10,13 +10,15 @@ exports.newChat = function ({ name, users, isGroup }) {
     }
 }
 
-exports.pagingChat = function (page, nPages, chats) {
+exports.pagingChat = function (page, nPages, chats, { asc = false, isGroup = null }) {
+    const endpoint = "/api/chats/personal"
+    const params = `&asc=${asc}&isGroup=${isGroup}`
     return {
         page: page,
         nPages: nPages,
         chats: chats,
-        prev: page > 1 ? `/api/chats/personal?page=${page - 1}` : null,
-        next: page < nPages ? `/api/chats/personal?page=${page + 1}` : null
+        prev: page > 1 ? `${endpoint}?page=${page - 1}${params}` : null,
+        next: page < nPages ? `${endpoint}?page=${page + 1}${params}` : null
     }
 }
 
@@ -26,7 +28,7 @@ exports.chatProj = {
     id: '$_id',
     name: 1,
     users: { $concat: ["/api/chats/", { $toString: "$_id" }, "/users"] },
-    nUsers: { $size: "$users"},
+    nUsers: { $size: "$users" },
     messages: { $concat: ["/api/chats/", { $toString: "$_id" }, "/messages"] },
     isGroup: 1,
     createdAt: 1,

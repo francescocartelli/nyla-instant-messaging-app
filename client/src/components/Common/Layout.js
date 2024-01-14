@@ -41,4 +41,4 @@ function PagesControl({ page, nPages, onClick = () => { } }) {
     </div>
 }
 
-export { TabsLayout, StatusLayout, PagesControl }
+export { TabsLayout, StatusLayout, PagesControl, Tab }

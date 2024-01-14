@@ -49,6 +49,16 @@
               "type": "boolean",
               "default": "false"
             }
+          },
+          {
+            "name": "isGroup",
+            "in": "query",
+            "description": "Filter for group or direct chats. If null no filtering is applied.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": "null"
+            }
           }
         ],
         "summary": "Retrieve personal chats",

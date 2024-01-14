@@ -14,7 +14,7 @@ exports.cookieExtractor = (req) => {
 
 exports.getPage = (p) => {
     const page = parseInt(p)
-    if (page < 1) throw new Error("Page number has to be equal or higher than one")
+    if (page < 1) throw new TypeError("Page number has to be equal or higher than one")
     return isNaN(page) ? 1 : page
 }
 
@@ -23,5 +23,6 @@ exports.getCursor = (c) => {
 }
 
 exports.getBool = (b) => {
-    return b?.toLowerCase?.() === 'true'
+    if (b === undefined || b === null || b === 'null') return null
+    else return b.toLowerCase?.() === 'true'
 }
