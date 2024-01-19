@@ -78,7 +78,7 @@ function App() {
                   <UsersSearch user={user} />
                 </AuthWall>} />
                 <Route path="/settings" element={<AuthWall>
-                  <Settings />
+                  <Settings user={user} setUser={setUser}/>
                 </AuthWall>} />
                 <Route exact path="/" element={<Home />} />
                 <Route path="*" element={<NotFound />} />

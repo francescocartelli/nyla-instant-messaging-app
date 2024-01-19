@@ -1,4 +1,4 @@
-async function getUsers(username = "", searchType="contains", options = {}) {
+async function getUsers(username = "", searchType = "contains", options = {}) {
     const response = await fetch(`/api/users?username=${username}&searchType=${searchType}`, options)
     return response.json()
 }
@@ -60,6 +60,17 @@ function logout() {
     })
 }
 
-const userAPI = { getUsers, signin, signup, getCurrentUser, logout }
+function updateUser(id, { bio = null, username = null }) {
+    return fetch(`/api/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            ...(bio !== null ? { bio } : {}),
+            ...(username !== null ? { username } : {})
+        })
+    })
+}
+
+const userAPI = { getUsers, signin, signup, getCurrentUser, logout, updateUser }
 
 export default userAPI

@@ -9,7 +9,7 @@
         "username": {
             "description": "Username of the user",
             "type": "string",
-            "pattern": "^(?=.{6,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$"
+            "pattern": "^(?=[a-zA-Z0-9._]{8,20}$)(?!.*[_.]{2})[^_.].*[^_.]$"
         },
         "bio": {
             "description": "Short description of the user",
