@@ -2,6 +2,8 @@ const WebSocket = require('ws')
 
 const { getCurrentUser } = require('./services/User')
 const { redisClient, getChannel } = require('./services/Redis')
+const { ConnMap } = require('./utils/ConnectionsMap')
+const logger = require('./utils/Logger').logger
 
 require('dotenv').config()
 
@@ -10,34 +12,34 @@ const boot = async () => {
         await redisClient.connect()
 
         const wss = new WebSocket.Server({ port: process.env.SERVER_PORT })
+        const connMap = new ConnMap()
 
         wss.on('connection', async function (ws, req) {
             try {
                 const user = await getCurrentUser(req)
                 const channel = getChannel(user)
 
-                console.log(`${user.id} connected and subscribed to ${channel}`)
+                const [forAll, remove, isInit] = connMap.add(user.id, ws)
 
-                await redisClient.subscribe(channel, (message) => {
-                    console.log(`${channel} received message`)
-                    ws.send(message)
-                })
+                const onMessage = (message) => forAll((wsConn) => wsConn.send(message))
+                const onClose = () => { logger.info(`${user.id} disconnected`); remove(() => redisClient.unsubscribe(channel)) }
 
-                ws.on('close', async () => {
-                    redisClient.unsubscribe(channel)
-                    console.log(`${user.id} disconnected`)
-                })
+                if (isInit) await redisClient.subscribe(channel, onMessage)
+
+                ws.on('close', onClose)
+
+                logger.info(`${user.id} connected`)
             } catch (err) {
-                console.log(err)
+                logger.error(err)
                 ws.close()
             }
         })
 
-        console.log(`WebSocket server running on port ${process.env.SERVER_PORT}.`)
-        console.log(`Subscribed to Redis server ${process.env.MQ_SERVER_URL}.`)
+        logger.info(`WebSocket server running on port ${process.env.SERVER_PORT}.`)
+        logger.info(`Subscribed to Redis server ${process.env.MQ_SERVER_URL}.`)
     } catch (err) {
-        console.log("Check your Redis server: it's probably not open")
-        console.log(err)
+        logger.warn("Check your Redis server: it's probably not open")
+        logger.error(err)
     }
 }
 
