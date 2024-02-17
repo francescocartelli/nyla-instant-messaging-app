@@ -44,14 +44,19 @@ function OrderOption({ isAsc = false, setAsc = () => { } }) {
     </div>
 }
 
-function FilterOption({ isGroup = false, setGroup = () => { } }) {
+function FilterOption({ isGroup = false, setGroup = () => { }, onReset = () => {} }) {
+    const onSetGroupClick = (value) => {
+        setGroup(value)
+        onReset()
+    }
+
     return <div className="d-flex flex-row gap-2 align-items-center">
         <span className="fore-2"><i>Filter by:</i></span>
         <div className="d-flex flex-row gap-2 align-items-center">
             <div className="tabs-layout card-1 gap-1 p-0">
-                <Tab onClick={() => setGroup(null)} isActive={isGroup === null}>None</Tab>
-                <Tab onClick={() => setGroup(true)} isActive={isGroup === true}>Group</Tab>
-                <Tab onClick={() => setGroup(false)} isActive={isGroup === false}>Direct</Tab>
+                <Tab onClick={() => onSetGroupClick(null)} isActive={isGroup === null}>None</Tab>
+                <Tab onClick={() => onSetGroupClick(true)} isActive={isGroup === true}>Group</Tab>
+                <Tab onClick={() => onSetGroupClick(false)} isActive={isGroup === false}>Direct</Tab>
             </div>
         </div>
     </div>
@@ -103,7 +108,7 @@ function PersonalChats() {
                 <none></none>
                 <group><NewChatButton /></group>
                 <order><OrderOption isAsc={isAsc} setAsc={setAsc} /></order>
-                <filter><FilterOption isGroup={isGroup} setGroup={setGroup} /></filter>
+                <filter><FilterOption isGroup={isGroup} setGroup={setGroup} onReset={() => setChatsPage(1)}/></filter>
             </StatusLayout>
             <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y h-0">
                 <StatusLayout status={chatsStatus}>
