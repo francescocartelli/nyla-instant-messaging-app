@@ -2,8 +2,6 @@ import { useState } from "react"
 import { BoxArrowInRight, Check2, EnvelopeFill, EyeFill, EyeSlashFill, Hourglass, Lock, LockFill, PersonFill, PersonPlusFill, XCircle } from "react-bootstrap-icons"
 import { Link, useNavigate } from "react-router-dom"
 
-import "./Account.css"
-
 import { useDebounce, useStatus } from "hooks"
 
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
@@ -45,7 +43,7 @@ function LoginTab({ signinSuccessful }) {
     const isLoginButtonDisabled = !username || !password
 
     return <form className="d-flex align-self-stretch flex-column gap-3" onSubmit={onSubmit}>
-        {message && <div className="alert warning"><p><i>{message}</i></p></div>}
+        {message && <div className="card-1 warning fs-80 p-2"><span><i>{message}</i></span></div>}
         <div className="d-flex flex-column gap-2">
             <Text autoComplete="new-password" value={username} placeholder="Username or email..." onChange={onChangeUsername} left={<PersonFill className="fore-2 size-1" />} />
             <Text autoComplete="new-password" type={passwordType} placeholder="Password..." value={password} onChange={onChangePassword} left={<LockFill className="fore-2 size-1" />}
@@ -204,7 +202,7 @@ function RegistrationTab({ signupSuccessful }) {
     const isRegisterButtonDisabled = isUsernameInvalidOrTaken || isAnyPasswordInvalid || isEmailInvalid
 
     return <form className="d-flex flex-column align-self-stretch gap-3" onSubmit={onRegister}>
-        {message && <div className="alert warning"><p><i>{message}</i></p></div>}
+        {message && <div className="card-1 warning fs-80 p-2"><span><i>{message}</i></span></div>}
         <div className="d-flex flex-column gap-2">
             <UsernameRegistration username={username} setUsername={setUsername} setInvalid={setUsernameInvalidOrTaken}/>
             <TextVal autoComplete="new-password" value={email} placeholder="Email..." onChange={onChangeEMail}
@@ -234,7 +232,7 @@ function Account({ setUser }) {
     const onSigninSuccessful = (response) => { setUser(response); navigate("/") }
     const onSignupSuccessful = (response) => { setUser(response); navigate("/") }
 
-    return <div className="d-flex flex-column align-self-center gap-2 align-items-center flex-grow-1 justify-content-center p-0 max-s">
+    return <div className="d-flex flex-column align-self-center gap-2 align-items-center flex-grow-1 justify-content-center p-0 max-w-300">
         <div style={{ marginTop: "-5em" }} className="align-self-center"><Logo fontSize={64} /></div>
         <TabsLayout>
             <div title={<>Sign In <BoxArrowInRight className="size-1" /></>}><LoginTab signinSuccessful={onSigninSuccessful} /></div>

@@ -6,7 +6,7 @@ import { Text } from "components/Common/Inputs"
 import { useStatus } from "hooks"
 import { StatusLayout } from "components/Common/Layout"
 import userAPI from "api/userAPI"
-import { UsernameRegistration } from "../Account/Account"
+import { PasswordRegistration, UsernameRegistration } from "../Account/Account"
 
 function SettingSection({ children }) {
     return <h3 className="m-0">{children}</h3>
@@ -86,13 +86,25 @@ function EmailSetting() {
     </>
 }
 
+function PasswordSetting() {
+    return <>
+        <SettingSubSection>Change Password</SettingSubSection>
+        <SettingCard initialValue="" initialInvalid={true} onConfirm={() => {}} confirmCallback={() => {}}
+            onRenderChildren={(value, onChange, disabled, setInvalid) => <div className="d-flex flex-row flex-grow-1 gap-2">
+                <PasswordRegistration password={value} setPassword={onChange} setInvalid={setInvalid} disabled={disabled}/>
+            </div>}></SettingCard>
+        <p className="fore-2 fs-80">This setting is locked.</p>
+    </>
+}
+
 function Settings({ user, setUser }) {
-    return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-2 mt-3">
+    return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-2 mt-3 scroll-y h-0">
         <SettingSection>Profile Details</SettingSection>
-        <p className="fore-2">Update your profile details below to ensure accurate and current information is displayed.</p>
+        <p className="fore-2">Update your profile details to ensure accurate and up-to-date information is displayed.</p>
         <BioSetting user={user} setUser={setUser} />
         <UsernameSetting user={user} setUser={setUser} />
         <EmailSetting/>
+        <PasswordSetting/>
     </div>
 }
 

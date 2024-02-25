@@ -1,9 +1,6 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react"
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { ArrowDown, Check2, ChevronRight, Hourglass, QuestionCircle, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
-
-import "./Chats.css"
-import "styles/style.css"
 
 import { useStatus, useIsInViewport } from "hooks"
 
@@ -50,7 +47,7 @@ function DateLabel({ date }) {
     </div>
 }
 
-function MessageCard({ id, message, user, prev, users }) {
+function MessageCard({ id, message, user, prev, senderUsername }) {
     const [isExpanded, setExpanded] = useState(false)
     const [isDeleting, setDeleting] = useState(false)
 
@@ -59,7 +56,6 @@ function MessageCard({ id, message, user, prev, users }) {
 
     const isFromOther = user.id !== message.idSender
     const changedSender = prev ? message.idSender?.toString() !== prev.idSender?.toString() : true
-    const senderUsername = users.find(i => i.id === message.idSender)?.username
 
     const onClickMessageDelete = () => {
         setDeleting(true)
@@ -80,9 +76,9 @@ function MessageCard({ id, message, user, prev, users }) {
 
     return <>
         {date !== prevDate && <DateLabel date={date} />}
-        <div className={`d-flex flex-column card-1 crd-min-w limit-width ${isFromOther ? "left" : "right"} ${changedSender ? "mt-2" : ""}`}>
+        <div className={`d-flex flex-column card-1 min-w-100 max-w-60p break-word ${isFromOther ? "align-self-start" : "align-self-end"} ${changedSender ? "mt-2" : ""}`}>
             {isFromOther && changedSender && <span className="fore-2 fs-80 fw-600">{senderUsername}</span>}
-            <p className="m-0">{message.content}</p>
+            <p className="m-0 text-wrap">{message.content}</p>
             <div className="d-flex flex-row gap-1 align-items-center">
                 <span className="fore-2 fs-70 pr-2 flex-grow-1">{time}</span>
                 {!isFromOther && <DeleteMessageControl />}
@@ -97,12 +93,13 @@ function Chat({ user }) {
     const [chat, setChat] = useState({})
     const [users, setUsers] = useState([])
 
+    const usernamesTranslation = useMemo(() => Object.fromEntries(users.map(({ id, username }) => [id, username])), [users])
+
     const [chatStatus, chatStatusActions] = useStatus()
-    const [_, userStatusActions] = useStatus()
+    const [userStatus, userStatusActions] = useStatus()
     const [messagesStatus, messagesStatusActions] = useStatus()
 
     const [messages, setMessages] = useState([])
-    const [isNextDisabled, setNextDisabled] = useState(false)
     const messagesCursor = useRef(null)
 
     const [isEditing, setEditing] = useState(false)
@@ -117,22 +114,39 @@ function Chat({ user }) {
     const scrollToLastMessage = () => { lastRef.current?.scrollIntoView() }
 
     const getMessages = () => {
-        setNextDisabled(true)
+        messagesStatusActions.setLoading()
         chatAPI.getMessages(id, messagesCursor.current, {})
-            .then(({ messages, nextCursor }) => {
-                setNextDisabled(false)
+            .then(res => res.json()).then(({ messages, nextCursor }) => {
+                messages.reverse()
+                messages = messages.map(message => { return { ...message, senderUsername: usernamesTranslation[message.idSender] } })
+                setMessages(p => [...messages, ...p])
                 messagesCursor.current = nextCursor
-                setMessages(p => [...[...messages].reverse(), ...p])
-            }).catch(err => console.log(err))
+                messagesStatusActions.setReady()
+            }).catch(err => messagesStatusActions.setError())
     }
+
+    useEffect(() => {
+        const controller = new AbortController()
+
+        if (Object.keys(usernamesTranslation).length < 1) return
+        chatAPI.getMessages(id, messagesCursor.current, { signal: controller.signal })
+            .then(res => res.json()).then(({ messages, nextCursor }) => {
+                messages.reverse()
+                messages = messages.map(message => { return { ...message, senderUsername: usernamesTranslation[message.idSender] } })
+                setMessages(p => [...messages, ...p])
+                messagesCursor.current = nextCursor
+                messagesStatusActions.setReady()
+                scrollToLastMessage()
+            }).catch(() => messagesStatusActions.setError())
+    }, [id, usernamesTranslation, messagesStatusActions])
 
     useEffect(() => {
         const controller = new AbortController()
 
         chatAPI.getChat(id, { signal: controller.signal })
             .then(res => res.json()).then(chat => {
-                chatStatusActions.setReady()
                 setChat(chat)
+                chatStatusActions.setReady()
             }).catch(() => chatStatusActions.setError())
 
         chatAPI.getChatUsers(id, { signal: controller.signal })
@@ -141,16 +155,8 @@ function Chat({ user }) {
                 userStatusActions.setReady()
             }).catch(() => userStatusActions.setError())
 
-        chatAPI.getMessages(id, messagesCursor.current, { signal: controller.signal })
-            .then(res => res.json()).then(({ messages, nextCursor }) => {
-                setMessages(p => [...[...messages].reverse(), ...p])
-                messagesCursor.current = nextCursor
-                messagesStatusActions.setReady()
-                scrollToLastMessage()
-            }).catch(() => messagesStatusActions.setError())
-
         return () => { controller?.abort() }
-    }, [id, chatStatusActions, userStatusActions, messagesStatusActions])
+    }, [id, chatStatusActions, userStatusActions])
 
     const updateScroll = useCallback((message) => {
         if (user.id !== message.idSender) {
@@ -162,7 +168,6 @@ function Chat({ user }) {
     useEffect(() => {
         const channelCreateMessage = channelTypes.createMessageInChat(id)
         subscribe(channelCreateMessage, ({ message }) => {
-            // console.log(message)
             setMessages(p => [...p, message])
             updateScroll(message)
         })
@@ -191,45 +196,46 @@ function Chat({ user }) {
             <>
                 <div className="d-flex flex-row card-1 align-items-center gap-2">
                     <StatusLayout status={chatStatus}>
-                        <loading></loading>
+                        <loading>
+                            <div className="skeleton skeleton-icon-round-2"></div>
+                            <div className="d-flex flex-column flex-grow-1 gap-1">
+                                <span className="fs-110 skeleton skeleton-text">_</span>
+                                <span className="fs-80 skeleton skeleton-text">_</span>
+                            </div>
+                        </loading>
                         <ready>
                             {chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}
                             <div className="d-flex flex-column flex-grow-1">
-                                <p className="crd-title">{getChatName()}</p>
-                                {chat.isGroup && <p className="crd-subtitle">{`${chat.nUsers} users`}</p>}
+                                <span className="fs-110 fw-500">{getChatName()}</span>
+                                {chat.isGroup && <span className="fs-80 fore-2">{`${chat.nUsers} users`}</span>}
                             </div>
                             <Button className="circle" onClick={onClickEditChat}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
                         </ready>
                         <error>
                             <QuestionCircle className="size-2 fore-2" />
                             <div className="d-flex flex-column flex-grow-1">
-                                <p className="crd-title">The requested chat cannot be loaded...</p>
-                                <p className="crd-subtitle">Maybe the chat was deleted or the link is compromised</p>
+                                <p className="fs-110 fw-500">The requested chat cannot be loaded...</p>
+                                <p className="fs-80 fore-2">Maybe the chat was deleted or the link is compromised</p>
                             </div>
                         </error>
                     </StatusLayout>
                 </div>
-                <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y">
+                <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y pr-2 pl-2">
+                    {messagesCursor.current !== null && <Button disabled={messagesStatus !== "ready"} onClick={getMessages}>Get Previous Messages...</Button>}
                     <StatusLayout status={messagesStatus}>
                         <loading><LoadingAlert /></loading>
                         <ready>
-                            {messagesCursor.current !== null && <Button disabled={isNextDisabled} onClick={getMessages}>Get Previous Messages...</Button>}
-                            {messages?.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
-                            {messages?.map((message, i, arr) => <MessageCard key={message.id} id={id} message={message}
-                                user={user} prev={i > 0 ? arr[i - 1] : null} users={users} />)}
+                            {messages.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
+                            {messages.map((message, i, arr) => <MessageCard key={message.id} id={id} message={message} user={user} prev={i > 0 ? arr[i - 1] : null} senderUsername={message.senderUsername} />)}
                         </ready>
                         <error><SomethingWentWrong explanation="It is not possible to load any message!" /></error>
                     </StatusLayout>
                     <div ref={lastRef}></div>
                 </div>
-                <div className="rel">
-                    {isNewMessageButtonVisible && <div className="d-flex justify-content-center align-items-center flex-grow-1 new-messages-wrapper">
-                        <Button onClick={onClickNewMessages} className="box-glow">
-                            <ArrowDown className="fore-2 size-1" />
-                            <p className="text-center m-0">New Messages!</p>
-                            <ArrowDown className="fore-2 size-1" />
-                        </Button>
-                    </div>}
+                <div className="position-relative">
+                    {isNewMessageButtonVisible && <Button onClick={onClickNewMessages} className="box-glow position-absolute" style={{ top: "-50px", right: "1.5em" }}>
+                        <ArrowDown className="fore-2 size-1" />
+                    </Button>}
                     <MessageEditor id={id} />
                 </div>
             </>}

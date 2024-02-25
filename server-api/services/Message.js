@@ -25,7 +25,7 @@ exports.getMessages = function (idChat, cursor) {
     }
 
     return db.collection(db.collections.message).find(query, { projection: messageProj })
-        .sort({ _id: -1 }).limit(db.configs.MESSAGES_PER_PAGE).toArray()
+        .sort({ createdAt: -1 }).limit(db.configs.MESSAGES_PER_PAGE).toArray()
 }
 
 exports.deleteMessage = function (idChat, idMessage) {

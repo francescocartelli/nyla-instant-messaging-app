@@ -2,8 +2,6 @@ import { useState } from "react"
 import { Chat, Person, PersonFill, PersonXFill, Search, XCircleFill } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 
-import './Users.css'
-
 import { useStatus, useDebounce } from 'hooks'
 
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
@@ -18,8 +16,8 @@ function UserCard({ user, children }) {
     return <div className="row-center card-1">
         <div className="crd-icon-30"><PersonFill className="fore-2 size-2" /></div>
         <div className="d-flex flex-column flex-grow-1">
-            <p className="crd-title">{user.username}</p>
-            <p className="crd-subtitle"><i>{user.bio}</i></p>
+            <span className="fs-110 fw-500">{user.username}</span>
+            <span className="fore-2 fs-80"><i>{user.bio}</i></span>
         </div>
         {children}
     </div>

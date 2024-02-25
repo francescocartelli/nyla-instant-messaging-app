@@ -17,7 +17,7 @@ function Notification({ title, text, onClick, onClose, delay = 4000 }) {
     return <div className='d-flex flex-row align-items-center card-1 gap-2 box-glow' onClick={() => { onClick(); onClose() }}>
         <InfoCircle className='fore-2 size-2 flex-shrink-0' />
         <div className='d-flex flex-column flex-grow-1' style={{ minWidth: 0 }}>
-            <p className='crd-subtitle text-truncate'>{title}</p>
+            <p className='fore-2 fs-80 text-truncate'>{title}</p>
             <p className='m-0 text-truncate'>{text}</p>
         </div>
         <XCircle className='fore-2-btn size-1 flex-shrink-0' onClick={(ev) => { ev.stopPropagation(); onClose() }} />

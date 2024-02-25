@@ -98,7 +98,7 @@ function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
     return <div className="d-flex flex-column flex-grow-1 gap-3 mb-1 h-0">
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
-                <p className="crd-title flex-grow-1">Settings:</p>
+                <span className="fs-110 fw-500 flex-grow-1">Settings:</span>
                 <Button className="circle" onClick={close}><X className="fore-2-btn size-1" /></Button>
             </div>
             {chat.isGroup && <div className="d-flex flex-row gap-2 align-items-center">
@@ -113,7 +113,7 @@ function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
         </div>
         {chat.isGroup && <>
             <div className="d-flex flex-row gap-2 card-1 align-items-center">
-                <p className="crd-title flex-grow-1">Users in chat: {users?.length}</p>
+                <span className="fs-110 fw-500 flex-grow-1">Users in chat: {users?.length}</span>
                 {isEditingUsers ? <>
                     <Button onClick={() => setSearchVisible(p => !p)}>{isSearchVisible ? "Show users" : "Add new users"}</Button>
                     <Button onClick={onClickCancelEditUsers}><Unlock className="fore-2 size-1" /></Button>
@@ -131,7 +131,7 @@ function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
                 <loading><LoadingAlert /></loading>
                 <ready>
                     <div className="d-flex flex-row gap-2 align-items-center">
-                        <p className="crd-title flex-grow-1">Advanced Settings:</p>
+                        <span className="fs-110 fw-500 flex-grow-1">Advanced Settings:</span>
                         {isAdvancedSettings ?
                             <Button onClick={() => setAdvancedSettings(false)}><ChevronUp className="fore-2-btn size-1" /></Button> :
                             <Button onClick={() => setAdvancedSettings(true)}><ChevronDown className="fore-2-btn size-1" /></Button>
@@ -182,7 +182,7 @@ function NewChatEditor({ user }) {
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-3 mt-2 mb-1 h-0">
         <div className="d-flex flex-column card-1 gap-2">
             <div className="d-flex flex-row align-items-center">
-                <p className="crd-title flex-grow-1">Create a new chat:</p>
+                <span className="fs-110 fw-500 flex-grow-1">Create a new chat:</span>
                 <Button className="circle" onClick={onClickNewChatExit}><X className="fore-2-btn size-1" /></Button>
             </div>
             <div className="d-flex flex-row gap-2">
@@ -190,7 +190,7 @@ function NewChatEditor({ user }) {
             </div>
         </div>
         <div className="d-flex flex-row gap-2 card-1 align-items-center">
-            <p className="crd-title flex-grow-1">Users in chat: {chat.users?.length}</p>
+            <span className="fs-110 fw-500 fw-500 flex-grow-1">Users in chat: {chat.users?.length}</span>
             <Button onClick={() => setSearchVisible(p => !p)}>{isSearchVisible ? "Show actual users" : "Add new users"}</Button>
         </div>
         {isSearchVisible ?
