@@ -139,7 +139,7 @@ function PersonalChats() {
             </div>
         </div>
         <div className="align-self-center">
-            <PagesControl page={chatsPage} nPages={chatsNPages} onClick={onClickChatsPage} />
+            <PagesControl page={chatsPage} nPages={chatsNPages} onChangePage={onClickChatsPage} disabled={chatsStatus !== "ready"}/>
         </div>
     </div>
 }

@@ -1,13 +1,13 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowDown, Check2, ChevronRight, Hourglass, QuestionCircle, ThreeDots, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
+import { ArrowDown, Check2, Hourglass, QuestionCircle, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
 
 import { useStatus, useIsInViewport } from "hooks"
 
 import { getDateAndTime } from "utils/Dates"
 
 import { LoadingAlert } from "components/Alerts/Alerts"
-import { StatusLayout } from "components/Common/Layout"
+import { ShowMoreLayout, StatusLayout } from "components/Common/Layout"
 import { Text } from "components/Common/Inputs"
 import { Button } from "components/Common/Buttons"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
@@ -17,7 +17,7 @@ import { InformationBox, SomethingWentWrong } from "components/Common/Misc"
 
 import chatAPI from "api/chatAPI"
 
-function MessageEditor({ id }) {
+function MessageEditor({ idChat }) {
     const [content, setContent] = useState("")
     const [isSending, setSending] = useState(false)
 
@@ -27,7 +27,7 @@ function MessageEditor({ id }) {
     const onSubmitMessage = (ev) => {
         ev.preventDefault()
         setSending(true)
-        chatAPI.sendMessage(id, { content: content }).then((m) => {
+        chatAPI.sendMessage(idChat, { content: content }).then(() => {
             setContent("")
             setSending(false)
         }).catch(err => console.log(err))
@@ -47,41 +47,29 @@ function DateLabel({ date }) {
     </div>
 }
 
-function MessageCard({ id, message, user, prev, senderUsername }) {
-    const [isExpanded, setExpanded] = useState(false)
+function MessageCard({ idChat, message, prev }) {
     const [isDeleting, setDeleting] = useState(false)
 
-    const [date, time] = getDateAndTime(message?.createdAt)
-    const [prevDate] = prev ? getDateAndTime(prev.createdAt) : [null, null]
-
-    const isFromOther = user.id !== message.idSender
-    const changedSender = prev ? message.idSender?.toString() !== prev.idSender?.toString() : true
+    const [date, time] = getDateAndTime(message.createdAt)
+    const isDateVisible = prev ? (getDateAndTime(prev.createdAt)[0] !== date) : false
+    const isSenderChanged = prev ? (message.idSender?.toString() !== prev.idSender?.toString()) : true
 
     const onClickMessageDelete = () => {
         setDeleting(true)
-        chatAPI.deleteMessage(id, message.id).then().catch(err => {
-            setDeleting(false)
-            console.log(err)
-        })
-    }
-
-    const DeleteMessageControl = () => {
-        return <>
-            {isExpanded ? <>
-                {isDeleting ? <Hourglass className="fore-2" /> : <TrashFill className="fore-2-btn" onClick={onClickMessageDelete} />}
-                <ChevronRight onClick={() => setExpanded(false)} className="fore-2-btn" />
-            </> : <ThreeDots onClick={() => setExpanded(true)} className="fore-2-btn" />}
-        </>
+        chatAPI.deleteMessage(idChat, message.id).then().catch(err => setDeleting(false))
     }
 
     return <>
-        {date !== prevDate && <DateLabel date={date} />}
-        <div className={`d-flex flex-column card-1 min-w-100 max-w-60p break-word ${isFromOther ? "align-self-start" : "align-self-end"} ${changedSender ? "mt-2" : ""}`}>
-            {isFromOther && changedSender && <span className="fore-2 fs-80 fw-600">{senderUsername}</span>}
+        {isDateVisible && <DateLabel date={date} />}
+        <div className={`d-flex flex-column card-1 min-w-100 max-w-60p break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${isSenderChanged ? "mt-2" : ""}`}>
+            {message.isFromOther && isSenderChanged && <span className="fore-2 fs-80 fw-600">{message.senderUsername}</span>}
             <p className="m-0 text-wrap">{message.content}</p>
             <div className="d-flex flex-row gap-1 align-items-center">
                 <span className="fore-2 fs-70 pr-2 flex-grow-1">{time}</span>
-                {!isFromOther && <DeleteMessageControl />}
+                {!message.isFromOther && <ShowMoreLayout> {isDeleting ?
+                    <Hourglass className="fore-2" /> :
+                    <TrashFill className="fore-2-btn" onClick={onClickMessageDelete} />}
+                </ShowMoreLayout>}
             </div>
         </div>
     </>
@@ -92,14 +80,22 @@ function Chat({ user }) {
 
     const [chat, setChat] = useState({})
     const [users, setUsers] = useState([])
+    const [messages, setMessages] = useState([])
 
-    const usernamesTranslation = useMemo(() => Object.fromEntries(users.map(({ id, username }) => [id, username])), [users])
+    const usernamesTranslation = useMemo(() => Object.fromEntries(users.map(({ id, username }) => [id.toString(), username])), [users])
+
+    const messageMapping = useCallback((message) => {
+        return {
+            ...message,
+            senderUsername: (usernamesTranslation[message.idSender.toString()] || "<deleted>"),
+            isFromOther: user.id !== message.idSender
+        }
+    }, [user, usernamesTranslation])
 
     const [chatStatus, chatStatusActions] = useStatus()
     const [userStatus, userStatusActions] = useStatus()
     const [messagesStatus, messagesStatusActions] = useStatus()
 
-    const [messages, setMessages] = useState([])
     const messagesCursor = useRef(null)
 
     const [isEditing, setEditing] = useState(false)
@@ -109,36 +105,29 @@ function Chat({ user }) {
     const isLastInViewport = useIsInViewport(lastRef)
 
     const [subscribe, unsubscribe] = useContext(WebSocketContext)
+
     const navigate = useNavigate()
 
     const scrollToLastMessage = () => { lastRef.current?.scrollIntoView() }
 
-    const getMessages = () => {
-        messagesStatusActions.setLoading()
-        chatAPI.getMessages(id, messagesCursor.current, {})
-            .then(res => res.json()).then(({ messages, nextCursor }) => {
-                messages.reverse()
-                messages = messages.map(message => { return { ...message, senderUsername: usernamesTranslation[message.idSender] } })
-                setMessages(p => [...messages, ...p])
-                messagesCursor.current = nextCursor
-                messagesStatusActions.setReady()
-            }).catch(err => messagesStatusActions.setError())
-    }
-
-    useEffect(() => {
+    const getMessages = useCallback((callback = () => { }) => {
         const controller = new AbortController()
 
-        if (Object.keys(usernamesTranslation).length < 1) return
+        messagesStatusActions.setLoading()
         chatAPI.getMessages(id, messagesCursor.current, { signal: controller.signal })
             .then(res => res.json()).then(({ messages, nextCursor }) => {
-                messages.reverse()
-                messages = messages.map(message => { return { ...message, senderUsername: usernamesTranslation[message.idSender] } })
-                setMessages(p => [...messages, ...p])
+                setMessages(p => [...[...messages.map(messageMapping)].reverse(), ...p])
                 messagesCursor.current = nextCursor
                 messagesStatusActions.setReady()
-                scrollToLastMessage()
-            }).catch(() => messagesStatusActions.setError())
-    }, [id, usernamesTranslation, messagesStatusActions])
+                callback()
+            }).catch(err => { messagesStatusActions.setError(); console.log(err) })
+    }, [id, messagesCursor, messageMapping, messagesStatusActions])
+
+    useEffect(() => {
+        if (Object.keys(usernamesTranslation).length < 1) return
+
+        getMessages(scrollToLastMessage)
+    }, [getMessages, usernamesTranslation])
 
     useEffect(() => {
         const controller = new AbortController()
@@ -221,12 +210,12 @@ function Chat({ user }) {
                     </StatusLayout>
                 </div>
                 <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y pr-2 pl-2">
-                    {messagesCursor.current !== null && <Button disabled={messagesStatus !== "ready"} onClick={getMessages}>Get Previous Messages...</Button>}
+                    {messagesCursor.current !== null && <Button disabled={messagesStatus !== "ready"} onClick={() => getMessages()}>Get Previous Messages...</Button>}
                     <StatusLayout status={messagesStatus}>
                         <loading><LoadingAlert /></loading>
                         <ready>
                             {messages.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
-                            {messages.map((message, i, arr) => <MessageCard key={message.id} id={id} message={message} user={user} prev={i > 0 ? arr[i - 1] : null} senderUsername={message.senderUsername} />)}
+                            {messages.map((message, i, arr) => <MessageCard key={message.id} idChat={id} message={message} prev={i > 0 ? arr[i - 1] : null} />)}
                         </ready>
                         <error><SomethingWentWrong explanation="It is not possible to load any message!" /></error>
                     </StatusLayout>
@@ -236,7 +225,7 @@ function Chat({ user }) {
                     {isNewMessageButtonVisible && <Button onClick={onClickNewMessages} className="box-glow position-absolute" style={{ top: "-50px", right: "1.5em" }}>
                         <ArrowDown className="fore-2 size-1" />
                     </Button>}
-                    <MessageEditor id={id} />
+                    <MessageEditor idChat={id} />
                 </div>
             </>}
     </div>
