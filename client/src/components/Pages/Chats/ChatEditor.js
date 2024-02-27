@@ -54,6 +54,7 @@ function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
         chatAPI.addUserChat(chat.id, u.id).then(() => {
             setLoading(false)
             setUsers(p => [...p, u])
+            setChat(p => { return { ...p, nUsers: p.nUsers + 1} })
         }).catch(err => console.log(err))
     }
     const removeUser = async (u, setLoading) => {
@@ -61,6 +62,7 @@ function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
         chatAPI.removeUserChat(chat.id, u.id).then(() => {
             setLoading(false)
             setUsers(p => p.filter(i => i.id !== u.id))
+            setChat(p => { return { ...p, nUsers: p.nUsers - 1} })
         }).catch(err => console.log(err))
     }
     const deleteChat = () => {

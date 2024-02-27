@@ -17,6 +17,7 @@
     "react-router-dom": "^6.15.0",
     "react-router-hash-link": "^2.4.3",
     "react-scripts": "^5.0.1",
+    "uuid": "^9.0.1",
     "web-vitals": "^1.1.2",
     "ws": "^8.14.2"
   },

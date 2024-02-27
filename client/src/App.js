@@ -18,7 +18,7 @@ import { Account } from './components/Pages/Account/Account'
 import { Home } from 'components/Pages/Home/Home'
 import { UsersSearch } from 'components/Pages/Users/Users'
 import { PersonalChats } from 'components/Pages/Chats/Chats'
-import { Chat } from 'components/Pages/Chats/Chat'
+import { ChatPage } from 'components/Pages/Chats/Chat'
 import { NewChatEditor } from 'components/Pages/Chats/ChatEditor'
 import { NotFound } from 'components/Pages/NotFound/NotFound'
 import { Settings } from 'components/Pages/Settings/Settings'
@@ -69,7 +69,7 @@ function App() {
                   <NewChatEditor user={user} />
                 </AuthWall>} />
                 <Route path="/chats/:id" element={<AuthWall>
-                  <Chat user={user} />
+                  <ChatPage user={user}/>
                 </AuthWall>} />
                 <Route path="/chats" element={<AuthWall>
                   <PersonalChats />

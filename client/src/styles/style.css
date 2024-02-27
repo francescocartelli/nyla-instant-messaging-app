@@ -99,6 +99,15 @@
     border-radius: 50% !important;
 }
 
+.crd-icon-15 {
+    height: 1.6rem;
+    width: 1.6rem;
+    text-align: center;
+    line-height: 1.4em;
+    background-color: #181d20;
+    border-radius: 0.8em;
+}
+
 .crd-icon-25 {
     height: 2.5em;
     width: 2.5em;
