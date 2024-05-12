@@ -3,30 +3,27 @@ const cookieParser = require('cookie-parser')
 
 require('dotenv').config()
 
+const { getCookieJWT } = require('../components/CookieJWT')
+
 const cookieParserMiddleware = cookieParser()
 
-exports.getCurrentUser = function (req) {
+const userCurrentURI = `http://${process.env.API_SERVER_URL}/api/users/current`
+
+exports.getCurrentUser = (req) => {
     return new Promise((resolve, reject) => {
-        try {
-            cookieParserMiddleware(req, {}, () => {
-                const cookies = req.cookies
+        cookieParserMiddleware(req, {}, async () => {
+            const jwt = req.cookies?.jwt
+            if (!jwt) reject({ status: 401, message: "Missing JWT cookie" })
 
-                if (!cookies.jwt) reject({status: 401, message: "Missing JWT cookie"})
-
-                const userCurrentURI = `http://${process.env.API_SERVER_URL}/api/users/current`
-
-                axios.get(userCurrentURI, {
-                    headers: {
-                        Cookie: `jwt=${cookies.jwt};`
-                    }
-                }).then(response => {
-                    resolve(response.data)
-                }).catch(err => {
-                    reject({ status: err.response.status, message: err.response.statusText })
+            try {
+                const { data } = await axios.get(userCurrentURI, getCookieJWT(jwt))
+                resolve(data)
+            } catch (err) {
+                reject({
+                    status: err.response.status,
+                    message: err.response.statusText
                 })
-            })
-        } catch (err) {
-            console.log(err)
-        }
+            }
+        })
     })
 }

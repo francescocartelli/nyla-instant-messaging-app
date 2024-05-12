@@ -2,8 +2,8 @@ const WebSocket = require('ws')
 
 const { getCurrentUser } = require('./services/User')
 const { redisClient, getChannel } = require('./services/Redis')
-const { createConnectionManager } = require('./utils/ConnectionManager')
-const { logger } = require('./utils/Logger')
+const { createConnectionManager } = require('./components/ConnectionManager')
+const { logger } = require('./components/Logger')
 
 require('dotenv').config()
 
@@ -12,7 +12,7 @@ const boot = async () => {
         await redisClient.connect()
 
         const wss = new WebSocket.Server({ port: process.env.SERVER_PORT })
-        const { addConnection } = new createConnectionManager()
+        const { addConnection } = createConnectionManager()
 
         wss.on('connection', async (ws, req) => {
             try {
@@ -37,8 +37,8 @@ const boot = async () => {
             }
         })
 
-        logger.info(`WebSocket server running on port ${process.env.SERVER_PORT}.`)
-        logger.info(`Subscribed to Redis server ${process.env.MQ_SERVER_URL}.`)
+        logger.info(`WebSocket server running on port ${process.env.SERVER_PORT}`)
+        logger.info(`Subscribed to Redis server ${process.env.MQ_SERVER_URL}`)
     } catch (err) {
         logger.warn("Check your Redis server: it's probably not open")
         logger.error(err)
