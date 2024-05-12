@@ -51,8 +51,8 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="App">
+    <div className="App">
+      <Router>
         <WebSocketProvider user={user}>
           <div className="main-container">
             <PushContainer />
@@ -69,7 +69,7 @@ function App() {
                   <NewChatEditor user={user} />
                 </AuthWall>} />
                 <Route path="/chats/:id" element={<AuthWall>
-                  <ChatPage user={user}/>
+                  <ChatPage user={user} />
                 </AuthWall>} />
                 <Route path="/chats" element={<AuthWall>
                   <PersonalChats />
@@ -78,7 +78,7 @@ function App() {
                   <UsersSearch user={user} />
                 </AuthWall>} />
                 <Route path="/settings" element={<AuthWall>
-                  <Settings user={user} setUser={setUser}/>
+                  <Settings user={user} setUser={setUser} />
                 </AuthWall>} />
                 <Route exact path="/" element={<Home />} />
                 <Route path="*" element={<NotFound />} />
@@ -89,8 +89,8 @@ function App() {
             </div>
           </div>
         </WebSocketProvider>
-      </div>
-    </Router >
+      </Router>
+    </div>
   )
 }
 

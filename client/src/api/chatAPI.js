@@ -10,7 +10,7 @@ async function getChat(id, options) {
     const response = await fetch(`/api/chats/${id}`, options)
 
     if (response.ok) return response
-    else throw new Error(response)
+    else throw new Error(response.status)
 }
 
 async function getChatUsers(id, options) {

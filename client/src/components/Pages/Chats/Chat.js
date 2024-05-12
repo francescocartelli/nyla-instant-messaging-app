@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowDown, BugFill, Check2, Hourglass, QuestionCircle, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
+import { ArrowDown, BugFill, Check2, Hourglass, KeyFill, QuestionCircle, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
 import { v4 as uuidv4 } from 'uuid'
 
 import { useStatus, useIsInViewport } from "hooks"
@@ -20,10 +20,10 @@ import { format99Plus } from "utils/Numeric"
 
 import chatAPI from "api/chatAPI"
 
-function MessageEditor({ user, idChat, onMessagePending, onMessageSent }) {
+function MessageEditor({ user, idChat, onMessagePending, onMessageSent, isDisabled }) {
     const [content, setContent] = useState("")
 
-    const isSendButtonDisabled = () => { return content === "" }
+    const isSendButtonDisabled = () => { return content === "" || isDisabled }
 
     const onChangeContent = (ev) => setContent(ev.target.value)
     const onSubmitMessage = (ev) => {
@@ -84,7 +84,7 @@ function MessageCard({ idChat, message, prev }) {
     </>
 }
 
-function Chat({ id, user, chat, chatStatus, users, setEditing }) {
+function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing }) {
     const chatName = chat.isGroup ? chat.name : `Chat with ${users.find(u => u.id !== user.id)?.username}`
 
     const [messages, setMessages] = useState([])
@@ -123,11 +123,11 @@ function Chat({ id, user, chat, chatStatus, users, setEditing }) {
     }, [id, messagesCursor, messageMapping, messagesStatusActions])
 
     const messageReceived = useCallback((message) => {
-        if (user.id !== message.idSender) {
-            setMessages(p => [...p, messageMapping(message)])
-            if (!isLastInViewport) setNewMessagesNumber(p => p + 1)
-            else scrollToLastMessage()
-        }
+        if (user.id === message.idSender) return
+
+        setMessages(p => [...p, messageMapping(message)])
+        if (!isLastInViewport) setNewMessagesNumber(p => p + 1)
+        else scrollToLastMessage()
     }, [user.id, messageMapping, isLastInViewport])
 
     /* get messages async */
@@ -183,18 +183,25 @@ function Chat({ id, user, chat, chatStatus, users, setEditing }) {
                     <Button className="circle" onClick={onClickEditChat}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
                 </ready>
                 <error>
-                    <QuestionCircle className="size-2 fore-2" />
-                    <div className="d-flex flex-column flex-grow-1">
-                        <p className="fs-110 fw-500">The requested chat cannot be loaded...</p>
-                        <p className="fs-80 fore-2">Maybe the chat was deleted or the link is compromised</p>
-                    </div>
+                    {isUnauthorized ? <>
+                        <KeyFill className="size-2 fore-2" />
+                        <div className="d-flex flex-column flex-grow-1">
+                            <span className="fs-110 fw-500">The requested chat is protected...</span>
+                            <span className="fs-80 fore-2">You do not have permission to access to this chat</span>
+                        </div>
+                    </> : <>
+                        <QuestionCircle className="size-2 fore-2" />
+                        <div className="d-flex flex-column flex-grow-1">
+                            <span className="fs-110 fw-500">The requested chat cannot be loaded...</span>
+                            <span className="fs-80 fore-2">Maybe the chat was deleted or the link is compromised</span>
+                        </div></>}
                 </error>
             </StatusLayout>
         </div>
         <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y pr-2 pl-2">
             {messagesCursor.current !== null && <Button disabled={messagesStatus !== "ready"} onClick={() => getMessages()}>Get Previous Messages...</Button>}
             <StatusLayout status={messagesStatus}>
-                <loading><LoadingAlert /></loading>
+                <loading>{chatStatus !== "error" && <LoadingAlert />}</loading>
                 <ready>
                     {messages.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
                     {messages.map((message, i, arr) => <MessageCard key={message.id} idChat={id} message={message} prev={i > 0 ? arr[i - 1] : null} />)}
@@ -211,7 +218,7 @@ function Chat({ id, user, chat, chatStatus, users, setEditing }) {
                         <span className="fs-70">{format99Plus(newMessagesNumber)}</span>
                     </div>
                 </Button>}
-            <MessageEditor idChat={id} user={user}
+            <MessageEditor idChat={id} user={user} isDisabled={messagesStatus !== "ready"}
                 onMessagePending={(message) => { setMessages(p => [...p, messageMapping(message)]); scrollToLastMessage() }}
                 onMessageSent={(message) => setMessages(p => p.map(m => m.id === message.id ? message : m))} />
         </div>
@@ -227,6 +234,8 @@ function ChatPage({ user }) {
     const [chatStatus, chatStatusActions] = useStatus()
     const [userStatus, userStatusActions] = useStatus()
 
+    const [isUnauthorized, setUnauthorized] = useState(false)
+
     const [isEditing, setEditing] = useState(false)
 
     const onCloseChatEditor = () => setEditing(false)
@@ -237,8 +246,12 @@ function ChatPage({ user }) {
         chatAPI.getChat(id, { signal: controller.signal })
             .then(res => res.json()).then(chat => {
                 setChat(chat)
+                setUnauthorized(false)
                 chatStatusActions.setReady()
-            }).catch(() => chatStatusActions.setError())
+            }).catch((err) => {
+                setUnauthorized(err.message === "401")
+                chatStatusActions.setError()
+            })
 
         chatAPI.getChatUsers(id, { signal: controller.signal })
             .then(res => res.json()).then(users => {
@@ -252,7 +265,7 @@ function ChatPage({ user }) {
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-3">
         {isEditing ?
             <ChatEditor id={id} user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} close={onCloseChatEditor} /> :
-            <Chat id={id} user={user} chat={chat} chatStatus={chatStatus} users={users} setEditing={setEditing} />
+            <Chat id={id} user={user} chat={chat} chatStatus={chatStatus} isUnauthorized={isUnauthorized} users={users} setEditing={setEditing} />
         }
     </div>
 }

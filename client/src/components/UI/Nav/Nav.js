@@ -73,7 +73,7 @@ function Nav({ isWaitingUser, user, setUser, logout }) {
 
     const onClickDefaultNavItems = () => setCollapsed(true)
 
-    return <div className="d-flex flex-column align-items-stretch navbar adaptive-p gap-2 back-2 b-bottom">
+    return <nav className="d-flex flex-column align-items-stretch navbar adaptive-p gap-2 back-2 b-bottom">
         <div className="show-small flex-row justify-content-between align-items-center">
             <NavItem to="/" exactPath={true} className="pt-0 pb-0" onClick={onClickDefaultNavItems}>
                 <LogoGrad className="size-1" />
@@ -114,7 +114,7 @@ function Nav({ isWaitingUser, user, setUser, logout }) {
             <SepLine />
             <div className="show-small row justify-content-center"><Footer /></div>
         </div>
-    </div>
+    </nav>
 }
 
 export { Nav }
