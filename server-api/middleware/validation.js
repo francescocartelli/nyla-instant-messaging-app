@@ -26,7 +26,7 @@ exports.schemas = schemas
 
 exports.validate = validator.validate
 
-exports.validationError = function (err, req, res, next) {
+exports.validationError = (err, req, res, next) => {
     if (err instanceof ValidationError) {
         res.status(400).send(err)
         console.log(err)
@@ -34,15 +34,15 @@ exports.validationError = function (err, req, res, next) {
     } else next(err)
 }
 
-exports.validateId = function (idParam) {
-    return function (req, res, next) {
+exports.validateId = (idParam) => {
+    return (req, res, next) => {
         const id = req.params[idParam]
         if (!ObjectId.isValid(id)) res.status(400).send("Bad id")
         else next()
     }
 }
 
-exports.requirePaging = function (req, res, next) {
+exports.requirePaging = (req, res, next) => {
     if (!req.query.page) res.status(400).send("Missing page parameter")
     else {
         const page = parseInt(req.query.page)

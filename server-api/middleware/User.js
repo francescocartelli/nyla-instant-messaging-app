@@ -1,5 +1,5 @@
-exports.isUserCurrent = function(idParam) {
-    return function (req, res, next) {
+exports.isUserCurrent = (idParam) => {
+    return (req, res, next) => {
         const user = req.user
     
         if (user.id.toString() === req.params[idParam]) next()

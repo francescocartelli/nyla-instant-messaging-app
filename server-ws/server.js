@@ -2,8 +2,8 @@ const WebSocket = require('ws')
 
 const { getCurrentUser } = require('./services/User')
 const { redisClient, getChannel } = require('./services/Redis')
-const { ConnMap } = require('./utils/ConnectionsMap')
-const logger = require('./utils/Logger').logger
+const { createConnectionManager } = require('./utils/ConnectionManager')
+const { logger } = require('./utils/Logger')
 
 require('dotenv').config()
 
@@ -12,21 +12,23 @@ const boot = async () => {
         await redisClient.connect()
 
         const wss = new WebSocket.Server({ port: process.env.SERVER_PORT })
-        const connMap = new ConnMap()
+        const { addConnection } = new createConnectionManager()
 
-        wss.on('connection', async function (ws, req) {
+        wss.on('connection', async (ws, req) => {
             try {
                 const user = await getCurrentUser(req)
                 const channel = getChannel(user)
 
-                const [forAll, remove, isInit] = connMap.add(user.id, ws)
+                const { to, remove, isInit } = addConnection(user.id, ws)
 
-                const onMessage = (message) => forAll((wsConn) => wsConn.send(message))
-                const onClose = () => { logger.info(`${user.id} disconnected`); remove(() => redisClient.unsubscribe(channel)) }
+                if (isInit) await redisClient.subscribe(channel, (message) => {
+                    to((wsConn) => wsConn.send(message))
+                })
 
-                if (isInit) await redisClient.subscribe(channel, onMessage)
-
-                ws.on('close', onClose)
+                ws.on('close', () => {
+                    logger.info(`${user.id} disconnected`)
+                    remove(() => redisClient.unsubscribe(channel))
+                })
 
                 logger.info(`${user.id} connected`)
             } catch (err) {

@@ -1,7 +1,9 @@
 const { ObjectId } = require("mongodb")
 
-const { pagingChat } = require.main.require("./components/Chat")
-const { getPage, getBool } = require.main.require("./components/utils")
+const { createPage } = require.main.require("./components/Paging")
+const { getChatNavigation } = require.main.require("./components/Chat")
+const { parsePageNumber } = require.main.require("./components/Paging")
+const { getBool } = require.main.require("./components/Utils")
 const { mqDeleteChat } = require.main.require("./components/Redis")
 
 const chatServices = require.main.require('./services/Chat')
@@ -24,7 +26,7 @@ exports.getChat = async (req, res) => {
 exports.getChatsPersonal = async (req, res) => {
     try {
         const { id } = req.user
-        const page = getPage(req.query.page)
+        const page = parsePageNumber(req.query.page)
         const asc = getBool(req.query.asc)
         const isGroup = getBool(req.query.isGroup)
 
@@ -40,7 +42,7 @@ exports.getChatsPersonal = async (req, res) => {
             return { ...c, name: n }
         }))
 
-        res.json(pagingChat(page, nPages, chats, { asc, isGroup }))
+        res.json(createPage(page, nPages, { chats: chats }, getChatNavigation({ asc: asc, isGroup: isGroup })))
     } catch (err) {
         if (err instanceof TypeError) return res.status(400).json({ message: err.message })
         return res.status(500).json(err)
@@ -66,8 +68,8 @@ exports.createChat = async (req, res) => {
             if (results) return res.json({ id: results.id })
         }
         const { insertedId } = await chatServices.createChat(chat)
-        if (insertedId) res.json({ id: insertedId })
-        else res.status(304).json("No data has been created")
+        if (insertedId) return res.json({ id: insertedId })
+        res.status(304).json("No data has been created")
     } catch (err) {
         console.log(err)
         res.status(500).json(err)

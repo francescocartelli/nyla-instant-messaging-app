@@ -1,6 +1,6 @@
 const { ObjectId } = require("mongodb")
 
-exports.newChat = function ({ name, users, isGroup }) {
+exports.newChat = ({ name, users, isGroup }) =>{
     return {
         name: isGroup ? name : null,
         users: users.map(u => new ObjectId(u)),
@@ -10,16 +10,11 @@ exports.newChat = function ({ name, users, isGroup }) {
     }
 }
 
-exports.pagingChat = function (page, nPages, chats, { asc = false, isGroup = null }) {
+exports.getChatNavigation = ({ asc, isGroup }) => {
     const endpoint = "/api/chats/personal"
     const params = `&asc=${asc}&isGroup=${isGroup}`
-    return {
-        page: page,
-        nPages: nPages,
-        chats: chats,
-        prev: page > 1 ? `${endpoint}?page=${page - 1}${params}` : null,
-        next: page < nPages ? `${endpoint}?page=${page + 1}${params}` : null
-    }
+
+    return (page) => `${endpoint}?page=${page}${params}`
 }
 
 // projections

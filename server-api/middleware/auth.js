@@ -1,5 +1,5 @@
 const usersServices = require.main.require('./services/User')
-const { getDate } = require.main.require('./components/utils')
+const { getDate } = require.main.require('./components/Utils')
 
 exports.verifyJwtPayload = (payload) => {
     return new Promise((resolve, reject) => {

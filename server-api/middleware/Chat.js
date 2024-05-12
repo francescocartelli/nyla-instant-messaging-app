@@ -1,7 +1,7 @@
 const chatServices = require.main.require('./services/Chat')
 
-exports.isUserInChat = function (idParam) {
-    return async function (req, res, next) {
+exports.isUserInChat = (idParam) => {
+    return async (req, res, next) => {
         const user = req.user
         const idChat = req.params[idParam]
 

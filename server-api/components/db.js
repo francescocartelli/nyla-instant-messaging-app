@@ -7,33 +7,30 @@ const options = { useNewUrlParser: true, useUnifiedTopology: true, connectTimeou
 
 let _db
 
-module.exports = {
-    connect: async (callback) => {
-        try {
-            const client = await MongoClient.connect(url, options)
-            _db = client.db(process.env.DATABASE_NAME)
+exports.connect = async () => {
+    try {
+        const client = await MongoClient.connect(url, options)
+        _db = client.db(process.env.DATABASE_NAME)
 
-            console.log("Connected to Mongodb!")
-        } catch (err) {
-            console.log(err)
-            console.log("Error in Mongodb connection!")
-        }
-
-        _db.collections = {
-            chat: 'chat',
-            message: 'message',
-            user: 'user'
-        }
-
-        _db.configs = {
-            CHATS_PER_PAGE: 10,
-            MESSAGES_PER_PAGE: 10,
-            USERS_PER_PAGE: 10
-        }
-
-        callback()
-    },
-    get: function () {
-        return _db
+        console.log("Connected to Mongodb!")
+    } catch (err) {
+        console.log(err)
+        console.log("Error in Mongodb connection!")
     }
 }
+
+exports.configs = {
+    CHATS_PER_PAGE: 10,
+    MESSAGES_PER_PAGE: 10,
+    USERS_PER_PAGE: 10
+}
+
+exports.collections = {
+    chat: "chat",
+    message: "message",
+    user: "user"
+}
+
+exports.getChatCollection = () => _db.collection('chat')
+exports.getMessageCollection = () => _db.collection('message')
+exports.getUserCollection = () => _db.collection('user')

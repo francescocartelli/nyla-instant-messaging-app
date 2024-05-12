@@ -1,4 +1,4 @@
-exports.newUser = function ({username, email, hash}) {
+exports.newUser = ({ username, email, hash }) => {
     return {
         username: username,
         email: email,
@@ -11,9 +11,9 @@ exports.newUser = function ({username, email, hash}) {
 
 // projections
 exports.userProjection = {
-    _id: 0, 
-    id: '$_id', 
-    username: 1, 
+    _id: 0,
+    id: '$_id',
+    username: 1,
     bio: 1,
     confirmed: 1
 }

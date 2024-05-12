@@ -1,6 +1,7 @@
-const { pagingMessage } = require.main.require("./components/Message")
+const { getMessageNavigation } = require.main.require("./components/Message")
+const { createPageCursor } = require.main.require("./components/Paging")
 const { mqCreateMessage, mqDeleteMessage } = require.main.require("./components/Redis")
-const { getCursor } = require.main.require("./components/utils")
+const { getCursor } = require.main.require("./components/Utils")
 
 const { sendToUsers } = require.main.require('./services/Redis')
 const messageServices = require.main.require('./services/Message')
@@ -28,10 +29,9 @@ exports.getMessages = async (req, res) => {
 
         const messages = await messageServices.getMessages(idChat, cursor)
         const length = messages.length
-        let next = null
-        if (length > 0) next = messages[length - 1].id.toString()
+        const next = length > 0 ? messages[length - 1].id.toString() : null
 
-        res.json(pagingMessage(messages, idChat, next))
+        res.json(createPageCursor(next, { messages: messages }, getMessageNavigation(idChat)))
     } catch (err) {
         console.log(err)
         res.status(500).json(err)

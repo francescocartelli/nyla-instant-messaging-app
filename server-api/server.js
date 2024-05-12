@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser')
 require('dotenv').config()
 
 /* Validator middleware */
-const { schemas, validate, validationError, validateId } = require("./middleware/validation")
+const { schemas, validate, validationError, validateId } = require("./middleware/Validation")
 
 /* Init Express */
 const app = new express()
@@ -19,12 +19,11 @@ app.use(express.json())
 app.use(cookieParser())
 
 /* Initialize Mongodb */
-const db = require('./components/db')
-db.connect(() => {
-  boot()
-})
+const { connect } = require('./components/Db')
 
-function boot() {
+const boot = async () => {
+  await connect()
+
   /* Swagger */
   const swaggerUI = require('swagger-ui-express')
   const swaggerDocument = require('./api-docs.json')
@@ -32,13 +31,18 @@ function boot() {
   // swagger documentation
   app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 
+  app.use('/', async (req, res, next) => {
+    const sleep = (delay) => new Promise((resolve) => setTimeout(() => resolve(next()), delay))
+    return await sleep(1)
+  })
+
   /* Initialize passport */
   const passport = require('passport')
   app.use(passport.initialize())
 
   const authenticate = passport.authenticate('jwt', { session: false })
 
-  require('./middleware/strategy')
+  require('./middleware/Strategy')
 
   /* Controllers */
   const accountControllers = require('./controllers/Account')
@@ -92,3 +96,5 @@ function boot() {
   // Error handlers for validation
   app.use(validationError)
 }
+
+boot()

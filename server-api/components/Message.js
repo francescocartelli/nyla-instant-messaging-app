@@ -1,6 +1,6 @@
 const { ObjectId } = require("mongodb")
 
-exports.newMessage = function ({chat, sender, content}) {
+exports.newMessage = ({chat, sender, content}) => {
     return {
         chat: new ObjectId(chat),
         sender: new ObjectId(sender),
@@ -9,12 +9,8 @@ exports.newMessage = function ({chat, sender, content}) {
     }
 }
 
-exports.pagingMessage = function (messages, idChat, next) {
-    return {
-        messages: messages,
-        nextCursor: next,
-        next: next ? `/api/chats/${idChat}/messages?cursor=${next}` : null
-    }
+exports.getMessageNavigation = (idChat) => {
+    return (next) => `/api/chats/${idChat}/messages?cursor=${next}`
 }
 
 // projections

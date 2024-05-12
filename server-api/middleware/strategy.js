@@ -3,8 +3,8 @@ const JWTstrategy = require('passport-jwt').Strategy
 
 require('dotenv').config()
 
-const { verifyJwtPayload } = require('./auth')
-const { cookieExtractor } = require.main.require('./components/utils')
+const { verifyJwtPayload } = require('./Auth')
+const { cookieExtractor } = require.main.require('./components/Utils')
 
 passport.use('jwt', new JWTstrategy({
     jwtFromRequest: cookieExtractor,
