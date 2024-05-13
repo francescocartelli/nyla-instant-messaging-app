@@ -1,7 +1,7 @@
 const { getMessageNavigation } = require.main.require("./components/Message")
 const { createPageCursor } = require.main.require("./components/Paging")
 const { mqCreateMessage, mqDeleteMessage } = require.main.require("./components/Redis")
-const { getCursor } = require.main.require("./components/Utils")
+const { parseCursor } = require.main.require("./components/Utils")
 
 const { sendToUsers } = require.main.require('./services/Redis')
 const messageServices = require.main.require('./services/Message')
@@ -25,7 +25,7 @@ exports.getMessage = async (req, res) => {
 exports.getMessages = async (req, res) => {
     try {
         const idChat = req.params.id
-        const cursor = getCursor(req.query.cursor)
+        const cursor = parseCursor(req.query.cursor)
 
         const messages = await messageServices.getMessages(idChat, cursor)
         const length = messages.length

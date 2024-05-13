@@ -41,13 +41,3 @@ exports.validateId = (idParam) => {
         else next()
     }
 }
-
-exports.requirePaging = (req, res, next) => {
-    if (!req.query.page) res.status(400).send("Missing page parameter")
-    else {
-        const page = parseInt(req.query.page)
-
-        if (!Number.isInteger(page) || page < 0) res.status(400).send("Page number must be a number equal or higher than zero")
-        else next()
-    }
-}

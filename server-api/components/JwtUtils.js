@@ -15,3 +15,7 @@ exports.generateToken = ({ id }) => {
 exports.getCookieParams = (token) => {
     return ['jwt', token, { httpOnly: true, secure: false }]
 }
+
+exports.cookieExtractor = (req) => {
+    return (req && req.cookies) ? req.cookies['jwt'] : null
+}

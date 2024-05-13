@@ -3,8 +3,17 @@ const JWTstrategy = require('passport-jwt').Strategy
 
 require('dotenv').config()
 
-const { verifyJwtPayload } = require('./Auth')
-const { cookieExtractor } = require.main.require('./components/Utils')
+const { cookieExtractor } = require.main.require('./components/JwtUtils')
+const { getDate } = require.main.require('./components/Utils')
+
+const usersServices = require.main.require('./services/User')
+
+const verifyJwtPayload = async (payload) => {
+    const user = await usersServices.getUser({ id: payload.sub })
+
+    if (user && getDate() < payload.exp) return user
+    else return false
+}
 
 passport.use('jwt', new JWTstrategy({
     jwtFromRequest: cookieExtractor,

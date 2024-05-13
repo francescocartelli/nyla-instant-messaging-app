@@ -8,15 +8,11 @@ module.exports.day = (n=1) => {
     return n*(60*60*24)
 }
 
-exports.cookieExtractor = (req) => {
-    return (req && req.cookies) ? req.cookies['jwt'] : null
-}
-
-exports.getCursor = (c) => {
+exports.parseCursor = (c) => {
     return ObjectId.isValid(c) ? c : undefined
 }
 
-exports.getBool = (b) => {
+exports.parseBool = (b) => {
     if (b === undefined || b === null || b === 'null') return null
     else return b.toLowerCase?.() === 'true'
 }
