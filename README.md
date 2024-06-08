@@ -8,16 +8,18 @@
 <img src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E" href="https://www.javascript.com/">
 </div>
 <br>
-	<div align="center">
-		<img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" href="https://mongodb.com">
-		<img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge" href="https://expressjs.com/">
-		<img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" href="https://it.reactjs.org/">
-		<img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" href="https://nodejs.org/">
-		<img src="https://img.shields.io/badge/redis-%23DD0031.svg?&style=for-the-badge&logo=redis&logoColor=white" href="https://redis.io/">
-	</div>
+<div align="center">
+	<img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" href="https://mongodb.com">
+	<img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge" href="https://expressjs.com/">
+	<img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" href="https://it.reactjs.org/">
+	<img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" href="https://nodejs.org/">
+	<img src="https://img.shields.io/badge/redis-%23DD0031.svg?&style=for-the-badge&logo=redis&logoColor=white" href="https://redis.io/">
 </div>
-
 <br>
+
+[![GitHub stars](https://img.shields.io/github/stars/francescocartelli/nyla-instant-messaging-app.svg)](https://github.com/francescocartelli/nyla-instant-messaging-app/stargazers)&nbsp;&nbsp;&nbsp;[![GitHub forks](https://img.shields.io/github/forks/francescocartelli/nyla-instant-messaging-app.svg)](https://github.com/francescocartelli/nyla-instant-messaging-app/network)
+
+</div>
 
 # Requirements
 - <a href="https://www.mongodb.com">MongoDB</a>
