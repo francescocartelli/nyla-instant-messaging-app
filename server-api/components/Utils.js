@@ -1,4 +1,4 @@
-const { ObjectId } = require("mongodb")
+const { isOidValid } = require.main.require("./components/Db")
 
 module.exports.getDate = () => {
     return Math.floor(Date.now()/1000)
@@ -9,7 +9,7 @@ module.exports.day = (n=1) => {
 }
 
 exports.parseCursor = (c) => {
-    return ObjectId.isValid(c) ? c : undefined
+    return isOidValid(c) ? c : undefined
 }
 
 exports.parseBool = (b) => {

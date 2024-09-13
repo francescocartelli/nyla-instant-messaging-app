@@ -1,14 +1,12 @@
-const { ObjectId } = require("mongodb")
+const { oid } = require.main.require("./components/Db")
 
-exports.newChat = ({ name, users, isGroup }) =>{
-    return {
-        name: isGroup ? name : null,
-        users: users.map(u => new ObjectId(u)),
-        isGroup: isGroup,
-        createdAt: new Date(),
-        updatedAt: new Date()
-    }
-}
+exports.newChat = ({ name, users, isGroup }) => ({
+    name: isGroup ? name : null,
+    users: users.map(u => oid(u)),
+    isGroup: isGroup,
+    createdAt: new Date(),
+    updatedAt: new Date()
+})
 
 exports.getChatNavigation = ({ asc, isGroup }) => {
     const endpoint = "/api/chats/personal"

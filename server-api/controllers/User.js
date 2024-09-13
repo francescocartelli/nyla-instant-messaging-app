@@ -1,10 +1,9 @@
-const usersServices = require.main.require('./services/User')
+const usersServices = require.main.require("./services/User")
 
 module.exports.getUsers = async (req, res) => {
-    const username = req.query.username
-    const searchType = req.query.searchType
-
     try {
+        const { username, searchType } = req.query
+
         const users = await usersServices.getUsers(username, searchType)
         res.json(users)
     } catch (err) {
@@ -16,9 +15,9 @@ module.exports.getUsers = async (req, res) => {
 module.exports.getUser = async (req, res) => {
     try {
         const user = await usersServices.getUser({ id: req.params.id })
+        if (!user) return res.status(404).send("User not found with specified id")
 
-        if (user) res.json(user)
-        else res.status(404).send("User not found with specified id")
+        res.json(user)
     } catch (err) {
         res.status(500).json(err)
     }
@@ -29,9 +28,9 @@ module.exports.getCurrentUser = async (req, res) => {
         const { id } = req.user
 
         const user = await usersServices.getUser({ id: id })
+        if (!user) return res.status(404).send("User not found with specified id")
 
-        if (user) res.json(user)
-        else res.status(404).send("User not found with specified id")
+        res.json(user)
     } catch (err) {
         res.status(500).json(err)
     }
@@ -42,13 +41,12 @@ module.exports.updateUser = async (req, res) => {
         const { username } = req.body
 
         const user = await usersServices.getUser({ username: username })
-
         if (user) return res.status(400).send("Username already taken")
 
         const { modifiedCount } = await usersServices.updateUser(req.params.id, req.body)
+        if (modifiedCount < 1) return res.status(304).json("No data has been updated")
 
-        if (modifiedCount > 0) res.end()
-        else res.status(304).json("No data has been updated")
+        res.end()
     } catch (err) {
         res.status(500).json(err)
     }

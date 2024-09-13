@@ -1,17 +1,18 @@
-const { ObjectId } = require("mongodb")
+const { oid } = require.main.require("./components/Db")
 
-exports.newMessage = ({chat, sender, content}) => {
-    return {
-        chat: new ObjectId(chat),
-        sender: new ObjectId(sender),
-        content: content,
-        createdAt: new Date()
-    }
+exports.newMessage = ({chat, sender, content}) => ({
+    chat: oid(chat),
+    sender: oid(sender),
+    content: content,
+    createdAt: new Date()
+})
+
+exports.getNextCursor = (messages) => {
+    const length = messages.length
+    return length > 0 ? messages[length - 1].id.toString() : null
 }
 
-exports.getMessageNavigation = (idChat) => {
-    return (next) => `/api/chats/${idChat}/messages?cursor=${next}`
-}
+exports.getMessageNavigation = (idChat) => (next) => `/api/chats/${idChat}/messages?cursor=${next}`
 
 // projections
 exports.messageProj = {

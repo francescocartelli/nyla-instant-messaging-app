@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb')
+const { MongoClient, ObjectId } = require('mongodb')
 
 require('dotenv').config()
 
@@ -25,12 +25,15 @@ exports.configs = {
     USERS_PER_PAGE: 10
 }
 
-exports.collections = {
+const collections = {
     chat: "chat",
     message: "message",
     user: "user"
 }
 
-exports.getChatCollection = () => _db.collection('chat')
-exports.getMessageCollection = () => _db.collection('message')
-exports.getUserCollection = () => _db.collection('user')
+exports.getChatCollection = () => _db.collection(collections.chat)
+exports.getMessageCollection = () => _db.collection(collections.message)
+exports.getUserCollection = () => _db.collection(collections.user)
+
+exports.oid = id => ObjectId.createFromHexString(id.toString())
+exports.isOidValid = ObjectId.isValid

@@ -1,11 +1,11 @@
-const { getMessageNavigation } = require.main.require("./components/Message")
+const { getMessageNavigation, getNextCursor } = require.main.require("./components/Message")
 const { createPageCursor } = require.main.require("./components/Paging")
 const { mqCreateMessage, mqDeleteMessage } = require.main.require("./components/Redis")
 const { parseCursor } = require.main.require("./components/Utils")
 
-const { sendToUsers } = require.main.require('./services/Redis')
-const messageServices = require.main.require('./services/Message')
-const chatServices = require.main.require('./services/Chat')
+const { sendToUsers } = require.main.require("./services/Redis")
+const messageServices = require.main.require("./services/Message")
+const chatServices = require.main.require("./services/Chat")
 
 exports.getMessage = async (req, res) => {
     try {
@@ -13,9 +13,9 @@ exports.getMessage = async (req, res) => {
 
         // get message messageServices
         const message = await messageServices.getMessage(idChat, idMessage)
+        if (!message) return req.status(404, "Message not found with specified ids")
 
-        if (message) res.json(message)
-        else req.status(404, "Message not found with specified ids")
+        res.json(message)
     } catch (err) {
         console.log(err)
         res.status(500).json(err)
@@ -28,8 +28,7 @@ exports.getMessages = async (req, res) => {
         const cursor = parseCursor(req.query.cursor)
 
         const messages = await messageServices.getMessages(idChat, cursor)
-        const length = messages.length
-        const next = length > 0 ? messages[length - 1].id.toString() : null
+        const next = getNextCursor(messages)
 
         res.json(createPageCursor(next, { messages: messages }, getMessageNavigation(idChat)))
     } catch (err) {
@@ -41,17 +40,20 @@ exports.getMessages = async (req, res) => {
 exports.createMessage = async (req, res) => {
     try {
         const [user, message, idChat] = [req.user, req.body, req.params.id]
-        // build message
+        
         let newMessage = { chat: idChat, sender: user.id, ...message, chatName: res.locals.chatName, senderUsername: user.username }
+
         // write message on database
         const { insertedId } = await messageServices.createMessage(newMessage)
-        if (insertedId) {
-            // send message on mq
-            await sendToUsers(res.locals.chatUsers, JSON.stringify(mqCreateMessage({ id: insertedId, ...newMessage })))
-            // not a critical write
-            chatServices.updateChatLog(idChat)
-            res.json({ id: insertedId })
-        } else res.status(304).json("No data has been created")
+        if (!insertedId) return res.status(304).json("No data has been created")
+
+        // send message on mq
+        await sendToUsers(res.locals.chatUsers, JSON.stringify(mqCreateMessage({ id: insertedId, ...newMessage })))
+
+        // not a critical write
+        chatServices.updateChatLog(idChat)
+
+        res.json({ id: insertedId })
     } catch (err) {
         console.log(err)
         res.status(500).json(err)
@@ -67,11 +69,12 @@ exports.deleteMessage = async (req, res) => {
         else if (message.idSender.toString() !== user.id.toString()) return res.status(401).json("Only the sender can delete the message")
 
         const { deletedCount } = await messageServices.deleteMessage(idChat, idMessage)
-        if (deletedCount > 0) {
-            // send message on mq
-            await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteMessage({ id: idMessage, chat: idChat })))
-            res.end()
-        } else res.status(304).json("No data has been deleted")
+        if (deletedCount < 1) return res.status(304).json("No data has been deleted")
+
+        // send message on mq
+        await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteMessage({ id: idMessage, chat: idChat })))
+
+        res.end()
     } catch (err) {
         console.log(err)
         res.status(500).json(err)

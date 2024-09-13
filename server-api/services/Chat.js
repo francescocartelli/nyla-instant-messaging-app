@@ -1,4 +1,4 @@
-const { ObjectId } = require('mongodb')
+const { oid } = require.main.require("./components/Db")
 
 const { newChat, chatProj } = require.main.require('./components/Chat')
 const { getChatCollection, configs: dbConfigs } = require.main.require('./components/Db')
@@ -16,7 +16,7 @@ exports.createChat = (chat) => {
 
 exports.getChat = (idChat, project = true) => {
     return chatCollection.findOne(
-        { _id: new ObjectId(idChat) },
+        { _id: oid(idChat) },
         project ? { projection: chatProj } : {}
     )
 }
@@ -24,7 +24,7 @@ exports.getChat = (idChat, project = true) => {
 exports.getChatsPersonal = (idUser, { page = 1, asc = false, isGroup = null }) => {
     return chatCollection
         .find({
-            users: { $in: [new ObjectId(idUser)] },
+            users: { $in: [oid(idUser)] },
             ...(isGroup !== null ? { isGroup } : {})
         }, { projection: { ...chatProj, idUsers: '$users' } })
         .sort({ updatedAt: asc ? 1 : -1 }).limit(dbConfigs.CHATS_PER_PAGE)
@@ -33,7 +33,7 @@ exports.getChatsPersonal = (idUser, { page = 1, asc = false, isGroup = null }) =
 
 exports.countChatsPages = async (idUser, { isGroup = null }) => {
     const count = await chatCollection.countDocuments({
-        users: { $in: [new ObjectId(idUser)] },
+        users: { $in: [oid(idUser)] },
         ...(isGroup !== null ? { isGroup } : {})
     })
 
@@ -49,8 +49,8 @@ exports.checkChatExistence = (users) => {
     return chatCollection.findOne({
         isGroup: false,
         $and: [
-            { users: { $in: [new ObjectId(users[0])] } },
-            { users: { $in: [new ObjectId(users[1])] } }
+            { users: { $in: [oid(users[0])] } },
+            { users: { $in: [oid(users[1])] } }
         ]
     }, { projection: { _id: 0, id: '$_id' } })
 }
@@ -63,37 +63,47 @@ exports.checkChatExistence = (users) => {
  */
 exports.updateChat = (idChat, chat) => {
     return chatCollection.updateOne(
-        { _id: new ObjectId(idChat) },
+        { _id: oid(idChat) },
         { $set: chat }
     )
 }
 
 exports.updateChatLog = (idChat) => {
     return chatCollection.updateOne(
-        { _id: new ObjectId(idChat) },
+        { _id: oid(idChat) },
         { $set: { updatedAt: new Date() } }
     )
 }
 
 exports.deleteChat = (idChat) => {
-    return chatCollection.deleteOne({ _id: new ObjectId(idChat) })
+    return chatCollection.deleteOne({ _id: oid(idChat) })
 }
 
 exports.getChatUsersIds = async (idChat) => {
-    const chat = await chatCollection.findOne({ _id: new ObjectId(idChat) })
-    return chat.users.map(i => i.toString())
+    const chat = await chatCollection.findOne({ _id: oid(idChat) })
+    return chat && chat.users && chat.users.map(i => i.toString())
 }
 
 exports.addUser = (idChat, idUser) => {
     return chatCollection.updateOne(
-        { _id: new ObjectId(idChat) },
-        { $addToSet: { users: new ObjectId(idUser) } }
+        { _id: oid(idChat) },
+        { $addToSet: { users: oid(idUser) } }
     )
 }
 
 exports.removeUser = (idChat, idUser) => {
     return chatCollection.updateOne(
-        { _id: new ObjectId(idChat) },
-        { $pull: { users: new ObjectId(idUser) } }
+        { _id: oid(idChat) },
+        { $pull: { users: oid(idUser) } }
     )
+}
+
+exports.lookupChatname = (chats, id, lookupUserUsername) => {
+    return Promise.all(chats.map(async ({ name, idUsers, ...c }) => {
+        if (name) return { ...c, name }
+
+        const userIdForUsername = idUsers.find(u => u.toString() !== id.toString())
+        const { username } = await lookupUserUsername({ id: userIdForUsername })
+        return { ...c, name: username }
+    }))
 }

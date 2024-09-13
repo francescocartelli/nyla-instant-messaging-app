@@ -1,13 +1,11 @@
-exports.newUser = ({ username, email, hash }) => {
-    return {
-        username: username,
-        email: email,
-        bio: "",
-        hash: hash,
-        confirmed: false,
-        createdAt: new Date()
-    }
-}
+exports.newUser = ({ username, email, hash }) => ({
+    username: username,
+    email: email,
+    bio: "",
+    hash: hash,
+    confirmed: false,
+    createdAt: new Date()
+})
 
 // projections
 exports.userProjection = {

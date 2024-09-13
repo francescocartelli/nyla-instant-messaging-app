@@ -31,11 +31,6 @@ const boot = async () => {
   // swagger documentation
   app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 
-  app.use('/', async (req, res, next) => {
-    const sleep = (delay) => new Promise((resolve) => setTimeout(() => resolve(next()), delay))
-    return await sleep(1)
-  })
-
   /* Initialize passport */
   const passport = require('passport')
   app.use(passport.initialize())
@@ -53,6 +48,7 @@ const boot = async () => {
   /* Middlewares */
   const chatMiddleware = require('./middleware/Chat')
   const userMiddleware = require('./middleware/User')
+  const accountMiddlewares = require('./middleware/Account')
 
   // activate the server
   app.listen(process.env.SERVER_PORT, () => { console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`) })
@@ -89,7 +85,7 @@ const boot = async () => {
   /* ------------ */
   /* AUTHENTICATE */
   /* ------------ */
-  app.post('/api/authenticate/signup', validate({ body: schemas.userSignUpSchema }), accountControllers.signUp)
+  app.post('/api/authenticate/signup', validate({ body: schemas.userSignUpSchema }), accountMiddlewares.validateSingUp, accountControllers.signUp)
   app.post('/api/authenticate/signin', validate({ body: schemas.userSignInSchema }), accountControllers.singIn)
   app.post('/api/authenticate/logout', authenticate, accountControllers.logOut)
 

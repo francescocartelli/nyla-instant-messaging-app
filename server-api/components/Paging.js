@@ -4,20 +4,16 @@ exports.parsePageNumber = (p) => {
     return isNaN(page) ? 1 : page
 }
 
-exports.createPage = (page, nPages, items, getNavigation) => {
-    return {
-        page: page,
-        nPages: nPages,
-        ...items,
-        prev: page > 1 ? getNavigation(page - 1) : null,
-        next: page < nPages ? getNavigation(page + 1) : null
-    }
-}
+exports.createPage = (page, nPages, items, getNavigation) => ({
+    page: page,
+    nPages: nPages,
+    ...items,
+    prev: page > 1 ? getNavigation(page - 1) : null,
+    next: page < nPages ? getNavigation(page + 1) : null
+})
 
-exports.createPageCursor = (next, items, getNavigation) => {
-    return {
-        ...items,
-        nextCursor: next,
-        next: next ? getNavigation(next) : null
-    }
-}
+exports.createPageCursor = (next, items, getNavigation) => ({
+    ...items,
+    nextCursor: next,
+    next: next ? getNavigation(next) : null
+})

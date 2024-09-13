@@ -49,6 +49,8 @@ function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
     const [chatNameStatus, chatNameStatusActions] = useStatus("ready")
     const [deleteStatus, deleteStatusActions] = useStatus("ready")
 
+    const navigate = useNavigate()
+
     const addUser = async (u, setLoading) => {
         setLoading(true)
         chatAPI.addUserChat(chat.id, u.id).then(() => {
@@ -68,7 +70,7 @@ function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
     const deleteChat = () => {
         deleteStatusActions.setLoading()
         chatAPI.deleteChat(chat.id).then(() => {
-            // no need to redirect here, await websocket message
+            navigate("/chats")
         }).catch(err => { deleteStatusActions.setError(); console.log(err) })
     }
     const onClickEditChat = () => setEditingChat(true)

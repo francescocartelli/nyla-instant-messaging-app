@@ -34,8 +34,8 @@ function MessageEditor({ user, idChat, onMessagePending, onMessageSent, isDisabl
         setContent("")
         onMessagePending(message)
         chatAPI.sendMessage(idChat, { content: content })
-            .then(() => onMessageSent({ ...message, isPending: false, isError: false }))
-            .catch(err => onMessageSent({ ...message, isPending: false, isError: true }))
+            .then(({ id }) => onMessageSent(message.id, { ...message, id: id.toString(), isPending: false, isError: false }))
+            .catch(err => onMessageSent(message.id, { ...message, isPending: false, isError: true }))
     }
 
     return <div className="card-1">
@@ -92,13 +92,11 @@ function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing })
     const messagesCursor = useRef(null)
 
     const usernamesTranslation = useMemo(() => Object.fromEntries(users.map(({ id, username }) => [id.toString(), username])), [users])
-    const messageMapping = useCallback((message) => {
-        return {
-            ...message,
-            senderUsername: (usernamesTranslation[message.idSender.toString()] || "<deleted>"),
-            isFromOther: user.id !== message.idSender
-        }
-    }, [user, usernamesTranslation])
+    const messageMapping = useCallback((message) => ({
+        ...message,
+        senderUsername: (usernamesTranslation[message.idSender.toString()] || "<deleted>"),
+        isFromOther: user.id !== message.idSender
+    }), [user, usernamesTranslation])
 
     const [newMessagesNumber, setNewMessagesNumber] = useState(0)
 
@@ -164,6 +162,13 @@ function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing })
     const onClickNewMessages = () => { setNewMessagesNumber(0); scrollToLastMessage() }
     const onClickEditChat = () => setEditing(true)
 
+    const onMessagePending = message => {
+        setMessages(p => [...p, messageMapping(message)])
+        scrollToLastMessage()
+    }
+
+    const onMessageSent = (id, message) => setMessages(p => p.map(m => m.id === id ? message : m))
+
     return <>
         <div className="d-flex flex-row card-1 align-items-center gap-2">
             <StatusLayout status={chatStatus}>
@@ -218,9 +223,7 @@ function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing })
                         <span className="fs-70">{format99Plus(newMessagesNumber)}</span>
                     </div>
                 </Button>}
-            <MessageEditor idChat={id} user={user} isDisabled={messagesStatus !== "ready"}
-                onMessagePending={(message) => { setMessages(p => [...p, messageMapping(message)]); scrollToLastMessage() }}
-                onMessageSent={(message) => setMessages(p => p.map(m => m.id === message.id ? message : m))} />
+            <MessageEditor idChat={id} user={user} isDisabled={messagesStatus !== "ready"} onMessagePending={onMessagePending} onMessageSent={onMessageSent} />
         </div>
     </>
 }
