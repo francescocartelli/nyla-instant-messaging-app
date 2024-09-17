@@ -73,10 +73,8 @@
 
 .nav-item-options {
     position: absolute;
-    width: fit-content;
-    right: 0;
-    top: 4.5em;
-    margin-right: 1em;
+    top: 4em;
+    width: 100%;
 }
 
 @media only screen and (max-width: 600px) {

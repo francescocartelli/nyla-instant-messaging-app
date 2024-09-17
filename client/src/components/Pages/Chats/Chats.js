@@ -91,14 +91,14 @@ function PersonalChats() {
         const controller = new AbortController()
         chatsStatusActions.setLoading()
         chatAPI.getChatPersonal(chatsPage, isAsc, isGroup, { signal: controller.signal })
+            .then(res => res.json())
             .then(({ page, nPages, chats }) => {
                 chatsStatusActions.setReady()
                 setChatsNPages(nPages)
                 setChats([...chats])
-            }).catch(err => {
-                chatsStatusActions.setError()
-                console.log(err)
             })
+            .catch(err => chatsStatusActions.setError())
+
         return () => {
             controller?.abort()
             setChats([])
@@ -128,7 +128,7 @@ function PersonalChats() {
             <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y h-0">
                 <StatusLayout status={chatsStatus}>
                     <loading>
-                        {[...Array(10).keys()].map((i) => <ChatCardSketeleton key={`chat-skeleton-${i}`}/>)}
+                        {[...Array(10).keys()].map((i) => <ChatCardSketeleton key={`chat-skeleton-${i}`} />)}
                     </loading>
                     <ready>
                         {chats.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the chats related to you will be shown here!" />}
@@ -139,7 +139,7 @@ function PersonalChats() {
             </div>
         </div>
         <div className="align-self-center">
-            <PagesControl page={chatsPage} nPages={chatsNPages} onChangePage={onClickChatsPage} disabled={chatsStatus !== "ready"}/>
+            <PagesControl page={chatsPage} nPages={chatsNPages} onChangePage={onClickChatsPage} disabled={chatsStatus !== "ready"} />
         </div>
     </div>
 }

@@ -13,10 +13,7 @@ module.exports.validateSingUp = async (req, res, next) => {
         if (isUsername) errorMessage.push("Username already taken")
         if (isEmail) errorMessage.push("Email already registered")
 
-        if (errorMessage.length > 0) return res.status(400).send({ message: errorMessage.join("\n") })
+        if (errorMessage.length > 0) return res.status(400).json({ message: errorMessage.join("\n") })
         else return next()
-    } catch (err) {
-        console.log(err)
-        res.status(500).json(err)
-    }
+    } catch (err) { next(err) }
 }

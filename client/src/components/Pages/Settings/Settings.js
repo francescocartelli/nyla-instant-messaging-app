@@ -27,10 +27,15 @@ function SettingCard({ onRenderChildren, onConfirm, confirmCallback, initialValu
         ev.preventDefault()
         setEditing(false)
         confirmStatusActions.setLoading()
-        onConfirm(value).then(() => {
-            confirmStatusActions.setReady()
-            confirmCallback(value)
-        }).catch(err => confirmStatusActions.setError())
+        onConfirm(value)
+            .then(() => {
+                confirmStatusActions.setReady()
+                confirmCallback(value)
+            })
+            .catch(err => {
+                setValue(initialValue)
+                confirmStatusActions.setError()
+            })
     }
 
     const onClickCancel = () => { setValue(initialValue); setEditing(false) }
@@ -78,7 +83,7 @@ function UsernameSetting({ user, setUser }) {
 function EmailSetting() {
     return <>
         <SettingSubSection>EMail</SettingSubSection>
-        <SettingCard initialValue="" initialInvalid={true} onConfirm={() => {}} confirmCallback={() => {}}
+        <SettingCard initialValue="" initialInvalid={true} onConfirm={() => { }} confirmCallback={() => { }}
             onRenderChildren={(value, onChange, disabled, setInvalid) => <div className="d-flex flex-row flex-grow-1 gap-2">
                 <Text type="password" value="email is not available" onChange={onChange} disabled={true} />
             </div>}></SettingCard>
@@ -89,9 +94,9 @@ function EmailSetting() {
 function PasswordSetting() {
     return <>
         <SettingSubSection>Change Password</SettingSubSection>
-        <SettingCard initialValue="" initialInvalid={true} onConfirm={() => {}} confirmCallback={() => {}}
+        <SettingCard initialValue="" initialInvalid={true} onConfirm={() => { }} confirmCallback={() => { }}
             onRenderChildren={(value, onChange, disabled, setInvalid) => <div className="d-flex flex-row flex-grow-1 gap-2">
-                <PasswordRegistration password={value} setPassword={onChange} setInvalid={setInvalid} disabled={disabled}/>
+                <PasswordRegistration password={value} setPassword={onChange} setInvalid={setInvalid} disabled={disabled} />
             </div>}></SettingCard>
         <p className="fore-2 fs-80">This setting is locked.</p>
     </>
@@ -103,8 +108,8 @@ function Settings({ user, setUser }) {
         <p className="fore-2">Update your profile details to ensure accurate and up-to-date information is displayed.</p>
         <BioSetting user={user} setUser={setUser} />
         <UsernameSetting user={user} setUser={setUser} />
-        <EmailSetting/>
-        <PasswordSetting/>
+        <EmailSetting />
+        <PasswordSetting />
     </div>
 }
 

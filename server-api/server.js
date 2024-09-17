@@ -8,6 +8,8 @@ require('dotenv').config()
 
 /* Validator middleware */
 const { schemas, validate, validationError, validateId } = require("./middleware/Validation")
+const { errorHandler } = require("./middleware/Errors")
+
 
 /* Init Express */
 const app = new express()
@@ -89,8 +91,8 @@ const boot = async () => {
   app.post('/api/authenticate/signin', validate({ body: schemas.userSignInSchema }), accountControllers.singIn)
   app.post('/api/authenticate/logout', authenticate, accountControllers.logOut)
 
-  // Error handlers for validation
   app.use(validationError)
+  app.use(errorHandler)
 }
 
 boot()

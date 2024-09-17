@@ -53,39 +53,46 @@ function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
 
     const addUser = async (u, setLoading) => {
         setLoading(true)
-        chatAPI.addUserChat(chat.id, u.id).then(() => {
-            setLoading(false)
-            setUsers(p => [...p, u])
-            setChat(p => { return { ...p, nUsers: p.nUsers + 1} })
-        }).catch(err => console.log(err))
+        chatAPI.addUserChat(chat.id, u.id)
+            .then(() => {
+                setLoading(false)
+                setUsers(p => [...p, u])
+                setChat(p => ({ ...p, nUsers: p.nUsers + 1 }))
+            })
+            .catch(err => console.log(err))
     }
     const removeUser = async (u, setLoading) => {
         setLoading(true)
-        chatAPI.removeUserChat(chat.id, u.id).then(() => {
-            setLoading(false)
-            setUsers(p => p.filter(i => i.id !== u.id))
-            setChat(p => { return { ...p, nUsers: p.nUsers - 1} })
-        }).catch(err => console.log(err))
+        chatAPI.removeUserChat(chat.id, u.id)
+            .then(() => {
+                setLoading(false)
+                setUsers(p => p.filter(i => i.id !== u.id))
+                setChat(p => ({ ...p, nUsers: p.nUsers - 1 }))
+            })
+            .catch(err => console.log(err))
     }
     const deleteChat = () => {
         deleteStatusActions.setLoading()
-        chatAPI.deleteChat(chat.id).then(() => {
-            navigate("/chats")
-        }).catch(err => { deleteStatusActions.setError(); console.log(err) })
+        chatAPI.deleteChat(chat.id)
+            .then(() => {
+                navigate("/chats")
+            })
+            .catch(err => { deleteStatusActions.setError(); console.log(err) })
     }
     const onClickEditChat = () => setEditingChat(true)
     const onClickCancelEditChatName = () => { setEditingChat(false); setChatName(chat.name) }
     const onClickConfirmEditChatName = () => {
         chatNameStatusActions.setLoading()
-        chatAPI.updateChat(chat.id, { name: chatName }).then(() => {
-            chatNameStatusActions.setReady()
-            setChat(p => { return { ...p, name: chatName } })
-            setEditingChat(false)
-        }).catch((err) => {
-            chatNameStatusActions.setError()
-            setEditingChat(false)
-            console.log(err)
-        })
+        chatAPI.updateChat(chat.id, { name: chatName })
+            .then(() => {
+                chatNameStatusActions.setReady()
+                setChat(p => { return { ...p, name: chatName } })
+                setEditingChat(false)
+            })
+            .catch(err => {
+                chatNameStatusActions.setError()
+                setEditingChat(false)
+            })
     }
     const onChangeChatName = (ev) => setChatName(ev.target.value)
     const onClickEditUsers = () => { setEditingUsers(true) }
@@ -165,7 +172,8 @@ function NewChatEditor({ user }) {
     const onSubmit = () => {
         setLoading(true)
         chatAPI.createChat(chat)
-            .then((chat) => navigate(`/chats/${chat.id}`))
+            .then(res => res.json())
+            .then(chat => navigate(`/chats/${chat.id}`))
             .catch(err => setLoading(false))
     }
     const addUser = (u) => setChat(p => { return { ...p, users: [...p.users, u] } })

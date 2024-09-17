@@ -6,18 +6,16 @@ exports.isUserInChat = (idParam) => async (req, res, next) => {
         const idChat = req.params[idParam]
 
         const chat = await chatServices.getChat(idChat, false)
-        if (!chat) return res.status(404).send("Chat not found with the specified id")
+        if (!chat) return res.status(404).json({ message: "Chat not found with the specified id" })
 
         const name = chat.name
         const users = chat.users.map(i => i.toString())
 
-        if (!users.includes(user.id.toString())) return res.status(401).send("Only chat users can perform this operation")
+        if (!users.includes(user.id.toString())) return res.status(401).json({ message: "Only chat users can perform this operation" })
 
         res.locals.chatUsers = users
         res.locals.chatName = name
 
         next()
-    } catch (err) {
-        res.status(500).json(err)
-    }
+    } catch (err) { next(err) }
 }

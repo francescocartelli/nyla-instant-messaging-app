@@ -34,6 +34,7 @@ function MessageEditor({ user, idChat, onMessagePending, onMessageSent, isDisabl
         setContent("")
         onMessagePending(message)
         chatAPI.sendMessage(idChat, { content: content })
+            .then(res => res.json())
             .then(({ id }) => onMessageSent(message.id, { ...message, id: id.toString(), isPending: false, isError: false }))
             .catch(err => onMessageSent(message.id, { ...message, isPending: false, isError: true }))
     }
@@ -112,12 +113,14 @@ function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing })
         const controller = new AbortController()
         messagesStatusActions.setLoading()
         chatAPI.getMessages(id, messagesCursor.current, { signal: controller.signal })
-            .then(res => res.json()).then(({ messages, nextCursor }) => {
+            .then(res => res.json())
+            .then(({ messages, nextCursor }) => {
                 setMessages(p => [...[...messages.map(messageMapping)].reverse(), ...p])
                 messagesCursor.current = nextCursor
                 messagesStatusActions.setReady()
                 callback()
-            }).catch(err => { messagesStatusActions.setError(); console.log(err) })
+            })
+            .catch(err => { messagesStatusActions.setError(); console.log(err) })
     }, [id, messagesCursor, messageMapping, messagesStatusActions])
 
     const messageReceived = useCallback((message) => {
@@ -247,20 +250,24 @@ function ChatPage({ user }) {
         const controller = new AbortController()
 
         chatAPI.getChat(id, { signal: controller.signal })
-            .then(res => res.json()).then(chat => {
+            .then(res => res.json())
+            .then(chat => {
                 setChat(chat)
                 setUnauthorized(false)
                 chatStatusActions.setReady()
-            }).catch((err) => {
-                setUnauthorized(err.message === "401")
+            })
+            .catch(err => {
+                setUnauthorized(err.status === 401)
                 chatStatusActions.setError()
             })
 
         chatAPI.getChatUsers(id, { signal: controller.signal })
-            .then(res => res.json()).then(users => {
+            .then(res => res.json())
+            .then(users => {
                 setUsers(users)
                 userStatusActions.setReady()
-            }).catch(() => userStatusActions.setError())
+            })
+            .catch(() => userStatusActions.setError())
 
         return () => { controller?.abort() }
     }, [id, chatStatusActions, userStatusActions])

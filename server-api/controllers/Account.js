@@ -6,7 +6,7 @@ const { generateCookieToken } = require.main.require("./components/JwtUtils")
 
 require("dotenv").config()
 
-module.exports.signUp = async (req, res) => {
+module.exports.signUp = async (req, res, next) => {
     try {
         const { password, ...u } = req.body
 
@@ -19,13 +19,10 @@ module.exports.signUp = async (req, res) => {
 
         res.cookie(...generateCookieToken(regUser))
         res.json(regUser)
-    } catch (err) {
-        console.log(err)
-        res.status(500).json(err)
-    }
+    } catch (err) { next(err) }
 }
 
-module.exports.singIn = async (req, res) => {
+module.exports.singIn = async (req, res, next) => {
     try {
         const { username, password } = req.body
 
@@ -42,10 +39,8 @@ module.exports.singIn = async (req, res) => {
 
         res.cookie(...generateCookieToken(user))
         res.json(user)
-    } catch (err) {
-        console.log(err)
-        res.status(500).json(err)
-    }
+    } catch (err) { next(err) }
+
 }
 
 module.exports.logOut = async (req, res) => {

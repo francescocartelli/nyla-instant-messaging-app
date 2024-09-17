@@ -25,13 +25,18 @@ function LoginTab({ signinSuccessful }) {
     const onSubmit = (ev) => {
         ev.preventDefault()
         loginStatusActions.setLoading()
-        userAPI.signin(username, password).then((response) => {
-            loginStatusActions.setReady()
-            signinSuccessful(response)
-        }).catch((err) => {
-            loginStatusActions.setReady()
-            setMessage(err.message)
-        })
+        userAPI.signin(username, password)
+            .then(res => res.json())
+            .then(res => {
+                loginStatusActions.setReady()
+                signinSuccessful(res)
+            })
+            .catch(err => {
+                loginStatusActions.setReady()
+                err.json()
+                    .then(err => setMessage(err.message))
+            })
+
     }
 
     const onChangeUsername = (ev) => setUsername(ev.target.value)
@@ -88,12 +93,15 @@ function UsernameRegistration({ username, setUsername, setInvalid, ...props }) {
     }
 
     const [checkUsernameDebounce, stopUsernameDebounce] = useDebounce((u, usernameInvalid) => {
-        userAPI.getUsers(u, "exact").then(users => {
-            const taken = users.length > 0
-            setUsernameTaken(taken)
-            setInvalid(usernameInvalid || taken)
-            usernameTakenStatusActions.setReady()
-        }).catch((err) => usernameTakenStatusActions.setError())
+        userAPI.getUsers(u, "exact")
+            .then(res => res.json())
+            .then(users => {
+                const taken = users.length > 0
+                setUsernameTaken(taken)
+                setInvalid(usernameInvalid || taken)
+                usernameTakenStatusActions.setReady()
+            })
+            .catch(err => usernameTakenStatusActions.setError())
     }, 2000)
 
     return <>
@@ -182,15 +190,20 @@ function RegistrationTab({ signupSuccessful }) {
 
     const [registrationStatus, registrationStatusActions] = useStatus("ready")
 
-    const onRegister = (ev) => {
+    const onRegister = ev => {
         ev.preventDefault()
-        userAPI.signup(username, password, email).then((response) => {
-            registrationStatusActions.setReady()
-            signupSuccessful(response)
-        }).catch(err => {
-            registrationStatusActions.setReady()
-            setMessage(err.message)
-        })
+        userAPI.signup(username, password, email)
+            .then(res => res.json())
+            .then(res => {
+                registrationStatusActions.setReady()
+                signupSuccessful(res)
+            })
+            .catch(err => {
+                registrationStatusActions.setReady()
+                err.json()
+                    .then(err => setMessage(err.message))
+            })
+
     }
 
     const onChangeEMail = (ev) => {
@@ -204,7 +217,7 @@ function RegistrationTab({ signupSuccessful }) {
     return <form className="d-flex flex-column align-self-stretch gap-3" onSubmit={onRegister}>
         {message && <div className="card-1 warning fs-80 p-2"><span><i>{message}</i></span></div>}
         <div className="d-flex flex-column gap-2">
-            <UsernameRegistration username={username} setUsername={setUsername} setInvalid={setUsernameInvalidOrTaken}/>
+            <UsernameRegistration username={username} setUsername={setUsername} setInvalid={setUsernameInvalidOrTaken} />
             <TextVal autoComplete="new-password" value={email} placeholder="Email..." onChange={onChangeEMail}
                 left={<EnvelopeFill className="fore-2 size-1" />} isInvalid={isEmailInvalid} message={
                     <>

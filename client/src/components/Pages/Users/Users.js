@@ -26,8 +26,9 @@ function UserCard({ user, children }) {
 function UsersSearchInput({ value, onChange, onLoading, onReady, onError, debounceDelay = 1000 }) {
     const [onDebouncePlay, onDebounceStop] = useDebounce((v) => {
         userAPI.getUsers(v)
-            .then((u) => onReady(u))
-            .catch(err => { console.log(err); onError(err) })
+            .then(res => res.json())
+            .then(u => onReady(u))
+            .catch(err => onError(err))
     }, debounceDelay)
 
     const onChangeValue = (ev) => {

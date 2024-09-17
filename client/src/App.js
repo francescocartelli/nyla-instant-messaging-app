@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback } from "react"
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 
 import './App.css'
@@ -6,6 +6,7 @@ import './App.css'
 import 'styles/style.css'
 import 'styles/colors.css'
 
+import { AuthWall } from 'components/Common/AuthWalls'
 import { IsLogged, IsNotLogged } from 'components/Common/Barriers'
 
 import { Footer } from 'components/UI/Footer/Footer'
@@ -23,32 +24,14 @@ import { NewChatEditor } from 'components/Pages/Chats/ChatEditor'
 import { NotFound } from 'components/Pages/NotFound/NotFound'
 import { Settings } from 'components/Pages/Settings/Settings'
 
+import { useAuth } from 'hooks/useAuth'
+
 import usersAPI from 'api/userAPI'
 
 function App() {
-  const [user, setUser] = useState(false)
-  const [isWaitingUser, setWaitingUser] = useState(true)
-
-  useEffect(() => {
-    usersAPI.getCurrentUser().then((user) => {
-      setUser(user)
-      setWaitingUser(false)
-    }).catch((err) => {
-      setUser(false)
-      setWaitingUser(false)
-    })
-
-    return () => setUser(false)
-  }, [])
-
-  const AuthWall = ({ children }) => {
-    // if the app refresh user won't be present when auth wall is evaluated
-    // checking for isWaitingUser avoid displaying a login page even tough use has valid token
-    // in case of logged user and missing user check the app will display login to later discard the page (not good)
-    if (isWaitingUser) return <></>
-    if (!user) return <Navigate to="/account" />
-    return children
-  }
+  const getCurrentUserApi = useCallback(() => usersAPI.getCurrentUser().then(res => res.json()), [])
+  const auth = useAuth(getCurrentUserApi)
+  const { user, isLoading, setUser } = auth
 
   return (
     <div className="App">
@@ -56,30 +39,20 @@ function App() {
         <WebSocketProvider user={user}>
           <div className="main-container">
             <PushContainer />
-            <Nav isWaitingUser={isWaitingUser} user={user} setUser={setUser} logout={() => usersAPI.logout()} />
+            <Nav isWaitingUser={isLoading} user={user} setUser={setUser} />
             <div className='mt-nav'><p>-</p></div>
             <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p pt-2'>
               <Routes>
                 <Route path="/about" element={<About />} />
                 <Route path="/account" element={<>
-                  <IsNotLogged isWaitingUser={isWaitingUser} user={user}><Account setUser={setUser} /> </IsNotLogged>
-                  <IsLogged isWaitingUser={isWaitingUser} user={user}><Navigate to="/" /></IsLogged>
+                  <IsNotLogged isWaitingUser={isLoading} user={user}><Account setUser={setUser} /> </IsNotLogged>
+                  <IsLogged isWaitingUser={isLoading} user={user}><Navigate to="/" /></IsLogged>
                 </>} />
-                <Route path="/chats/new" element={<AuthWall>
-                  <NewChatEditor user={user} />
-                </AuthWall>} />
-                <Route path="/chats/:id" element={<AuthWall>
-                  <ChatPage user={user} />
-                </AuthWall>} />
-                <Route path="/chats" element={<AuthWall>
-                  <PersonalChats />
-                </AuthWall>} />
-                <Route path="/users" element={<AuthWall>
-                  <UsersSearch user={user} />
-                </AuthWall>} />
-                <Route path="/settings" element={<AuthWall>
-                  <Settings user={user} setUser={setUser} />
-                </AuthWall>} />
+                <Route path="/chats/new" element={<AuthWall {...auth}><NewChatEditor user={user} /></AuthWall>} />
+                <Route path="/chats/:id" element={<AuthWall {...auth}><ChatPage user={user} /></AuthWall>} />
+                <Route path="/chats" element={<AuthWall {...auth}><PersonalChats /></AuthWall>} />
+                <Route path="/users" element={<AuthWall {...auth}><UsersSearch user={user} /></AuthWall>} />
+                <Route path="/settings" element={<AuthWall {...auth}><Settings user={user} setUser={setUser} /></AuthWall>} />
                 <Route exact path="/" element={<Home />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

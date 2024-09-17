@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { useCallback, useMemo, useState } from "react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { BoxArrowInRight, BoxArrowRight, Chat, ChatFill, ChevronDown, ChevronUp, Gear, GearFill, Hourglass, InfoCircle, InfoCircleFill, List, People, PeopleFill, XCircleFill } from "react-bootstrap-icons"
 
 import "./Nav.css"
@@ -7,8 +7,11 @@ import "./Nav.css"
 import { IsLogged, IsNotLogged } from "components/Common/Barriers"
 import { Footer } from "../Footer/Footer"
 import { Logo, LogoGrad } from "components/Icons/Icons"
-import { useStatus } from "hooks"
 import { StatusLayout } from "components/Common/Layout"
+
+import { useStatus } from "hooks"
+
+import userAPI from "api/userAPI"
 
 function FlexGrow() {
     return <div className="hide-small flex-grow-1"></div>
@@ -32,46 +35,63 @@ function NavItem({ children, className = "", to = "#", exactPath = false, ...pro
     return <Link {...props} to={to} className={`nav-item ${selected ? "active" : ""} ${className}`}>{child}</ Link>
 }
 
-function AccountNavItem({ logout, logoutCallback, onClickDefaultNavItems, username }) {
+function AccountNavItem({ logout, onClickDefaultNavItems, username, navigate }) {
     const [isAccountMenuVisible, setAccountMenuVisible] = useState(false)
     const [logoutStatus, logoutStatusActions] = useStatus("ready")
 
-    const onClickLogout = () => {
-        onClickAccountNavItems()
-        logoutStatusActions.setLoading()
-        logout().then(() => {
-            logoutCallback()
-        }).catch(err => logoutStatusActions.setError())
+    const onClickLogout = () => logout(
+        () => logoutStatusActions.setLoading(),
+        () => { },
+        () => logoutStatusActions.setError()
+    )
+
+    const onClickDropDown = () => setAccountMenuVisible(p => !p)
+    const onBlur = ev => {
+        ev.stopPropagation()
+        setAccountMenuVisible(false)
+        onClickDefaultNavItems()
     }
 
-    const onClickAccountNavItems = () => { setAccountMenuVisible(false); onClickDefaultNavItems() }
+    const navigateToSetting = () => navigate("/settings")
 
     return <>
         <StatusLayout status={logoutStatus}>
-            <loading><NavItem to="#" onClick={() => { }}><Hourglass /></NavItem></loading>
-            <ready><NavItem className="position-relative" to="#" onClick={() => setAccountMenuVisible(p => !p)}>
-                <span className="fore-2">{username}</span>
-                {isAccountMenuVisible ? <ChevronUp /> : <ChevronDown />}
-            </NavItem>
+            <loading><NavItem to="#"><Hourglass /></NavItem></loading>
+            <ready>
+                <div onClick={onClickDropDown} onBlur={onBlur} tabIndex={0} className="position-relative">
+                    <div className="nav-item">
+                        <span className="fore-2">{username}</span>
+                        {isAccountMenuVisible ? <ChevronUp /> : <ChevronDown />}
+                    </div>
+                    {isAccountMenuVisible && <div className="card-2 nav-item-options gap-2" onBlur={() => setAccountMenuVisible(false)} autoFocus>
+                        <NavItem onMouseDown={navigateToSetting}>
+                            <default><Gear /><span >Settings</span></default>
+                            <selected><GearFill /><span >Settings</span></selected>
+                        </NavItem>
+                        <NavItem to="#" onMouseDown={onClickLogout}><BoxArrowRight /><span>Logout</span></NavItem>
+                    </div>}
+                </div>
             </ready>
             <error></error>
         </StatusLayout>
-        {isAccountMenuVisible && <div className="card-2 nav-item-options gap-2">
-            <NavItem to="/settings" onClick={onClickAccountNavItems}>
-                <default><Gear /> <span>Settings</span></default>
-                <selected><GearFill /> <span>Settings</span></selected>
-            </NavItem>
-            <NavItem>
-                <BoxArrowRight /> <span onClick={onClickLogout}>Logout</span>
-            </NavItem>
-        </div>}
     </>
 }
 
-function Nav({ isWaitingUser, user, setUser, logout }) {
+function Nav({ isWaitingUser, user, setUser }) {
+    const navigate = useNavigate()
     const [isCollapsed, setCollapsed] = useState(true)
 
     const onClickDefaultNavItems = () => setCollapsed(true)
+
+    const logout = useCallback((pendingCallback, fullFillCallback, rejectCallback) => {
+        pendingCallback()
+        userAPI.logout()
+            .then(() => {
+                setUser(false)
+                fullFillCallback()
+            })
+            .catch(rejectCallback)
+    }, [setUser])
 
     return <nav className="d-flex flex-column align-items-stretch navbar adaptive-p gap-2 back-2 b-bottom">
         <div className="show-small flex-row justify-content-between align-items-center">
@@ -101,9 +121,7 @@ function Nav({ isWaitingUser, user, setUser, logout }) {
                     <selected><PeopleFill /> <span>Users</span></selected>
                 </NavItem>
                 <FlexGrow />
-                <AccountNavItem logout={logout} username={user?.username}
-                    onClickDefaultNavItems={onClickDefaultNavItems}
-                    logoutCallback={() => setUser(false)} />
+                <AccountNavItem navigate={navigate} logout={logout} username={user?.username} onClickDefaultNavItems={onClickDefaultNavItems} />
             </IsLogged>
             <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
                 <FlexGrow />
