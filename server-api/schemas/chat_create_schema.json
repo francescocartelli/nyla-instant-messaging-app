@@ -20,7 +20,18 @@
             "description": "Users participanting in the chat",
             "type": "array",
             "items": {
-                "type": "string"
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Identifier of the user"
+                    },
+                    "isAdmin": {
+                        "type": "boolean",
+                        "description": "Admin user flag information"
+                    }
+                },
+                "required": ["id"]
             },
             "uniqueItems": true,
             "minItems": 2,

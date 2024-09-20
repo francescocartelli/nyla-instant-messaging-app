@@ -1,9 +1,9 @@
-const { oid } = require.main.require("./components/Db")
+const { userInChat, userInDirectChat } = require.main.require("./components/User")
 
 exports.newChat = ({ name, users, isGroup }) => ({
     name: isGroup ? name : null,
-    users: users.map(u => oid(u)),
-    isGroup: isGroup,
+    users: users.map(isGroup ? userInChat : userInDirectChat),
+    isGroup,
     createdAt: new Date(),
     updatedAt: new Date()
 })

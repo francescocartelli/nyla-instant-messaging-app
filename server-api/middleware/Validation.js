@@ -9,6 +9,7 @@ const { isOidValid } = require.main.require("./components/Db")
 let schemas = {
     chatCreateSchema: JSON.parse(fs.readFileSync("./schemas/chat_create_schema.json")),
     chatUpdateSchema: JSON.parse(fs.readFileSync("./schemas/chat_update_schema.json")),
+    chatUserUpdateSchema: JSON.parse(fs.readFileSync("./schemas/chat_user_update_schema.json")),
     messageCreateSchema: JSON.parse(fs.readFileSync("./schemas/message_create_schema.json")),
     userSignInSchema: JSON.parse(fs.readFileSync("./schemas/user_signin_schema.json")),
     userSignUpSchema: JSON.parse(fs.readFileSync("./schemas/user_signup_schema.json")),

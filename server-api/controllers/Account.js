@@ -40,7 +40,6 @@ module.exports.singIn = async (req, res, next) => {
         res.cookie(...generateCookieToken(user))
         res.json(user)
     } catch (err) { next(err) }
-
 }
 
 module.exports.logOut = async (req, res) => {

@@ -191,7 +191,7 @@
           }
         },
         "summary": "Update a single chat",
-        "description": "Update a single chat using its unique id.<br> Only users in chat are allowed to perform this operation.",
+        "description": "Update a single chat using its unique id.<br> Only users in chat are allowed to perform this operation.<br>Only chat admnistrators are allowed to perform this operation.",
         "responses": {
           "200": {
             "description": "Operation Successful",
@@ -407,7 +407,7 @@
           }
         }
       ],
-      "put": {
+      "post": {
         "tags": [
           "chats"
         ],
@@ -417,7 +417,58 @@
           }
         ],
         "summary": "Insert a single user in chat",
-        "description": "Insert a single user in chat using chat id and user id.<br> Only users in chat are allowed to perform this operation.",
+        "description": "Insert a single user in chat using chat id and user id.<br> Only users in chat are allowed to perform this operation.<br> Only chat admnistrators are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "304": {
+            "description": "Not modified - Failed write operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request - Bad id",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "User to be updated",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/chat_user_update_schema.json"
+              },
+              "example": {
+                "isAdmin": true
+              }
+            }
+          }
+        },
+        "summary": "Update a single user in chat",
+        "description": "Update a single user in chat using chat id and user id.<br> Only users in chat are allowed to perform this operation.<br>Only chat admnistrators are allowed to perform this operation.",
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -455,7 +506,7 @@
           }
         ],
         "summary": "Remove a single user from chat",
-        "description": "Remove a single user from chat using chat id and user id.<br> Only users in chat are allowed to perform this operation.",
+        "description": "Remove a single user from chat using chat id and user id.<br> Only users in chat are allowed to perform this operation.<br> Only chat admnistrators are allowed to perform this operation.",
         "responses": {
           "200": {
             "description": "Successful operation",

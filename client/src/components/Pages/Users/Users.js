@@ -12,13 +12,14 @@ import { Button } from "components/Common/Buttons"
 import userAPI from 'api/userAPI'
 import chatAPI from "api/chatAPI"
 
-function UserCard({ user, children }) {
-    return <div className="row-center card-1">
+function UserCard({ user, badges, children }) {
+    return <div className="row-center card-1 align-items-center position-relative">
         <div className="crd-icon-30"><PersonFill className="fore-2 size-2" /></div>
-        <div className="d-flex flex-column flex-grow-1">
+        <div className="d-flex flex-column">
             <span className="fs-110 fw-500">{user.username}</span>
             <span className="fore-2 fs-80"><i>{user.bio}</i></span>
         </div>
+        {badges && badges}
         {children}
     </div>
 }
@@ -97,16 +98,22 @@ function UsersSearch({ user }) {
     const onClickOpenChat = (u) => {
         redirectStatusActions.setLoading()
         chatAPI.createChat({ name: null, users: [u, user], isGroup: false })
-            .then(chat => { onRedirect(chat.id); redirectStatusActions.setReady() })
+            .then(res => res.json())
+            .then(chat => {
+                onRedirect(chat.id);
+                redirectStatusActions.setReady()
+            })
             .catch(err => { console.log(err); redirectStatusActions.setError() })
     }
 
     return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2 h-0">
         <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u}>
-            {user.id === u.id ?
-                <div className="card-2"><p className="fore-2 m-0">You</p></div> :
-                <Button disabled={redirectStatus === "loading"} onClick={() => onClickOpenChat(u)}>open chat <Chat className="size-2 fore-2-btn" /></Button>
-            }
+            <div className="d-flex flex-grow-1 justify-content-end gap-2">
+                {user.id === u.id ?
+                    <div className="card-2"><p className="fore-2 m-0">You</p></div> :
+                    <Button disabled={redirectStatus === "loading"} onClick={() => onClickOpenChat(u)}>open chat <Chat className="size-2 fore-2-btn" /></Button>
+                }
+            </div>
         </UserCard>} />
     </div>
 }

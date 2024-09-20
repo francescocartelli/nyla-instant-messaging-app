@@ -15,7 +15,7 @@ const getUserId = (id) => {
     return userCollection.findOne({ _id: oid(id) }, { projection: { _id: 1 } })
 }
 
-exports.getUsers = (username = "", searchType = "contains") => {
+const getUsers = (username = "", searchType = "contains") => {
     const query = searchQueries[searchType]
     if (!query) throw new TypeError(`"${searchType}" is not a valid search type.\nAvailable ones are: ${formatTypes}`)
 
@@ -25,45 +25,62 @@ exports.getUsers = (username = "", searchType = "contains") => {
             .limit(dbConfigs.USERS_PER_PAGE).toArray()
 }
 
-exports.getUser = ({ id, ...user }) => {
+const getUser = ({ id, ...user }) => {
     return userCollection.findOne({
         ...user,
-        ...(id && { _id: oid(id.toString()) })
+        ...(id && { _id: oid(id) })
     }, { projection: userProjection })
 }
 
-exports.getUserId = getUserId
-
-exports.getHash = (user = {}) => {
+const getHash = (user = {}) => {
     let { id, ...u } = user
     if (id) u._id = oid(id)
 
     return userCollection.findOne(u, { projection: { _id: 0, id: '$_id', hash: 1 } })
 }
 
-exports.createUser = (user) => {
+const createUser = (user) => {
     return userCollection.insertOne(user)
 }
 
-exports.updateUser = (id, user) => {
+const updateUser = (id, user) => {
     return userCollection.updateOne({ _id: oid(id) }, { $set: user })
 }
 
 /* semicit: user cannot be deleted, they simply result missing */
-exports.deleteUser = (id) => {
+const deleteUser = (id) => {
     return userCollection.deleteOne({ _id: oid(id) })
 }
 
-exports.getFullUsers = (ids) => {
-    return userCollection.find({ _id: { $in: ids.map(i => oid(i)) } }, { projection: userProjection }).toArray()
+const getFullUsers = (ids) => {
+    return userCollection.find({ _id: { $in: ids.map(i => oid(i.toString())) } }, { projection: userProjection }).toArray()
 }
 
-exports.validateUsersIds = (users) => {
+const getChatUsers = async (chatUsersMap) => {
+    const fullUsers = await getFullUsers(Object.keys(chatUsersMap))
+    return fullUsers && fullUsers.map(({ id, ...u }) => ({ id, ...u, ...chatUsersMap[id] }))
+}
+
+const validateUsersIds = (users) => {
     const validIds = users.map((userId) => isOidValid(userId))
     return validIds.every(Boolean)
 }
 
-exports.validateUsersExistence = async (users) => {
+const validateUsersExistence = async (users) => {
     const existingIds = await Promise.all(users.map(userId => getUserId(userId)))
     return existingIds.every(i => i !== null)
+}
+
+module.exports = {
+    getUsers,
+    getUser,
+    getUserId,
+    getHash,
+    createUser,
+    updateUser,
+    deleteUser,
+    getFullUsers,
+    getChatUsers,
+    validateUsersIds,
+    validateUsersExistence
 }

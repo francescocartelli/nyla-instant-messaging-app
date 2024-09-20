@@ -61,10 +61,11 @@ const boot = async () => {
   app.get('/api/chats/personal', authenticate, chatControllers.getChatsPersonal)
   app.get('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatControllers.getChat)
   app.post('/api/chats', authenticate, validate({ body: schemas.chatCreateSchema }), chatControllers.createChat)
-  app.put('/api/chats/:id', authenticate, validateId('id'), validate({ body: schemas.chatUpdateSchema }), chatMiddleware.isUserInChat('id'), chatControllers.updateChat)
-  app.delete('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatControllers.deleteChat)
-  app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id'), chatControllers.addUser)
-  app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id'), chatControllers.removeUser)
+  app.put('/api/chats/:id', authenticate, validateId('id'), validate({ body: schemas.chatUpdateSchema }), chatMiddleware.isUserInChat('id', true), chatControllers.updateChat)
+  app.delete('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id', true), chatControllers.deleteChat)
+  app.post('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id', true), chatControllers.addUser)
+  app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), validate({ body: schemas.chatUserUpdateSchema }), chatMiddleware.isUserInChat('id', true), chatControllers.updateUser)
+  app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id', true), chatControllers.removeUser)
   app.get('/api/chats/:id/users', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), chatControllers.getUsers)
 
   /* -------- */

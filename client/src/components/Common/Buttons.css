@@ -6,12 +6,14 @@
     gap: 0.5em;
     text-transform: uppercase;
     font-weight: 600;
+    font-size: 0.9rem;
     background-color: #161A1F;
     border-radius: 0.5em;
     padding: 0.5em;
     color: #ffffff;
     border: 1px solid #2A2F35;
     transition: 0.2s linear;
+    text-wrap: nowrap;
 }
 
 .button-wrap:hover {

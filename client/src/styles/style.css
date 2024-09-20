@@ -42,6 +42,23 @@
     padding: 0.5em;
 }
 
+.more-options {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    padding: 0.5rem;
+    background-color: transparent;
+    border-radius: 0.5em;
+}
+
+@media only screen and (max-width: 600px) {
+    .more-options.active {
+        background-color: #a0a0a020;
+    }
+}
+
 .row-center {
     display: flex;
     flex-direction: row;
@@ -54,6 +71,7 @@
     min-width: 1.5em;
     width: 1.5em;
     height: 1.5em;
+    aspect-ratio: 1;
 }
 
 .size-2 {
@@ -61,6 +79,7 @@
     min-width: 2em;
     height: 2em;
     width: 2em;
+    aspect-ratio: 1;
 }
 
 .fs-60 {
@@ -119,7 +138,7 @@
 
 .crd-icon-30 {
     height: 3em;
-    width: 3em;
+    aspect-ratio: 1;
     text-align: center;
     line-height: 3em;
     background-color: #181d20;
