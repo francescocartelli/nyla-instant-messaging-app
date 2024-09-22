@@ -1,3 +1,5 @@
+const { USERNAME_TAKEN, EMAIL_TAKEN } = require.main.require("./components/ResponseMessages")
+
 const usersServices = require.main.require("./services/User")
 
 module.exports.validateSingUp = async (req, res, next) => {
@@ -10,8 +12,8 @@ module.exports.validateSingUp = async (req, res, next) => {
         ])
 
         let errorMessage = []
-        if (isUsername) errorMessage.push("Username already taken")
-        if (isEmail) errorMessage.push("Email already registered")
+        if (isUsername) errorMessage.push(USERNAME_TAKEN)
+        if (isEmail) errorMessage.push(EMAIL_TAKEN)
 
         if (errorMessage.length > 0) return res.status(400).json({ message: errorMessage.join("\n") })
         else return next()

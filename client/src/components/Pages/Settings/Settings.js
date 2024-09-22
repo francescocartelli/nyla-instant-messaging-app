@@ -21,7 +21,7 @@ function SettingCard({ onRenderChildren, onConfirm, confirmCallback, initialValu
     const [value, setValue] = useState(initialValue)
     const [isInvalid, setInvalid] = useState(initialInvalid)
 
-    const [confirmStatus, confirmStatusActions] = useStatus("ready")
+    const [confirmStatus, confirmStatusActions] = useStatus({ isReady: true })
 
     const onClickConfirm = (ev) => {
         ev.preventDefault()
@@ -43,14 +43,13 @@ function SettingCard({ onRenderChildren, onConfirm, confirmCallback, initialValu
     return <div className="d-flex flex-column gap-2">
         <div className="d-flex flex-row gap-2 align-items-center">
             {onRenderChildren(value, setValue, !isEditing, setInvalid)}
-            <StatusLayout status={confirmStatus}>
-                <loading><Button onClick={() => { }}><Hourglass className="fore-2 size-1" /></Button></loading>
-                <ready>{isEditing ? <>
+            <StatusLayout status={confirmStatus}
+                loading={<Button onClick={() => { }}><Hourglass className="fore-2 size-1" /></Button>}
+                ready={isEditing ? <>
                     <Button disabled={isInvalid} onClick={onClickConfirm}><Check2 className="fore-2 size-1" /></Button>
                     <Button onClick={onClickCancel}><XCircle className="fore-2 size-1" /></Button>
-                </> : <Button onClick={() => setEditing(true)}><Pencil className="fore-2 size-1" /></Button>}</ready>
-                <error></error>
-            </StatusLayout>
+                </> : <Button onClick={() => setEditing(true)}><Pencil className="fore-2 size-1" /></Button>}
+            />
         </div>
     </div>
 }
@@ -60,7 +59,7 @@ function BioSetting({ user, setUser }) {
         <SettingSubSection>Bio</SettingSubSection>
         <SettingCard initialValue={user?.bio}
             onConfirm={(value) => userAPI.updateUser(user.id, { bio: value })}
-            confirmCallback={(value) => setUser(p => { return { ...p, bio: value } })}
+            confirmCallback={(value) => setUser(p => ({ ...p, bio: value }))}
             onRenderChildren={(value, onChange, disabled, setInvalid) =>
                 <Text placeholder="Your personal bio..." value={value} onChange={(ev) => onChange(ev.target.value)} disabled={disabled} />} />
         <p className="fore-2 fs-80">Your personal bio will be visible to those viewing your profile informations.</p>
@@ -72,7 +71,7 @@ function UsernameSetting({ user, setUser }) {
         <SettingSubSection>Username</SettingSubSection>
         <SettingCard initialValue={user?.username} initialInvalid={true}
             onConfirm={(value) => userAPI.updateUser(user.id, { username: value })}
-            confirmCallback={(value) => setUser(p => { return { ...p, username: value } })}
+            confirmCallback={(value) => setUser(p => ({ ...p, username: value }))}
             onRenderChildren={(value, onChange, disabled, setInvalid) => <div className="d-flex flex-row flex-grow-1 gap-2">
                 <UsernameRegistration username={value} setUsername={onChange} disabled={disabled} setInvalid={setInvalid} />
             </div>}></SettingCard>

@@ -224,3 +224,31 @@
     min-height: 2em;
     border-radius: 0.4em;
 }
+
+.ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.row-col-small {
+    display: flex;
+    flex-direction: row;
+}
+
+@media only screen and (max-width: 600px) {
+    .row-col-small {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.adaptive-gap-4-2 {
+    gap: 1rem;
+}
+
+@media only screen and (max-width: 600px) {
+    .adaptive-gap-4-1 {
+        gap: 0.25rem;
+    }
+}

@@ -21,13 +21,13 @@ const boot = async () => {
 
                 const { to, remove, isInit } = addConnection(user.id, ws)
 
-                if (isInit) await redisClient.subscribe(channel, (message) => {
-                    to((wsConn) => wsConn.send(message))
-                })
+                if (isInit) await redisClient.subscribe(channel, message => to(wsConn => wsConn.send(message)))
 
                 ws.on('close', () => {
                     logger.info(`${user.id} disconnected`)
-                    remove(() => redisClient.unsubscribe(channel))
+                    remove(
+                        wsConn => wsConn.close(),
+                        () => redisClient.unsubscribe(channel))
                 })
 
                 logger.info(`${user.id} connected`)

@@ -1,5 +1,5 @@
 .navbar {
-    position: absolute !important;
+    position: sticky !important;
     left: 0;
     right: 0;
     z-index: 100;

@@ -1,3 +1,5 @@
+const { notFoundId, USERNAME_TAKEN, notModified } = require.main.require("./components/ResponseMessages")
+
 const usersServices = require.main.require("./services/User")
 
 module.exports.getUsers = async (req, res, next) => {
@@ -12,7 +14,7 @@ module.exports.getUsers = async (req, res, next) => {
 module.exports.getUser = async (req, res, next) => {
     try {
         const user = await usersServices.getUser({ id: req.params.id })
-        if (!user) return res.status(404).json({ message: "User not found with specified id" })
+        if (!user) return res.status(404).json({ message: notFoundId("user") })
 
         res.json(user)
     } catch (err) { next(err) }
@@ -23,7 +25,7 @@ module.exports.getCurrentUser = async (req, res, next) => {
         const { id } = req.user
 
         const user = await usersServices.getUser({ id: id })
-        if (!user) return res.status(404).json({ message: "User not found with specified id" })
+        if (!user) return res.status(404).json({ message: notFoundId("user") })
 
         res.json(user)
     } catch (err) { next(err) }
@@ -34,10 +36,10 @@ module.exports.updateUser = async (req, res, next) => {
         const { username } = req.body
 
         const user = await usersServices.getUser({ username: username })
-        if (user) return res.status(400).json({ message: "Username already taken" })
+        if (user) return res.status(400).json({ message: USERNAME_TAKEN })
 
         const { modifiedCount } = await usersServices.updateUser(req.params.id, req.body)
-        if (modifiedCount < 1) return res.status(304).json({ message: "No data has been updated" })
+        if (modifiedCount < 1) return res.status(304).json({ message: notModified() })
 
         res.end()
     } catch (err) { next(err) }

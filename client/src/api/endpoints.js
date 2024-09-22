@@ -24,6 +24,7 @@ const personalChatsEndpoint = (page, asc, isGroup) => `${chatsEndpoint()}/person
 const chatEndpoint = id => `${chatsEndpoint()}/${id}`
 const chatUsersEndpoint = id => `${chatEndpoint(id)}/${RESOURCES.USERS}`
 const chatUserEndpoint = (idChat, idUser) => `${chatUsersEndpoint(idChat)}/${idUser}`
+const chatCurrentUserEndpoint = (idChat) => `${chatUsersEndpoint(idChat)}/current`
 const chatMessagesEndpoint = (id, cursor) => `${chatEndpoint(id)}/${RESOURCES.MESSAGES}/?cursor=${cursor}`
 const chatMessageEndpoint = (idChat, idMessage) => `${chatEndpoint(idChat)}/${RESOURCES.MESSAGES}/${idMessage}`
 
@@ -41,6 +42,7 @@ export {
     chatEndpoint,
     chatUsersEndpoint,
     chatUserEndpoint,
+    chatCurrentUserEndpoint,
     chatMessagesEndpoint,
     chatMessageEndpoint
 }

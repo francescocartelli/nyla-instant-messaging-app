@@ -1,6 +1,5 @@
-const { userInChat } = require("../components/User")
-
-const { isOidValid } = require.main.require("./components/Db")
+const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, NO_CHAT_DELETED, NO_MESSAGES_DELETED, GROUP_CHATS_OPERATION, notFoundId, notCreated, notModified } = require.main.require("./components/ResponseMessages")
+const { userInChat } = require.main.require("./components/User")
 const { createPage } = require.main.require("./components/Paging")
 const { getChatNavigation } = require.main.require("./components/Chat")
 const { parsePageNumber } = require.main.require("./components/Paging")
@@ -15,7 +14,7 @@ const { sendToUsers } = require.main.require("./services/Redis")
 exports.getChat = async (req, res, next) => {
     try {
         const chat = await chatServices.getChat(req.params.id)
-        if (!chat) return res.status(404).json({ message: "Chat not found with the specified id" })
+        if (!chat) return res.status(404).json({ message: notFoundId("chat") })
 
         res.json(chat)
     } catch (err) { next(err) }
@@ -49,8 +48,8 @@ exports.createChat = async (req, res, next) => {
         const owner = chat.users.find(u => u.id === userId)
 
         // check creator inclusion and priviledge
-        if (!owner) return res.status(401).json({ message: "Cannot create chat for others" })
-        if (chat.isGroup && !owner.isAdmin) return res.status(400).json({ message: "User should be admin" })
+        if (!owner) return res.status(401).json({ message: USER_IN_CHAT_REQUIRED })
+        if (chat.isGroup && !owner.isAdmin) return res.status(400).json({ message: ADMIN_REQUIRED })
         // check users id validity
         if (!usersServices.validateUsersIds(userIds)) return res.status(400).json({ message: "User ids not valid" })
         // check for user existence
@@ -62,7 +61,7 @@ exports.createChat = async (req, res, next) => {
         }
 
         const { insertedId } = await chatServices.createChat(chat)
-        if (!insertedId) return res.status(304).json({ message: "No data has been created" })
+        if (!insertedId) return res.status(304).json({ message: notCreated("chat") })
 
         res.json({ id: insertedId.toString() })
     } catch (err) { next(err) }
@@ -73,11 +72,10 @@ exports.updateChat = async (req, res, next) => {
         const { id } = req.params
         const chatUpdate = req.body
 
-        const chat = await chatServices.getChat(id)
-        if (!chat.isGroup) return res.status(409).json({ message: "Only group chats can change name" })
+        if (!res.locals.isGroup) return res.status(404).json({ message: GROUP_CHATS_OPERATION })
 
         const { modifiedCount } = await chatServices.updateChat(id, chatUpdate)
-        if (modifiedCount < 1) return res.status(304).json({ message: "No data has been modified" })
+        if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
 
         res.end()
     } catch (err) { next(err) }
@@ -87,13 +85,11 @@ exports.deleteChat = async (req, res, next) => {
     try {
         const { id } = req.params
 
-        // cannot perform bulk operation on multiple collections
-        // first delete messages
         const { acknowledged } = await messagesServices.deleteMessages(id)
-        if (!acknowledged) return res.status(304).json({ message: "No messages were deleted" })
+        if (!acknowledged) return res.status(304).json({ message: NO_MESSAGES_DELETED })
 
         const { deletedCount } = await chatServices.deleteChat(id)
-        if (deletedCount < 1) return res.status(304).json({ message: "No chat was deleted" })
+        if (deletedCount < 1) return res.status(304).json({ message: NO_CHAT_DELETED })
 
         await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteChat({ chat: id })))
 
@@ -104,7 +100,7 @@ exports.deleteChat = async (req, res, next) => {
 exports.getUsers = async (req, res, next) => {
     try {
         const chatUsersMap = await chatServices.getChatUsersMap(req.params.id)
-        if (!chatUsersMap) return res.status(404).json({ message: "Chat users not found with the specified id" })
+        if (!chatUsersMap) return res.status(404).json({ message: notFoundId("chat user") })
 
         const users = await usersServices.getChatUsers(chatUsersMap)
 
@@ -114,11 +110,16 @@ exports.getUsers = async (req, res, next) => {
 
 exports.addUser = async (req, res, next) => {
     try {
-        const user = await usersServices.getUser({ id: req.params.idu })
-        if (!user) return res.status(404).json({ message: "User not found with the specified id" })
+        const idChat = req.params.id
+        const idUser = req.params.idu
 
-        const { modifiedCount } = await chatServices.addUser(req.params.id, userInChat({ id: user.id, isAdmin: false }))
-        if (modifiedCount < 1) return res.status(304).json({ message: "No data has been modified" })
+        const user = await usersServices.getUser({ id: idUser })
+        if (!user) return res.status(404).json({ message: notFoundId("user") })
+
+        if (!res.locals.isGroup) return res.status(404).json({ message: GROUP_CHATS_OPERATION })
+
+        const { modifiedCount } = await chatServices.addUser(idChat, userInChat({ id: user.id, isAdmin: false }))
+        if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
 
         res.end()
     } catch (err) { next(err) }
@@ -126,8 +127,10 @@ exports.addUser = async (req, res, next) => {
 
 exports.updateUser = async (req, res, next) => {
     try {
+        if (!res.locals.isGroup) return res.status(404).json({ message: GROUP_CHATS_OPERATION })
+
         const { modifiedCount } = await chatServices.updateUser(req.params.id, req.params.idu, req.body)
-        if (modifiedCount < 1) return res.status(304).json({ message: "No data has been modified" })
+        if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
 
         res.end()
     } catch (err) { next(err) }
@@ -135,11 +138,30 @@ exports.updateUser = async (req, res, next) => {
 
 exports.removeUser = async (req, res, next) => {
     try {
-        const user = await usersServices.getUser({ id: req.params.idu })
-        if (!user) return res.status(404).json({ message: "User not found with the specified id" })
+        const idChat = req.params.id
+        const idUser = req.params.idu
 
-        const { modifiedCount } = await chatServices.removeUser(req.params.id, req.params.idu)
-        if (modifiedCount < 1) return res.status(304).json({ message: "No data has been modified" })
+        const user = await usersServices.getUser({ id: idUser })
+        if (!user) return res.status(404).json({ message: notFoundId("user") })
+
+        if (!res.locals.isGroup) return res.status(404).json({ message: GROUP_CHATS_OPERATION })
+
+        const { modifiedCount } = await chatServices.removeUser(idChat, idUser)
+        if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
+
+        res.end()
+    } catch (err) { next(err) }
+}
+
+exports.removeCurrentUser = async (req, res, next) => {
+    try {
+        const idChat = req.params.id
+        const user = req.user
+
+        if (!res.locals.isGroup) return res.status(404).json({ message: GROUP_CHATS_OPERATION })
+
+        const { modifiedCount } = await chatServices.removeUser(idChat, user.id)
+        if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
 
         res.end()
     } catch (err) { next(err) }

@@ -49,17 +49,11 @@ function UsersSearchInput({ value, onChange, onLoading, onReady, onError, deboun
 
 function UserList({ users, status, onEmpty, onRenderItem }) {
     return <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y">
-        <StatusLayout status={status}>
-            <loading>
-                <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>
-            </loading>
-            <ready>
-                {users?.length > 0 ? users.map(u => onRenderItem(u)) : onEmpty()}
-            </ready>
-            <error>
-                <div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><ErrorAlert /></div>
-            </error>
-        </StatusLayout>
+        <StatusLayout status={status}
+            loading={<div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>}
+            ready={users?.length > 0 ? users.map(u => onRenderItem(u)) : onEmpty()}
+            error={<div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><ErrorAlert /></div>}
+        />
     </div>
 }
 
@@ -67,7 +61,7 @@ function UsersSearchList({ onRenderItem = () => { } }) {
     const [users, setUsers] = useState([])
     const [userSearch, setUserSearch] = useState("")
 
-    const [userSearchStatus, userSearchStatusActions] = useStatus('ready')
+    const [userSearchStatus, userSearchStatusActions] = useStatus({ isReady: true })
 
     return <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y">
         <UsersSearchInput value={userSearch} onChange={setUserSearch}
@@ -91,7 +85,7 @@ function UsersSearchList({ onRenderItem = () => { } }) {
 function UsersSearch({ user }) {
     const navigate = useNavigate()
 
-    const [redirectStatus, redirectStatusActions] = useStatus("ready")
+    const [redirectStatus, redirectStatusActions] = useStatus({ isReady: true })
 
     const onRedirect = (idChat) => navigate(`/chats/${idChat}`)
 
@@ -111,8 +105,7 @@ function UsersSearch({ user }) {
             <div className="d-flex flex-grow-1 justify-content-end gap-2">
                 {user.id === u.id ?
                     <div className="card-2"><p className="fore-2 m-0">You</p></div> :
-                    <Button disabled={redirectStatus === "loading"} onClick={() => onClickOpenChat(u)}>open chat <Chat className="size-2 fore-2-btn" /></Button>
-                }
+                    <Button disabled={redirectStatus.isLoading} onClick={() => onClickOpenChat(u)}>open chat <Chat className="size-2 fore-2-btn" /></Button>}
             </div>
         </UserCard>} />
     </div>

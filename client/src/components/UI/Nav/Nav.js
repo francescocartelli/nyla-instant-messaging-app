@@ -37,7 +37,7 @@ function NavItem({ children, className = "", to = "#", exactPath = false, ...pro
 
 function AccountNavItem({ logout, onClickDefaultNavItems, username, navigate }) {
     const [isAccountMenuVisible, setAccountMenuVisible] = useState(false)
-    const [logoutStatus, logoutStatusActions] = useStatus("ready")
+    const [logoutStatus, logoutStatusActions] = useStatus({ isReady: true })
 
     const onClickLogout = () => logout(
         () => logoutStatusActions.setLoading(),
@@ -55,25 +55,22 @@ function AccountNavItem({ logout, onClickDefaultNavItems, username, navigate }) 
     const navigateToSetting = () => navigate("/settings")
 
     return <>
-        <StatusLayout status={logoutStatus}>
-            <loading><NavItem to="#"><Hourglass /></NavItem></loading>
-            <ready>
-                <div onClick={onClickDropDown} onBlur={onBlur} tabIndex={0} className="position-relative">
-                    <div className="nav-item">
-                        <span className="fore-2">{username}</span>
-                        {isAccountMenuVisible ? <ChevronUp /> : <ChevronDown />}
-                    </div>
-                    {isAccountMenuVisible && <div className="card-2 nav-item-options gap-2" onBlur={() => setAccountMenuVisible(false)} autoFocus>
-                        <NavItem onMouseDown={navigateToSetting}>
-                            <default><Gear /><span >Settings</span></default>
-                            <selected><GearFill /><span >Settings</span></selected>
-                        </NavItem>
-                        <NavItem to="#" onMouseDown={onClickLogout}><BoxArrowRight /><span>Logout</span></NavItem>
-                    </div>}
+        <StatusLayout status={logoutStatus}
+            loading={<NavItem to="#"><Hourglass /></NavItem>}
+            ready={<div onClick={onClickDropDown} onBlur={onBlur} tabIndex={0} className="position-relative">
+                <div className="nav-item">
+                    <span className="fore-2">{username}</span>
+                    {isAccountMenuVisible ? <ChevronUp /> : <ChevronDown />}
                 </div>
-            </ready>
-            <error></error>
-        </StatusLayout>
+                {isAccountMenuVisible && <div className="card-2 nav-item-options gap-2" onBlur={() => setAccountMenuVisible(false)} autoFocus>
+                    <NavItem onMouseDown={navigateToSetting}>
+                        <default><Gear /><span >Settings</span></default>
+                        <selected><GearFill /><span >Settings</span></selected>
+                    </NavItem>
+                    <NavItem to="#" onMouseDown={onClickLogout}><BoxArrowRight /><span>Logout</span></NavItem>
+                </div>}
+            </div>}
+        />
     </>
 }
 

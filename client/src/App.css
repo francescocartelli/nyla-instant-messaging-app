@@ -14,18 +14,6 @@
   padding-right: 1.5em;
 }
 
-.mt-nav {
-  padding: 0.5rem;
-  border-bottom: 1px solid transparent;
-  visibility: hidden;
-}
-
-.mt-nav p {
-  padding: 0.5em;
-  margin: 0;
-  border: 1px solid transparent;
-}
-
 @media only screen and (max-width: 600px) {
   .adaptive-p {
     padding-left: 0.5em;

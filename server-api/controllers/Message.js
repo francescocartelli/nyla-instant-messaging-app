@@ -1,3 +1,4 @@
+const { SENDER_REQUIRED, notFoundId, notCreated, notDeleted } = require.main.require("./components/ResponseMessages")
 const { getMessageNavigation, getNextCursor } = require.main.require("./components/Message")
 const { createPageCursor } = require.main.require("./components/Paging")
 const { mqCreateMessage, mqDeleteMessage } = require.main.require("./components/Redis")
@@ -13,7 +14,7 @@ exports.getMessage = async (req, res, next) => {
 
         // get message messageServices
         const message = await messageServices.getMessage(idChat, idMessage)
-        if (!message) return req.status(404, "Message not found with specified ids")
+        if (!message) return req.status(404).json({ message: notFoundId("message") })
 
         res.json(message)
     } catch (err) { next(err) }
@@ -39,7 +40,7 @@ exports.createMessage = async (req, res, next) => {
 
         // write message on database
         const { insertedId } = await messageServices.createMessage(newMessage)
-        if (!insertedId) return res.status(304).json({ message: "No data has been created" })
+        if (!insertedId) return res.status(304).json({ message: notCreated("message") })
 
         // send message on mq
         await sendToUsers(res.locals.chatUsers, JSON.stringify(mqCreateMessage({ id: insertedId, ...newMessage })))
@@ -56,11 +57,11 @@ exports.deleteMessage = async (req, res, next) => {
         const [idChat, idMessage, user] = [req.params.id, req.params.idm, req.user]
 
         const message = await messageServices.getMessage(idChat, idMessage)
-        if (!message) return res.status(404).json({ message: "Message not found with specified ids" })
-        else if (message.idSender.toString() !== user.id.toString()) return res.status(401).json({ message: "Only the sender can delete the message" })
+        if (!message) return res.status(404).json({ message: notFoundId("message") })
+        else if (message.idSender.toString() !== user.id.toString()) return res.status(401).json({ message: SENDER_REQUIRED })
 
         const { deletedCount } = await messageServices.deleteMessage(idChat, idMessage)
-        if (deletedCount < 1) return res.status(304).json({ message: "No data has been deleted" })
+        if (deletedCount < 1) return res.status(304).json({ message: notDeleted("message") })
 
         // send message on mq
         await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteMessage({ id: idMessage, chat: idChat })))

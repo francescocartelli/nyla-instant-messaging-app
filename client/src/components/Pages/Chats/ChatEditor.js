@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react"
-import { ArrowDownSquareFill, ArrowUpSquareFill, Check, Check2, Check2Square, ChevronDown, ChevronRight, ChevronUp, DoorOpenFill, Hourglass, Pencil, Person, Stars, ThreeDotsVertical, TrashFill, X, XCircle } from "react-bootstrap-icons"
+import { Check, Check2, Check2Square, ChevronDown, ChevronRight, ChevronUp, DoorOpenFill, Hourglass, Pencil, Person, ThreeDotsVertical, TrashFill, X, XCircle } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 
 import { useStatus } from "hooks"
@@ -11,6 +11,7 @@ import { StatusLayout } from "components/Common/Layout"
 import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
 
 import chatAPI from "api/chatAPI"
+import { Crown, XCrown } from "components/Icons/Icons"
 
 function EmptyUserList() {
     return <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
@@ -25,7 +26,7 @@ function UserBadges({ isSelf, isAdmin }) {
     return <>
         {isVisible && <>
             {isSelf && <div className="card-2"><span className="fore-2">You</span></div>}
-            {isAdmin && <Stars className="text-warning size-2" />}</>}
+            {isAdmin && <Crown className="text-warning size-2" />}</>}
     </>
 }
 
@@ -56,7 +57,7 @@ function MoreOptions({ isVisible, setVisible, onToggleUserInChat, onAdmin }) {
     </>
 }
 
-function UserCardInChat({ user, onAdd, onAdmin, onRemove, isSelected = false, isSelf = false, isAdmin = false, isNewChat = false }) {
+function UserCardInChat({ user, onAdd, onAdmin, onRemove, onLeave, isSelected = false, isSelf = false, isAdmin = false, isNewChat = false }) {
     const [isMoreOptionsVisible, setMoreOptionsVisible] = useState(false)
     const [isLoading, setLoading] = useState(false)
 
@@ -64,11 +65,11 @@ function UserCardInChat({ user, onAdd, onAdmin, onRemove, isSelected = false, is
     const canLeaveGroup = isSelf && !isNewChat
 
     const userInChatButton = useMemo(() => <Button key="add-remove" onClick={() => isSelected ? onRemove(user, setLoading) : onAdd(user, setLoading)}>
-        {isSelected ? <>Remove <XCircle className="fore-danger size-1" /></> : <>Add<Check2Square className="fore-success size-1" /></>}
+        {isSelected ? <><XCircle className="fore-danger size-1" /></> : <><Check2Square className="fore-success size-1" /></>}
     </Button>, [isSelected, onAdd, onRemove, user])
 
     const adminButton = useMemo(() => onAdmin && <Button key="update" onClick={() => onAdmin({ id: user.id, isAdmin: !user.isAdmin }, setLoading)}>
-        {user.isAdmin ? <>Remove<ArrowDownSquareFill className="fore-2 size-1" /></> : <>Add<ArrowUpSquareFill className="fore-2 size-1" /></>}
+        {user.isAdmin ? <><XCrown className="fore-2 size-1" /></> : <><Crown className="text-warning size-1" /></>}
     </Button>, [onAdmin, user])
 
     return <UserCard user={user} badges={<UserBadges isSelf={isSelf} isAdmin={user.isAdmin} />}>
@@ -76,7 +77,7 @@ function UserCardInChat({ user, onAdd, onAdmin, onRemove, isSelected = false, is
             {isLoading ? <Hourglass className="fore-2 size-1" /> : <>
                 {canSeeMoreOptions && <MoreOptions isVisible={isMoreOptionsVisible} setVisible={setMoreOptionsVisible}
                     isLoading={isLoading} isSelected={isSelected} onToggleUserInChat={userInChatButton} onAdmin={adminButton} />}
-                {canLeaveGroup && <Button onClick={() => onRemove(user, setLoading)}>Leave group<DoorOpenFill className="fore-2 size-1" /></Button>}
+                {canLeaveGroup && <Button onClick={() => onLeave(setLoading)}><DoorOpenFill className="fore-2 size-1" /></Button>}
             </>}
         </div>
     </UserCard>
@@ -86,7 +87,7 @@ function AdvancedSettings({ deleteChatApi, deleteChatCallback }) {
     const [isAdvancedSettings, setAdvancedSettings] = useState(false)
     const [isDeletingChat, setDeletingChat] = useState(false)
 
-    const [deleteStatus, deleteStatusActions] = useStatus("ready")
+    const [deleteStatus, deleteStatusActions] = useStatus({ isReady: true })
 
     const toggleAdvandedSettings = () => setAdvancedSettings(p => !p)
 
@@ -98,9 +99,9 @@ function AdvancedSettings({ deleteChatApi, deleteChatCallback }) {
     }
 
     return <div className="d-flex flex-column card-1 gap-2 ">
-        <StatusLayout status={deleteStatus}>
-            <loading><LoadingAlert /></loading>
-            <ready>
+        <StatusLayout status={deleteStatus}
+            loading={<LoadingAlert />}
+            ready={<>
                 <div className="d-flex flex-row gap-2 align-items-center">
                     <span className="fs-110 fw-500 flex-grow-1">Advanced Settings:</span>
                     <Button onClick={toggleAdvandedSettings}>{isAdvancedSettings ?
@@ -114,10 +115,10 @@ function AdvancedSettings({ deleteChatApi, deleteChatCallback }) {
                         <Button className="flex-grow-1" onClick={() => setDeletingChat(false)}>Cancel <X className="fore-2-btn size-1" /></Button>
                     </> : <Button className="flex-grow-1" onClick={() => setDeletingChat(true)}>Delete Chat <TrashFill className="fore-danger size-1" /></Button>}
                 </div>}
-            </ready>
-            <error><ErrorAlert /></error>
-        </StatusLayout>
-    </div>
+            </>}
+            error={<ErrorAlert />}
+        />
+    </div >
 }
 
 function UsersManager({ isAdmin, renderUserInSearch, renderUserInChat, users }) {
@@ -131,12 +132,12 @@ function UsersManager({ isAdmin, renderUserInSearch, renderUserInChat, users }) 
         <div className="d-flex flex-grow-1 scroll-y h-0">
             {isSearchVisible ?
                 <UsersSearchList onRenderItem={renderUserInSearch} /> :
-                <UserList users={users} status={"ready"} onRenderItem={renderUserInChat} onEmpty={() => <EmptyUserList />} />}
+                <UserList users={users} status={{ isReady: true }} onRenderItem={renderUserInChat} onEmpty={() => <EmptyUserList />} />}
         </div>
     </>
 }
 
-function ExistingChatUsersManager({ user, chat, setChat, users, setUsers, isAdmin }) {
+function ExistingChatUsersManager({ user, chat, setChat, users, setUsers, isAdmin, onLeaveCallback }) {
     const addUser = useCallback((u, setLoading) => {
         setLoading(true)
         chatAPI.addUserChat(chat.id, u.id)
@@ -169,13 +170,23 @@ function ExistingChatUsersManager({ user, chat, setChat, users, setUsers, isAdmi
             .catch(err => setLoading(false))
     }, [chat.id, setChat, setUsers])
 
+    const removeCurrentUser = useCallback((setLoading) => {
+        setLoading(true)
+        chatAPI.removeCurrentUserChat(chat.id)
+            .then(() => {
+                setLoading(false)
+                onLeaveCallback()
+            })
+            .catch(err => setLoading(false))
+    }, [chat.id, onLeaveCallback])
+
     const renderUserBase = useCallback(isToggleAdmin => u => <UserCardInChat key={u.id} user={u}
-        onAdd={addUser} onAdmin={isToggleAdmin ? updateUser : null} onRemove={removeUser}
+        onAdd={addUser} onAdmin={isToggleAdmin ? updateUser : null} onRemove={removeUser} onLeave={removeCurrentUser}
         isSelected={users?.find(i => i.id === u.id)}
         isSelf={u.id === user.id}
         isAdmin={isAdmin}
         isNewChat={false}>
-    </UserCardInChat>, [addUser, updateUser, removeUser, users, isAdmin, user.id])
+    </UserCardInChat>, [addUser, updateUser, removeUser, removeCurrentUser, users, isAdmin, user.id])
 
     const renderUserInChat = useCallback(renderUserBase(true), [renderUserBase])
     const renderUserInSearch = useCallback(renderUserBase(false), [renderUserBase])
@@ -186,7 +197,7 @@ function ExistingChatUsersManager({ user, chat, setChat, users, setUsers, isAdmi
 function ExistingChatBasicSettings({ chat, setChat, isAdmin, close }) {
     const [chatName, setChatName] = useState(chat?.name)
     const [isEditingChat, setEditingChat] = useState(false)
-    const [chatNameStatus, chatNameStatusActions] = useStatus("ready")
+    const [chatNameStatus, chatNameStatusActions] = useStatus({ isReady: true })
 
     const onClickEditChat = () => setEditingChat(true)
     const onClickCancelEditChatName = () => { setEditingChat(false); setChatName(chat.name) }
@@ -195,7 +206,7 @@ function ExistingChatBasicSettings({ chat, setChat, isAdmin, close }) {
         chatAPI.updateChat(chat.id, { name: chatName })
             .then(() => {
                 chatNameStatusActions.setReady()
-                setChat(p => { return { ...p, name: chatName } })
+                setChat(p => ({ ...p, name: chatName }))
                 setEditingChat(false)
             })
             .catch(err => {
@@ -211,8 +222,8 @@ function ExistingChatBasicSettings({ chat, setChat, isAdmin, close }) {
             <Text className="flex-grow-1" placeholder="Group name..." disabled={!isEditingChat} value={chatName} onChange={onChangeChatName} />
             {isAdmin && <div>{isEditingChat ?
                 <div className="d-flex flex-row gap-2">
-                    <Button onClick={onClickCancelEditChatName}><XCircle className="fore-2-btn size-1" /></Button>
-                    <Button disabled={chatNameStatus === "loading"} onClick={onClickConfirmEditChatName}><Check2 className="fore-2-btn size-1" /></Button>
+                    <Button disabled={chatNameStatus.isLoading} onClick={onClickCancelEditChatName}><XCircle className="fore-2-btn size-1" /></Button>
+                    <Button disabled={chatNameStatus.isLoading} onClick={onClickConfirmEditChatName}><Check2 className="fore-2-btn size-1" /></Button>
                 </div> : <Button onClick={onClickEditChat}><Pencil className="fore-2-btn size-1" /></Button>
             }</div>}
         </div>}
@@ -234,7 +245,7 @@ function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
 
     return <div className="d-flex flex-column flex-grow-1 gap-3 mb-1 h-0">
         <ExistingChatBasicSettings chat={chat} setChat={setChat} isAdmin={isAdmin} close={close} />
-        {chat.isGroup && <ExistingChatUsersManager user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} isAdmin={isAdmin} />}
+        {chat.isGroup && <ExistingChatUsersManager user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} isAdmin={isAdmin} onLeaveCallback={() => navigate("/chats")}/>}
         {(isAdmin || !chat.isGroup) && <AdvancedSettings deleteChatApi={() => chatAPI.deleteChat(chat.id)} deleteChatCallback={() => navigate("/chats")} />}
     </div>
 }

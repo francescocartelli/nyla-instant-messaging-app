@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import './Layout.css'
 
@@ -25,10 +25,17 @@ function TabsLayout({ children }) {
     </>
 }
 
-function StatusLayout({ status, children }) {
-    return <>
-        {status && children.filter(child => child.type === status).map(i => i.props.children)}
-    </>
+function StatusLayout({ status: { isLoading, isReady, isError }, loading = <></>, ready = <></>, error = <></> }) {
+    if (isLoading) return loading
+    else if (isReady) return ready
+    else if (isError) return error
+    else return <></>
+}
+
+function OptionsLayout({ option, options }) {
+    const displayed = options[option] || <></>
+
+    return displayed
 }
 
 function PagesControl({ page, nPages, onChangePage = () => { }, disabled = false }) {
@@ -56,4 +63,4 @@ function ShowMoreLayout({ children }) {
     </>
 }
 
-export { TabsLayout, StatusLayout, PagesControl, Tab, ShowMoreLayout }
+export { TabsLayout, StatusLayout, OptionsLayout, PagesControl, Tab, ShowMoreLayout }

@@ -50,10 +50,6 @@ const getChatsAndCountPersonal = async (id, params) => {
     return { chats, nPages }
 }
 
-/**
- * only for direct chat
- * check if the two users are already in a direct chat
- */
 const checkChatExistence = (users) => {
     if (users.length !== 2) throw new Error("Users must be two in a direct messages chat")
     return chatCollection.findOne({
@@ -65,12 +61,6 @@ const checkChatExistence = (users) => {
     }, { projection: { _id: 0, id: '$_id' } })
 }
 
-/**
- * non clean utility: filter delegated to validator
- * @param {*} idChat
- * @param {*} chat is an object of editable props 
- * @returns 
- */
 const updateChat = (idChat, chat) => {
     return chatCollection.updateOne(
         { _id: oid(idChat) },

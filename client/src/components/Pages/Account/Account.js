@@ -20,7 +20,7 @@ function LoginTab({ signinSuccessful }) {
     const [isShowPassword, setShowPassword] = useState(false)
     const [message, setMessage] = useState("")
 
-    const [loginStatus, loginStatusActions] = useStatus("ready")
+    const [loginStatus, loginStatusActions] = useStatus({ isReady: true })
 
     const onSubmit = (ev) => {
         ev.preventDefault()
@@ -57,15 +57,13 @@ function LoginTab({ signinSuccessful }) {
                     <EyeSlashFill className="fore-2-btn size-1" onClick={onHidePassword} />
                 } />
         </div>
-        <StatusLayout status={loginStatus}>
-            <loading><LoadingAlert /></loading>
-            <ready>
-                <div className="d-flex align-self-stretch">
-                    <Button className="flex-grow-1" type="submit" disabled={isLoginButtonDisabled}>Login</Button>
-                </div>
-            </ready>
-            <error><ErrorAlert /></error>
-        </StatusLayout>
+        <StatusLayout status={loginStatus}
+            loading={<LoadingAlert />}
+            ready={<div className="d-flex align-self-stretch">
+                <Button className="flex-grow-1" type="submit" disabled={isLoginButtonDisabled}>Login</Button>
+            </div>}
+            error={<ErrorAlert />}
+        />
         <p className="align-self-center" style={{ color: "#ffffff80", fontSize: "0.8em" }}>
             <i>You forgot your <Link to="/login/forgot/username">username</Link> or <Link to="/login/forgot">password</Link>?</i>
         </p>
@@ -76,7 +74,7 @@ function UsernameRegistration({ username, setUsername, setInvalid, ...props }) {
     const [isUsernameInvalid, setUsernameInvalid] = useState(true)
     const [isUsernameTaken, setUsernameTaken] = useState(false)
 
-    const [usernameTakenStatus, usernameTakenStatusActions] = useStatus("ready")
+    const [usernameTakenStatus, usernameTakenStatusActions] = useStatus({ isReady: true })
 
     const onUsernameChange = (ev) => {
         const [value, usernameInvalid] = [ev.target.value, !usefullRegExp.usernameReg.test(ev.target.value)]
@@ -112,23 +110,20 @@ function UsernameRegistration({ username, setUsername, setInvalid, ...props }) {
                     <span>Between 8 and 20 characters are required.</span>
                 </>
             } {...props} />
-        {!isUsernameInvalid && username !== "" && <StatusLayout status={usernameTakenStatus}>
-            <loading>
-                <div className="card-1 d-flex flex-row gap-2 align-items-center">
+        {!isUsernameInvalid && username !== "" &&
+            <StatusLayout status={usernameTakenStatus}
+                loading={<div className="card-1 d-flex flex-row gap-2 align-items-center">
                     <span className="fore-2 fs-80 flex-grow-1">Checking username uniqueness...</span> <Hourglass className="size-1 fore-2" />
-                </div>
-            </loading>
-            <ready>
-                {isUsernameTaken ?
+                </div>}
+                ready={isUsernameTaken ?
                     <div className="card-1 d-flex flex-row gap-2 align-items-center">
                         <span className="fore-2 fs-80 flex-grow-1">Username is already taken.</span> <XCircle className="size-1 fore-danger" />
                     </div> :
                     <div className="card-1 d-flex flex-row gap-2 align-items-center">
                         <span className="fore-2 fs-80 flex-grow-1">Username is unique.</span> <Check2 className="size-1 fore-success" />
                     </div>}
-            </ready>
-            <error></error>
-        </StatusLayout>}
+            />
+        }
     </>
 }
 
@@ -188,10 +183,11 @@ function RegistrationTab({ signupSuccessful }) {
 
     const [message, setMessage] = useState("")
 
-    const [registrationStatus, registrationStatusActions] = useStatus("ready")
+    const [registrationStatus, registrationStatusActions] = useStatus({ isReady: true })
 
     const onRegister = ev => {
         ev.preventDefault()
+        registrationStatusActions.setLoading()
         userAPI.signup(username, password, email)
             .then(res => res.json())
             .then(res => {
@@ -227,15 +223,13 @@ function RegistrationTab({ signupSuccessful }) {
                 } />
             <PasswordRegistration password={password} setPassword={setPassword} setInvalid={setAnyPasswordInvalid} />
         </div>
-        <StatusLayout status={registrationStatus}>
-            <loading><LoadingAlert /></loading>
-            <ready>
-                <div className="d-flex align-self-stretch">
-                    <Button type="submit" className="flex-grow-1" disabled={isRegisterButtonDisabled}>Register</Button>
-                </div>
-            </ready>
-            <error><ErrorAlert /></error>
-        </StatusLayout>
+        <StatusLayout status={registrationStatus}
+            loading={<LoadingAlert />}
+            ready={<div className="d-flex align-self-stretch">
+                <Button type="submit" className="flex-grow-1" disabled={isRegisterButtonDisabled}>Register</Button>
+            </div>}
+            error={<ErrorAlert />}
+        />
     </form>
 }
 

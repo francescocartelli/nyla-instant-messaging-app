@@ -174,48 +174,46 @@ function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing })
 
     return <>
         <div className="d-flex flex-row card-1 align-items-center gap-2">
-            <StatusLayout status={chatStatus}>
-                <loading>
+            <StatusLayout status={chatStatus}
+                loading={<>
                     <div className="skeleton skeleton-icon-round-2"></div>
                     <div className="d-flex flex-column flex-grow-1 gap-1">
                         <span className="fs-110 skeleton skeleton-text">_</span>
                         <span className="fs-80 skeleton skeleton-text">_</span>
                     </div>
-                </loading>
-                <ready>
+                </>}
+                ready={<>
                     {chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}
-                    <div className="d-flex flex-column flex-grow-1">
+                    < div className="d-flex flex-column flex-grow-1">
                         <span className="fs-110 fw-500">{chatName}</span>
                         {chat.isGroup && <span className="fs-80 fore-2">{`${chat.nUsers} users`}</span>}
                     </div>
-                    <Button className="circle" onClick={onClickEditChat}><ThreeDotsVertical className="fore-2-btn size-1" /></Button>
-                </ready>
-                <error>
-                    {isUnauthorized ? <>
-                        <KeyFill className="size-2 fore-2" />
-                        <div className="d-flex flex-column flex-grow-1">
-                            <span className="fs-110 fw-500">The requested chat is protected...</span>
-                            <span className="fs-80 fore-2">You do not have permission to access to this chat</span>
-                        </div>
-                    </> : <>
-                        <QuestionCircle className="size-2 fore-2" />
-                        <div className="d-flex flex-column flex-grow-1">
-                            <span className="fs-110 fw-500">The requested chat cannot be loaded...</span>
-                            <span className="fs-80 fore-2">Maybe the chat was deleted or the link is compromised</span>
-                        </div></>}
-                </error>
-            </StatusLayout>
-        </div>
+                    <Button className="circle" onClick={onClickEditChat}><ThreeDotsVertical className="fore-2-btn size-1" /></Button></>}
+                error={isUnauthorized ? <>
+                    <KeyFill className="size-2 fore-2" />
+                    <div className="d-flex flex-column flex-grow-1">
+                        <span className="fs-110 fw-500">The requested chat is protected...</span>
+                        <span className="fs-80 fore-2">You do not have permission to access to this chat</span>
+                    </div>
+                </> : <>
+                    <QuestionCircle className="size-2 fore-2" />
+                    <div className="d-flex flex-column flex-grow-1">
+                        <span className="fs-110 fw-500">The requested chat cannot be loaded...</span>
+                        <span className="fs-80 fore-2">Maybe the chat was deleted or the link is compromised</span>
+                    </div>
+                </>}
+            />
+        </div >
         <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y pr-2 pl-2">
-            {messagesCursor.current !== null && <Button disabled={messagesStatus !== "ready"} onClick={() => getMessages()}>Get Previous Messages...</Button>}
-            <StatusLayout status={messagesStatus}>
-                <loading>{chatStatus !== "error" && <LoadingAlert />}</loading>
-                <ready>
+            {messagesCursor.current !== null && <Button disabled={!messagesStatus.isReady} onClick={() => getMessages()}>Get Previous Messages...</Button>}
+            <StatusLayout status={messagesStatus}
+                loading={<LoadingAlert />}
+                ready={<>
                     {messages.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
                     {messages.map((message, i, arr) => <MessageCard key={message.id} idChat={id} message={message} prev={i > 0 ? arr[i - 1] : null} />)}
-                </ready>
-                <error><SomethingWentWrong explanation="It is not possible to load any message!" /></error>
-            </StatusLayout>
+                </>}
+                error={<SomethingWentWrong explanation="It is not possible to load any message!" />}
+            />
             <div ref={lastRef} style={{ color: "transparent" }}>_</div>
         </div>
         <div className="position-relative">
@@ -226,7 +224,7 @@ function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing })
                         <span className="fs-70">{format99Plus(newMessagesNumber)}</span>
                     </div>
                 </Button>}
-            <MessageEditor idChat={id} user={user} isDisabled={messagesStatus !== "ready"} onMessagePending={onMessagePending} onMessageSent={onMessageSent} />
+            <MessageEditor idChat={id} user={user} isDisabled={!messagesStatus.isReady} onMessagePending={onMessagePending} onMessageSent={onMessageSent} />
         </div>
     </>
 }

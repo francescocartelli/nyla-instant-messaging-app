@@ -24,47 +24,52 @@ import { NewChatEditor } from 'components/Pages/Chats/ChatEditor'
 import { NotFound } from 'components/Pages/NotFound/NotFound'
 import { Settings } from 'components/Pages/Settings/Settings'
 
-import { useAuth } from 'hooks/useAuth'
+import { useAuth } from "hooks"
 
 import usersAPI from 'api/userAPI'
+
+function MainContainer({ children }) {
+  return <div className="main-container">{children}</div>
+}
+
+function BodyContainer({ children }) {
+  return <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>{children}</div>
+}
+
+function FooterContainer({ children }) {
+  return <div className="flex-row justify-content-center hide-small gap-2">{children}</div>
+}
 
 function App() {
   const getCurrentUserApi = useCallback(() => usersAPI.getCurrentUser().then(res => res.json()), [])
   const auth = useAuth(getCurrentUserApi)
   const { user, isLoading, setUser } = auth
 
-  return (
-    <div className="App">
-      <Router>
-        <WebSocketProvider user={user}>
-          <div className="main-container">
-            <PushContainer />
-            <Nav isWaitingUser={isLoading} user={user} setUser={setUser} />
-            <div className='mt-nav'><p>-</p></div>
-            <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p pt-2'>
-              <Routes>
-                <Route path="/about" element={<About />} />
-                <Route path="/account" element={<>
-                  <IsNotLogged isWaitingUser={isLoading} user={user}><Account setUser={setUser} /> </IsNotLogged>
-                  <IsLogged isWaitingUser={isLoading} user={user}><Navigate to="/" /></IsLogged>
-                </>} />
-                <Route path="/chats/new" element={<AuthWall {...auth}><NewChatEditor user={user} /></AuthWall>} />
-                <Route path="/chats/:id" element={<AuthWall {...auth}><ChatPage user={user} /></AuthWall>} />
-                <Route path="/chats" element={<AuthWall {...auth}><PersonalChats /></AuthWall>} />
-                <Route path="/users" element={<AuthWall {...auth}><UsersSearch user={user} /></AuthWall>} />
-                <Route path="/settings" element={<AuthWall {...auth}><Settings user={user} setUser={setUser} /></AuthWall>} />
-                <Route exact path="/" element={<Home />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-            <div className="flex-row justify-content-center hide-small gap-2">
-              <Footer />
-            </div>
-          </div>
-        </WebSocketProvider>
-      </Router>
-    </div>
-  )
+  return <MainContainer>
+    <Router>
+      <WebSocketProvider user={user}>
+        <PushContainer />
+        <Nav isWaitingUser={isLoading} user={user} setUser={setUser} />
+        <BodyContainer>
+          <Routes>
+            <Route path="/about" element={<About />} />
+            <Route path="/account" element={<>
+              <IsNotLogged isWaitingUser={isLoading} user={user}><Account setUser={setUser} /> </IsNotLogged>
+              <IsLogged isWaitingUser={isLoading} user={user}><Navigate to="/" /></IsLogged>
+            </>} />
+            <Route path="/chats/new" element={<AuthWall {...auth}><NewChatEditor user={user} /></AuthWall>} />
+            <Route path="/chats/:id" element={<AuthWall {...auth}><ChatPage user={user} /></AuthWall>} />
+            <Route path="/chats" element={<AuthWall {...auth}><PersonalChats /></AuthWall>} />
+            <Route path="/users" element={<AuthWall {...auth}><UsersSearch user={user} /></AuthWall>} />
+            <Route path="/settings" element={<AuthWall {...auth}><Settings user={user} setUser={setUser} /></AuthWall>} />
+            <Route exact path="/" element={<Home />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BodyContainer>
+        <FooterContainer><Footer /></FooterContainer>
+      </WebSocketProvider>
+    </Router>
+  </MainContainer>
 }
 
 export default App

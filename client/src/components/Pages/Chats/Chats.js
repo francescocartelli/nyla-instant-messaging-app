@@ -5,20 +5,22 @@ import { Link } from "react-router-dom"
 import { useStatus, useRelativeDateTime } from "hooks"
 
 import { Button, LinkButton } from "components/Common/Buttons"
-import { StatusLayout, PagesControl, Tab } from "components/Common/Layout"
+import { StatusLayout, PagesControl, Tab, OptionsLayout } from "components/Common/Layout"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
 import { InformationBox, SomethingWentWrong } from "components/Common/Misc"
 
 import chatAPI from "api/chatAPI"
 
 function ChatCard({ chat, relativeDateTime }) {
+    const spanClassname = "d-flex flex-row align-items-center text-nowrap fs-80 fore-2 gap-2"
+
     return <div className="row-center card-1">
         <div className="crd-icon-30">{chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}</div>
-        <div className="d-flex flex-column flex-grow-1">
+        <div className="d-flex flex-column flex-grow-1 oveflow-hidden ellipsis gap-1">
             <span className="fs-110">{chat.name}</span>
-            <div className="d-flex flex-row align-items-center gap-3">
-                <span className="text-nowrap fs-80 fore-2"><ClockHistory className="size-1 fore-2" /> <i>Last activity <b>{relativeDateTime}</b> ago</i></span>
-                {chat.isGroup && <span className="text-nowrap fs-80 fore-2"><PeopleFill className="size-1 fore-2" /> <i><b>{chat.nUsers}</b> users</i></span>}
+            <div className="row-col-small align-items-start adaptive-gap-4-1">
+                <span className={spanClassname}><ClockHistory className="size-1 fore-2" /> <i>Last activity <b>{relativeDateTime}</b> ago</i></span>
+                {chat.isGroup && <span className={spanClassname}><PeopleFill className="size-1 fore-2" /> <i><b>{chat.nUsers}</b> users</i></span>}
             </div>
         </div>
         <Link to={`/chats/${chat.id}`}><ChevronRight className="size-2 fore-2-btn" /></Link>
@@ -117,29 +119,26 @@ function PersonalChats() {
                     <Button onClick={() => toggleOptions("filter")} disabled={chats.length < 2}><Funnel className="fore-2 size-1" /></Button>
                 </div>
                 <div className="flex-grow-1"></div>
-                <StatusLayout status={selectedOption}>
-                    <none></none>
-                    <group><NewChatButton /></group>
-                    <order><OrderOption isAsc={isAsc} setAsc={setAsc} /></order>
-                    <filter><FilterOption isGroup={isGroup} setGroup={setGroup} onReset={() => setChatsPage(1)} /></filter>
-                </StatusLayout>
+                <OptionsLayout option={selectedOption} options={{
+                    group:<NewChatButton />,
+                    order: <OrderOption isAsc={isAsc} setAsc={setAsc} />,
+                    filter: <FilterOption isGroup={isGroup} setGroup={setGroup} onReset={() => setChatsPage(1)} />
+                }}/>
                 {selectedOption !== "none" && <Button onClick={() => setSelectedOption("none")}><XCircleFill className="fore-2 size-1" /></Button>}
             </div>
             <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y h-0">
-                <StatusLayout status={chatsStatus}>
-                    <loading>
-                        {[...Array(10).keys()].map((i) => <ChatCardSketeleton key={`chat-skeleton-${i}`} />)}
-                    </loading>
-                    <ready>
+                <StatusLayout status={chatsStatus}
+                    loading={[...Array(10).keys()].map((i) => <ChatCardSketeleton key={`chat-skeleton-${i}`} />)}
+                    ready={<>
                         {chats.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the chats related to you will be shown here!" />}
                         {chats.map(chat => <ChatCard key={chat.id} chat={chat} relativeDateTime={getRelative(chat.updatedAt)} />)}
-                    </ready>
-                    <error><SomethingWentWrong explanation="It is not possible to load your personal chats!" /></error>
-                </StatusLayout>
+                    </>}
+                    error={<SomethingWentWrong explanation="It is not possible to load your personal chats!" />}
+                />
             </div>
         </div>
         <div className="align-self-center">
-            <PagesControl page={chatsPage} nPages={chatsNPages} onChangePage={onClickChatsPage} disabled={chatsStatus !== "ready"} />
+            <PagesControl page={chatsPage} nPages={chatsNPages} onChangePage={onClickChatsPage} disabled={!chatsStatus.isReady} />
         </div>
     </div>
 }
