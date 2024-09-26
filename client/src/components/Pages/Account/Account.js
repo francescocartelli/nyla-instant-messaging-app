@@ -64,8 +64,8 @@ function LoginTab({ signinSuccessful }) {
             </div>}
             error={<ErrorAlert />}
         />
-        <p className="align-self-center" style={{ color: "#ffffff80", fontSize: "0.8em" }}>
-            <i>You forgot your <Link to="/login/forgot/username">username</Link> or <Link to="/login/forgot">password</Link>?</i>
+        <p className="align-self-center fore-2 fs-80">
+            <i>You forgot your <Link to="/login/forgot/username"><u>username</u></Link> or <Link to="/login/forgot"><u>password</u></Link>?</i>
         </p>
     </form>
 }

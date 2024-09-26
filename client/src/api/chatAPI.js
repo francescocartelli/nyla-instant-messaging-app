@@ -1,4 +1,4 @@
-import { chatCurrentUserEndpoint, chatEndpoint, chatMessageEndpoint, chatMessagesEndpoint, chatsEndpoint, chatUserEndpoint, chatUsersEndpoint, personalChatsEndpoint } from "./endpoints"
+import { chatCurrentUserEndpoint, chatEndpoint, chatMessageEndpoint, chatMessagesCursorEndpoint, chatMessagesEndpoint, chatsEndpoint, chatUserEndpoint, chatUsersEndpoint, personalChatsEndpoint } from "./endpoints"
 import { deleteConfig, postConfigJSON, putConfigJSON, safeFetch } from "./utils"
 
 const userInChatMapping = ({ id }, owner) => ({ id, isAdmin: id === owner.id.toString() })
@@ -25,7 +25,7 @@ const updateUserChat = (idChat, idUser, user) => safeFetch(chatUserEndpoint(idCh
 const removeUserChat = (idChat, idUser) => safeFetch(chatUserEndpoint(idChat, idUser), deleteConfig())
 const removeCurrentUserChat = (idChat) => safeFetch(chatCurrentUserEndpoint(idChat), deleteConfig())
 
-const getMessages = (idChat, cursor, options) => safeFetch(chatMessagesEndpoint(idChat, cursor), options)
+const getMessages = (idChat, cursor, options) => safeFetch(chatMessagesCursorEndpoint(idChat, cursor), options)
 const sendMessage = (idChat, { content }) => safeFetch(chatMessagesEndpoint(idChat), postConfigJSON({ content }))
 const deleteMessage = (idChat, idMessage) => safeFetch(chatMessageEndpoint(idChat, idMessage), deleteConfig())
 

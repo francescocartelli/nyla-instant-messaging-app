@@ -5,6 +5,7 @@ import './App.css'
 
 import 'styles/style.css'
 import 'styles/colors.css'
+import 'styles/editor.css'
 
 import { AuthWall } from 'components/Common/AuthWalls'
 import { IsLogged, IsNotLogged } from 'components/Common/Barriers'

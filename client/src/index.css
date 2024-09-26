@@ -27,3 +27,8 @@ h5,
 h6 {
   color: #ffffff;
 }
+
+a {
+  color: inherit !important;
+  text-decoration: initial !important;
+}

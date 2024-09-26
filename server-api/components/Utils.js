@@ -1,11 +1,11 @@
 const { isOidValid } = require.main.require("./components/Db")
 
 module.exports.getDate = () => {
-    return Math.floor(Date.now()/1000)
+    return Math.floor(Date.now() / 1000)
 }
 
-module.exports.day = (n=1) => {
-    return n*(60*60*24)
+module.exports.day = (n = 1) => {
+    return n * (60 * 60 * 24)
 }
 
 exports.parseCursor = (c) => {

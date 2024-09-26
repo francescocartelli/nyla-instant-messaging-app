@@ -10,7 +10,6 @@ require('dotenv').config()
 const { schemas, validate, validationError, validateId } = require("./middleware/Validation")
 const { errorHandler } = require("./middleware/Errors")
 
-
 /* Init Express */
 const app = new express()
 

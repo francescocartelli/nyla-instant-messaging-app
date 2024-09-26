@@ -9,11 +9,11 @@ import userAPI from "api/userAPI"
 import { PasswordRegistration, UsernameRegistration } from "../Account/Account"
 
 function SettingSection({ children }) {
-    return <h3 className="m-0">{children}</h3>
+    return <h3 className="fore-2 m-0">{children}</h3>
 }
 
 function SettingSubSection({ children }) {
-    return <h5 className="m-0">{children}</h5>
+    return <h5 className="fore-2 m-0">{children}</h5>
 }
 
 function SettingCard({ onRenderChildren, onConfirm, confirmCallback, initialValue, initialInvalid = false }) {

@@ -535,6 +535,58 @@
         }
       }
     },
+    "/api/chats/{id}/users/current": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Chat identifier of the chat.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "12-byte ObjectId"
+          }
+        }
+      ],
+      "delete": {
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Remove the current user from chat",
+        "description": "Remove the current user from chat using chat id and the identity of the user requesting it.<br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "304": {
+            "description": "Not modified - Failed delete operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request - Bad id",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      }
+    },
     "/api/chats/{id}/messages": {
       "get": {
         "tags": [
