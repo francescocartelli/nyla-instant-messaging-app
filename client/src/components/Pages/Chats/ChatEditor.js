@@ -137,7 +137,7 @@ function UsersManager({ isAdmin, renderUserInSearch, renderUserInChat, users }) 
     </>
 }
 
-function ExistingChatUsersManager({ user, chat, setChat, users, setUsers, isAdmin, onLeaveCallback }) {
+function ExistingChatUsersManager({ user, chat, setChat, users, setUsers, areUsersLoading, isAdmin, onLeaveCallback }) {
     const addUser = useCallback((u, setLoading) => {
         setLoading(true)
         chatAPI.addUserChat(chat.id, u.id)
@@ -180,7 +180,7 @@ function ExistingChatUsersManager({ user, chat, setChat, users, setUsers, isAdmi
             .catch(err => setLoading(false))
     }, [chat.id, onLeaveCallback])
 
-    const renderUserBase = useCallback(isToggleAdmin => u => <UserCardInChat key={u.id} user={u}
+    const renderUser = useCallback(isToggleAdmin => u => <UserCardInChat key={u.id} user={u}
         onAdd={addUser} onAdmin={isToggleAdmin ? updateUser : null} onRemove={removeUser} onLeave={removeCurrentUser}
         isSelected={users?.find(i => i.id === u.id)}
         isSelf={u.id === user.id}
@@ -188,10 +188,7 @@ function ExistingChatUsersManager({ user, chat, setChat, users, setUsers, isAdmi
         isNewChat={false}>
     </UserCardInChat>, [addUser, updateUser, removeUser, removeCurrentUser, users, isAdmin, user.id])
 
-    const renderUserInChat = useCallback(renderUserBase(true), [renderUserBase])
-    const renderUserInSearch = useCallback(renderUserBase(false), [renderUserBase])
-
-    return <UsersManager isAdmin={isAdmin} renderUserInChat={renderUserInChat} renderUserInSearch={renderUserInSearch} users={users} />
+    return areUsersLoading ? <LoadingAlert /> : <UsersManager isAdmin={isAdmin} renderUserInChat={renderUser(true)} renderUserInSearch={renderUser(false)} users={users} />
 }
 
 function ExistingChatBasicSettings({ chat, setChat, isAdmin, close }) {
@@ -238,14 +235,14 @@ function NewChatBasicSettings({ name, onChange, close }) {
     </BasicSettings>
 }
 
-function ChatEditor({ user, chat, setChat, users, setUsers, close }) {
+function ChatEditor({ user, chat, setChat, users, areUsersLoading, setUsers, close }) {
     const isAdmin = useMemo(() => users && users.find && users.find(u => u.id === user.id)?.isAdmin, [user.id, users])
 
     const navigate = useNavigate()
 
     return <div className="d-flex flex-column flex-grow-1 gap-3 mb-1 h-0">
         <ExistingChatBasicSettings chat={chat} setChat={setChat} isAdmin={isAdmin} close={close} />
-        {chat.isGroup && <ExistingChatUsersManager user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} isAdmin={isAdmin} onLeaveCallback={() => navigate("/chats")}/>}
+        {chat.isGroup && <ExistingChatUsersManager user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} areUsersLoading={areUsersLoading} isAdmin={isAdmin} onLeaveCallback={() => navigate("/chats")} />}
         {(isAdmin || !chat.isGroup) && <AdvancedSettings deleteChatApi={() => chatAPI.deleteChat(chat.id)} deleteChatCallback={() => navigate("/chats")} />}
     </div>
 }

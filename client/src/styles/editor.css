@@ -1,0 +1,81 @@
+.editor-wrapper {
+    position: relative;
+    width: 100%;
+    height: fit-content;
+    padding: 0.75rem 0.5rem;
+    border-radius: 0.5em;
+    background-color: #161A1F;
+    border: 1px solid #2A2F35;
+}
+
+.toolbar-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    top: 0;
+    width: 100%;
+    gap: 0.25rem;
+    z-index: 100;
+    overflow-x: scroll;
+    margin-bottom: 0.25rem;
+    height: 100%;
+}
+
+.content-editor {
+    outline: none;
+    width: 100%;
+}
+
+@media only screen and (max-width: 600px) {
+    .content-editor {
+        font-size: 16px;
+    }
+}
+
+.content-editor p {
+    margin: 0;
+}
+
+.editor-overlay {
+    overflow: scroll;
+    max-height: 200px;
+}
+
+.editor-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #2A2F35;
+    background-color: transparent;
+    border-radius: 1rem;
+    max-width: 2rem;
+    max-height: 2rem;
+    aspect-ratio: 1;
+}
+
+.editor-button:hover {
+    border: 1px solid #2A2F35;
+    background-color: #212529;
+}
+
+.editor-button.active {
+    background-color: #262c34;
+    color: transparent;
+}
+
+.editor-button svg {
+    color: #a0a0a0;
+}
+
+.toolbar-absolute {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    margin: 0.5rem;
+}
+
+.content-editor li {
+    color: #f0f0f0;
+}

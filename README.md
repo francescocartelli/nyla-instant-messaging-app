@@ -175,6 +175,11 @@ Instant messaging with group and direct chats with intuitive settings.<br>
   <img src="images/chat.png" width="200px">
   <img src="images/chat_setting.png" width="200px">
 
+### Rich text messaging for expressive conversations
+Emphasize your messages using Rich Text mode with ease: <b>bold</b>, <b>italic</b>, <b>headings</b>, <b>bullet lists</b> and more available with one click.<br>
+  <img src="images/rich_text_message_editor.png" width="200px">
+  <img src="images/rich_text_chat.png" width="200px">
+
 ### Fast password-based registration/authentication
 Registration/authentication using username and password.<br>
   <img src="images/login.png" width="200px">

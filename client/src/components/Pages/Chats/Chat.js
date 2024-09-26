@@ -9,40 +9,47 @@ import { getDateAndTime } from "utils/Dates"
 
 import { LoadingAlert } from "components/Alerts/Alerts"
 import { ShowMoreLayout, StatusLayout } from "components/Common/Layout"
-import { Text } from "components/Common/Inputs"
 import { Button } from "components/Common/Buttons"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
 import { ChatEditor } from "components/Pages/Chats/ChatEditor"
 import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
 import { InformationBox, SomethingWentWrong } from "components/Common/Misc"
+import { RTEditor, RTViewer, Toolbar } from "components/SEditor"
 
 import { format99Plus } from "utils/Numeric"
 
 import chatAPI from "api/chatAPI"
 
+const initialContent = [{ type: 'paragraph', children: [{ text: '' }] }]
+
 function MessageEditor({ user, idChat, onMessagePending, onMessageSent, isDisabled }) {
-    const [content, setContent] = useState("")
+    const [content, setContent] = useState(initialContent)
+    const editorRef = useRef()
 
-    const isSendButtonDisabled = () => { return content === "" || isDisabled }
+    const isSendButtonDisabled = isDisabled
 
-    const onChangeContent = (ev) => setContent(ev.target.value)
+    const resetEditor = () => {
+        setContent(initialContent)
+        editorRef.current.reset()
+    }
+
     const onSubmitMessage = (ev) => {
         ev.preventDefault()
 
         const message = { id: uuidv4(), content: content, isPending: true, idSender: user.id }
 
-        setContent("")
         onMessagePending(message)
+        resetEditor()
         chatAPI.sendMessage(idChat, { content: content })
             .then(res => res.json())
             .then(({ id }) => onMessageSent(message.id, { ...message, id: id.toString(), isPending: false, isError: false }))
             .catch(err => onMessageSent(message.id, { ...message, isPending: false, isError: true }))
     }
 
-    return <div className="card-1">
-        <form className="d-flex flex-row gap-2 align-items-center" onSubmit={onSubmitMessage}>
-            <Text className="flex-grow-1" value={content} placeholder="Write yout message here..." onChange={onChangeContent} />
-            <Button type="submit" className={"circle"} disabled={isSendButtonDisabled()}><Check2 className="fore-success size-1" /></Button>
+    return <div className="d-flex flex-row gap-2 align-items-center card-1">
+        <RTEditor value={content} setValue={setContent} toolbar={<Toolbar />} placeholder="Write yout message here..." ref={editorRef} />
+        <form onSubmit={onSubmitMessage}>
+            <Button type="submit" className={"circle"} disabled={isSendButtonDisabled}><Check2 className="fore-success size-1" /></Button>
         </form>
     </div>
 }
@@ -65,11 +72,13 @@ function MessageCard({ idChat, message, prev }) {
         chatAPI.deleteMessage(idChat, message.id).then().catch(err => setDeleting(false))
     }
 
+    const isRichText = (typeof message.content) !== "string"
+
     return <>
         {isDateVisible && <DateLabel date={date} />}
         <div className={`d-flex flex-column card-1 min-w-100 max-w-60p break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${isSenderChanged ? "mt-2" : ""}`}>
             {message.isFromOther && isSenderChanged && <span className="fore-2 fs-80 fw-600">{message.senderUsername}</span>}
-            <p className="m-0 text-wrap">{message.content}</p>
+            {isRichText ? <RTViewer value={message.content} /> : <p className="m-0 text-wrap">{message.content}</p>}
             <div className="d-flex flex-row gap-1 align-items-center">
                 <span className="fore-2 fs-70 pr-2 flex-grow-1">{time}</span>
                 {!message.isFromOther && <>
@@ -110,13 +119,17 @@ function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing })
     }, [isLastInViewport])
 
     const getMessages = useCallback((callback = () => { }) => {
-        const controller = new AbortController()
         messagesStatusActions.setLoading()
-        chatAPI.getMessages(id, messagesCursor.current, { signal: controller.signal })
+        chatAPI.getMessages(id, messagesCursor.current)
             .then(res => res.json())
-            .then(({ messages, nextCursor }) => {
-                setMessages(p => [...[...messages.map(messageMapping)].reverse(), ...p])
-                messagesCursor.current = nextCursor
+            .then(res => {
+                const lastMessageId = res.messages.at(-1)?.id
+                const cursor = messagesCursor.current
+                const isRefetching = lastMessageId === cursor
+                if (isRefetching) return
+
+                setMessages(p => [...[...res.messages.map(messageMapping)].reverse(), ...p])
+                messagesCursor.current = res.nextCursor
                 messagesStatusActions.setReady()
                 callback()
             })
@@ -247,7 +260,7 @@ function ChatPage({ user }) {
     useEffect(() => {
         const controller = new AbortController()
 
-        chatAPI.getChat(id, { signal: controller.signal })
+        chatAPI.getChat(id)
             .then(res => res.json())
             .then(chat => {
                 setChat(chat)
@@ -259,7 +272,7 @@ function ChatPage({ user }) {
                 chatStatusActions.setError()
             })
 
-        chatAPI.getChatUsers(id, { signal: controller.signal })
+        chatAPI.getChatUsers(id)
             .then(res => res.json())
             .then(users => {
                 setUsers(users)
@@ -272,7 +285,7 @@ function ChatPage({ user }) {
 
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-3">
         {isEditing ?
-            <ChatEditor id={id} user={user} chat={chat} setChat={setChat} users={users} setUsers={setUsers} close={onCloseChatEditor} /> :
+            <ChatEditor id={id} user={user} chat={chat} setChat={setChat} users={users} areUsersLoading={userStatus.isLoading} setUsers={setUsers} close={onCloseChatEditor} /> :
             <Chat id={id} user={user} chat={chat} chatStatus={chatStatus} isUnauthorized={isUnauthorized} users={users} setEditing={setEditing} />
         }
     </div>

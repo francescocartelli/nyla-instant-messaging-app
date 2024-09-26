@@ -5,6 +5,7 @@ function useAuth(getCurrentUserApi) {
     const [isLoading, setLoading] = useState(true)
 
     useEffect(() => {
+        setLoading(true)
         getCurrentUserApi()
             .then(res => { setUser(res); setLoading(false) })
             .catch(err => { setUser(false); setLoading(false) })

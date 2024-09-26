@@ -1,10 +1,11 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { InfoCircle, XCircle } from 'react-bootstrap-icons'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import './Push.css'
 import 'styles/style.css'
 
+import { flatRTNodes } from 'components/SEditor/utils'
 import { WebSocketContext, channelTypes } from 'components/Ws/WsContext'
 
 function Notification({ title, text, onClick, onClose, delay = 4000 }) {
@@ -18,7 +19,7 @@ function Notification({ title, text, onClick, onClose, delay = 4000 }) {
         <InfoCircle className='fore-2 size-2 flex-shrink-0' />
         <div className='d-flex flex-column flex-grow-1' style={{ minWidth: 0 }}>
             <span className='fore-2 fs-80 text-truncate'>{title}</span>
-            <span className='m-0 text-truncate'>{text}</span>
+            <span className='m-0 push-text'>{text}</span>
         </div>
         <XCircle className='fore-2-btn size-1 flex-shrink-0' onClick={(ev) => { ev.stopPropagation(); onClose() }} />
     </div>
@@ -40,11 +41,12 @@ function PushContainer({ maxNoticationsN = 4 }) {
 
         const channelDefault = channelTypes.createMessage()
         subscribe(channelDefault, ({ message }) => {
+            console.log(flatRTNodes(message.content))
             addNotification({
                 id: message.id,
                 onClick: () => { navigate(`/chats/${message.idChat}`) },
                 title: message.chatName ? <>Message from <b>{message.senderUsername}</b> in <b>{message.chatName}</b></> : <>Message from <b>{message.senderUsername}</b></>,
-                text: message.content
+                text: flatRTNodes(message.content)
             })
         })
         return () => { unsubscribe(channelDefault) }

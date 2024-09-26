@@ -5,11 +5,92 @@
     "description": "A Message create schema",
     "type": "object",
     "additionalProperties": false,
+    "definitions": {
+        "mark": {
+            "description": "A mark type schema",
+            "additionalProperties": false,
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string",
+                    "description": "The text content of a leaf node"
+                },
+                "bold": {
+                    "type": "boolean",
+                    "description": "Text formatting option, whether the text is bold"
+                },
+                "italic": {
+                    "type": "boolean",
+                    "description": "Text formatting option, whether the text is italicized"
+                },
+                "code": {
+                    "type": "boolean",
+                    "description": "Text formatting option, whether the text is code"
+                },
+                "underline": {
+                    "type": "boolean",
+                    "description": "Text formatting option, whether the text is underlined"
+                },
+                "strikethrough": {
+                    "type": "boolean",
+                    "description": "Text formatting option, whether the text is strikethrough"
+                }
+            },
+            "required": [
+                "text"
+            ]
+        },
+        "block": {
+            "description": "A block type schema",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Type of block",
+                    "enum": [
+                        "paragraph",
+                        "ordered-list",
+                        "unordered-list",
+                        "list-item",
+                        "heading-one",
+                        "heading-two"
+                    ]
+                },
+                "children": {
+                    "type": "array",
+                    "description": "Content of the block",
+                    "items": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/definitions/block"
+                            },
+                            {
+                                "$ref": "#/definitions/mark"
+                            }
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "type"
+            ]
+        }
+    },
     "properties": {
         "content": {
-            "type": "string",
+            "type": "array",
             "description": "Content of the message",
-            "maxLength": 1024
+            "items": {
+                "oneOf": [
+                    {
+                        "$ref": "#/definitions/block"
+                    },
+                    {
+                        "$ref": "#/definitions/mark"
+                    }
+                ]
+            }
         }
     },
     "required": [

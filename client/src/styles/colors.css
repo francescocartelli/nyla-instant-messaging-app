@@ -7,11 +7,11 @@
 }
 
 .fore-1 {
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .fore-2 {
-    color: #717A85;
+    color: #717A85 !important;
 }
 
 .fore-success {
