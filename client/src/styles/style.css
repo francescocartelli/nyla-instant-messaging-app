@@ -23,6 +23,10 @@
     overflow-y: hidden;
 }
 
+.mt-4-r {
+    margin-top: 4rem;
+}
+
 .scroll-y {
     overflow-y: auto;
     overflow-x: hidden;
@@ -193,9 +197,17 @@
     width: 300px;
 }
 
-.max-w-60p {
+.message-card-width {
     width: fit-content;
     max-width: 60%;
+    max-width: 480px;
+}
+
+@media only screen and (max-width: 600px) {
+    .message-card-width {
+        width: fit-content;
+        max-width: 80%;
+    }
 }
 
 .min-w-100 {
@@ -243,7 +255,7 @@
     }
 }
 
-.adaptive-gap-4-2 {
+.adaptive-gap-4-1 {
     gap: 1rem;
 }
 

@@ -76,7 +76,7 @@ function MessageCard({ idChat, message, prev }) {
 
     return <>
         {isDateVisible && <DateLabel date={date} />}
-        <div className={`d-flex flex-column card-1 min-w-100 max-w-60p break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${isSenderChanged ? "mt-2" : ""}`}>
+        <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${isSenderChanged ? "mt-2" : ""}`}>
             {message.isFromOther && isSenderChanged && <span className="fore-2 fs-80 fw-600">{message.senderUsername}</span>}
             {isRichText ? <RTViewer value={message.content} /> : <p className="m-0 text-wrap">{message.content}</p>}
             <div className="d-flex flex-row gap-1 align-items-center">

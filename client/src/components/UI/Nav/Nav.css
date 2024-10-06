@@ -1,8 +1,10 @@
-.navbar {
-    position: sticky !important;
+.navbar-position {
+    position: absolute;
     left: 0;
     right: 0;
     z-index: 100;
+    padding: 0.6rem;
+    line-height: normal;
 }
 
 .b-bottom {
@@ -75,6 +77,7 @@
     position: absolute;
     top: 4em;
     width: 100%;
+    z-index: 100;
 }
 
 @media only screen and (max-width: 600px) {

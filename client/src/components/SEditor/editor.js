@@ -62,7 +62,7 @@ const RTEditor = forwardRef(function RTEditor({ value = initialValue, setValue, 
         <Slate editor={editor} initialValue={value} onChange={v => setValue(v)}>
             {toolbar && isToolbarVisible && <div className='toolbar-wrapper'>{toolbar}</div>}
             <div className='editor-overlay'>
-                <Editable className='content-editor' renderLeaf={renderLeaf} renderElement={renderElement} {...props} />
+                <Editable autoFocus className='content-editor' renderLeaf={renderLeaf} renderElement={renderElement} {...props} />
             </div>
         </Slate>
         {toolbar && <button type="button" onClick={toggleToolbarVisibility} className='editor-button toolbar-absolute'>{isToolbarVisible ? <X /> : <ThreeDots />}</button>}

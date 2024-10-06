@@ -34,7 +34,9 @@ function MainContainer({ children }) {
 }
 
 function BodyContainer({ children }) {
-  return <div className='d-flex flex-column align-items-center flex-grow-1 adaptive-p'>{children}</div>
+  return <div className='d-flex flex-column max-w-body-container flex-grow-1 adaptive-p mt-4-r'>
+    {children}
+  </div>
 }
 
 function FooterContainer({ children }) {
@@ -67,7 +69,6 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BodyContainer>
-        <FooterContainer><Footer /></FooterContainer>
       </WebSocketProvider>
     </Router>
   </MainContainer>

@@ -41,7 +41,6 @@ function PushContainer({ maxNoticationsN = 4 }) {
 
         const channelDefault = channelTypes.createMessage()
         subscribe(channelDefault, ({ message }) => {
-            console.log(flatRTNodes(message.content))
             addNotification({
                 id: message.id,
                 onClick: () => { navigate(`/chats/${message.idChat}`) },

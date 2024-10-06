@@ -77,10 +77,6 @@ const flatNode = ({ text, children }) => {
     else if (children && children.length > 0) return children.map(flatNode).join("") + "\n"
 }
 
-const flatRTNodes = (nodes) => {
-    const we = nodes.map(flatNode).join("").trim()
-    console.log(we)
-    return we
-}
+const flatRTNodes = (nodes) => nodes.map(flatNode).join("").trim()
 
 export { isMarkActive, isBlockActive, toggleMark, toggleBlock, toggleLink, isLinkActive, flatRTNodes }

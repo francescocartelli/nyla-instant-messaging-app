@@ -57,7 +57,7 @@ function AccountNavItem({ logout, onClickDefaultNavItems, username, navigate }) 
     return <>
         <StatusLayout status={logoutStatus}
             loading={<NavItem to="#"><Hourglass /></NavItem>}
-            ready={<div onClick={onClickDropDown} onBlur={onBlur} tabIndex={0} className="position-relative">
+            ready={<div onClick={onClickDropDown} onBlur={() => {}} tabIndex={0} className="position-relative">
                 <div className="nav-item">
                     <span className="fore-2">{username}</span>
                     {isAccountMenuVisible ? <ChevronUp /> : <ChevronDown />}
@@ -90,44 +90,46 @@ function Nav({ isWaitingUser, user, setUser }) {
             .catch(rejectCallback)
     }, [setUser])
 
-    return <nav className="d-flex flex-column align-items-stretch navbar adaptive-p gap-2 back-2 b-bottom">
-        <div className="show-small flex-row justify-content-between align-items-center">
-            <NavItem to="/" exactPath={true} className="pt-0 pb-0" onClick={onClickDefaultNavItems}>
-                <LogoGrad className="size-1" />
-            </NavItem>
-            <NavItem to="#" onClick={() => setCollapsed(p => !p)}>
-                {isCollapsed ? <List /> : <XCircleFill />}
-            </NavItem>
-        </div>
-        <div className={`${isCollapsed ? "hide-small" : "d-flex"} flex-row-col-adaptive gap-3-adaptive`}>
-            <SepLine />
-            <NavItem to={"/"} exactPath={true} className="hide-small pt-0 pb-0" onClick={onClickDefaultNavItems}>
-                <Logo className="size-1" /><span><b>nyla</b></span>
-            </NavItem>
-            <NavItem to={"/about"} onClick={onClickDefaultNavItems}>
-                <default><InfoCircle /> <span>About</span></default>
-                <selected><InfoCircleFill /> <span>About</span></selected>
-            </NavItem>
-            <IsLogged isWaitingUser={isWaitingUser} user={user}>
-                <NavItem to={"/chats"} onClick={onClickDefaultNavItems}>
-                    <default><Chat /> <span>Chats</span></default>
-                    <selected><ChatFill /> <span>Chats</span></selected>
+    return <nav className="d-flex flex-column align-items-center navbar-position back-2 b-bottom">
+        <div className="d-flex flex-column justify-content-center align-items-stretch gap-2 max-w-body-container adaptive-p">
+            <div className="show-small flex-row justify-content-between align-items-center">
+                <NavItem to="/" exactPath={true} className="pt-0 pb-0" onClick={onClickDefaultNavItems}>
+                    <LogoGrad className="size-1" />
                 </NavItem>
-                <NavItem to={"/users"} onClick={onClickDefaultNavItems}>
-                    <default><People /> <span>Users</span></default>
-                    <selected><PeopleFill /> <span>Users</span></selected>
+                <NavItem to="#" onClick={() => setCollapsed(p => !p)}>
+                    {isCollapsed ? <List /> : <XCircleFill />}
                 </NavItem>
-                <FlexGrow />
-                <AccountNavItem navigate={navigate} logout={logout} username={user?.username} onClickDefaultNavItems={onClickDefaultNavItems} />
-            </IsLogged>
-            <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
-                <FlexGrow />
-                <NavItem to={"/account"} onClick={onClickDefaultNavItems}>
-                    <BoxArrowInRight /> <span>Login</span>
+            </div>
+            <div className={`${isCollapsed ? "hide-small" : "d-flex"} flex-row-col-adaptive gap-3-adaptive`}>
+                <SepLine />
+                <NavItem to={"/"} exactPath={true} className="hide-small p-0" onClick={onClickDefaultNavItems}>
+                    <Logo className="size-1" /><span><b>nyla</b></span>
                 </NavItem>
-            </IsNotLogged>
-            <SepLine />
-            <div className="show-small row justify-content-center"><Footer /></div>
+                <NavItem to={"/about"} onClick={onClickDefaultNavItems}>
+                    <default><InfoCircle /> <span>About</span></default>
+                    <selected><InfoCircleFill /> <span>About</span></selected>
+                </NavItem>
+                <IsLogged isWaitingUser={isWaitingUser} user={user}>
+                    <NavItem to={"/chats"} onClick={onClickDefaultNavItems}>
+                        <default><Chat /> <span>Chats</span></default>
+                        <selected><ChatFill /> <span>Chats</span></selected>
+                    </NavItem>
+                    <NavItem to={"/users"} onClick={onClickDefaultNavItems}>
+                        <default><People /> <span>Users</span></default>
+                        <selected><PeopleFill /> <span>Users</span></selected>
+                    </NavItem>
+                    <FlexGrow />
+                    <AccountNavItem navigate={navigate} logout={logout} username={user?.username} onClickDefaultNavItems={onClickDefaultNavItems} />
+                </IsLogged>
+                <IsNotLogged isWaitingUser={isWaitingUser} user={user}>
+                    <FlexGrow />
+                    <NavItem to={"/account"} onClick={onClickDefaultNavItems}>
+                        <BoxArrowInRight /> <span>Login</span>
+                    </NavItem>
+                </IsNotLogged>
+                <SepLine />
+                <div className="show-small row justify-content-center"><Footer /></div>
+            </div>
         </div>
     </nav>
 }
