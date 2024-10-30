@@ -72,30 +72,39 @@ At first, the app will start with an empty database, generated with the first wr
         % redis-server
 
 ### REST-API Server (Express.js)
-1. In <b>server-api</b> <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/server-api/.env">.env</a> file provide the basic configurations:
-   - Provide database url and name: 
+1. In <b>server-api</b>, <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/server-api/.env.example">.env.example</a> file provides the basic configurations. Use it for generating a <b>.env</b> file:
+   - Providing database url and name: 
   
        		DATABASE_URL=mongodb://<database_host:database_port>
 			DATABASE_NAME=<your_database>
-   - Provide authentication random encryption key (better if its very long and complex) for password hashing:
+
+   - Providing a JWT encryption key (better if its very long and complex) for token signing:
   
         	SECRET_OR_KEY=<your_secret_or_key>
   
-   - Provide Redis MQ url and port:
+   - Providing Redis MQ url and port:
   
         	MQ_SERVER_URL=<redis_server_host:redis_server_port>
-2. From the <b>server-api</b> root folder, install all required modules, then run the server:
+
+2. Optionally, provide your Google OAuth2 configurations once you <a href="https://support.google.com/cloud/answer/6158849">registered your application</a>. With a null `GOOGLE_CLIENT_ID` google authentication endpoints will no be exposed:
+
+			GOOGLE_CLIENT_ID=<your_google_client_id>
+			GOOGLE_CLIENT_SECRET=<your_google_client_secret>
+			GOOGLE_CALLBACK_URL=http://localhost:3001/api/authenticate/google/callback
+			GOOGLE_SUCCESS_REDIRECT_URL=http://localhost:3000
+
+3. From the <b>server-api</b> root folder, install all required modules, then run the server:
    
-    	  server % npm install
-		  server % npm start
+			server % npm install
+			server % npm start
 
 ### WS-Server (WS.js)
-1. In <b>server-ws</b> <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/server-ws/.env">.env</a> file provide the basic configurations:
-   - Provide Redis MQ url and port configurations:
+1. In <b>server-ws</b>, <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/server-ws/.env.example">.env.example</a> file provides the basic configurations. Use it for generating a <b>.env</b> file:
+   - Providing Redis MQ url and port configurations:
 
 			MQ_SERVER_URL=<redis_server_host:redis_server_port>
 
-	- Provide <b>server-api</b> url:
+	- Providinge <b>server-api</b> url:
 
 			API_SERVER_URL=<api_server_host:api_server_port>
 
@@ -105,11 +114,12 @@ At first, the app will start with an empty database, generated with the first wr
 		  server % npm start
 
 ### Static Web Server (React.js)
-1. In <b>client</b> <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/client/.env">.env</a> file provide the basic configurations:
-   - Provide url for react-proxy server (to <b>server-api</b>):
+1. In <b>client</b>, <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/client/.env.example">.env.example</a> file provides the basic configurations. Use it for generating a <b>.env</b> file:
+   - Providing url for react-proxy server (to <b>server-api</b>):
    
 		  REACT_APP_PROXY_URL=http://localhost:3001
-   - Provide the url for ws-server:
+
+   - Providing the url for ws-server:
    
 		  REACT_APP_WSS_URL=ws://<ws_server_host:ws_server_port>
 

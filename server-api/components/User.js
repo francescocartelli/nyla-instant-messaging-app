@@ -1,11 +1,12 @@
 const { oid } = require.main.require("./components/Db")
 
-exports.newUser = ({ username, email, hash }) => ({
-    username: username,
-    email: email,
+exports.newUser = ({ username, email, provider = null, hash = null, confirmed = false }) => ({
+    username,
+    email,
     bio: "",
-    hash: hash,
-    confirmed: false,
+    provider,
+    hash,
+    confirmed,
     createdAt: new Date()
 })
 
@@ -19,7 +20,7 @@ exports.userInDirectChat = ({ id }) => ({
     id: oid(id)
 })
 
-exports.userInChatPrefix = (user, prefix="users.$[u]") => Object.fromEntries(Object.entries(user).flatMap(([key, value]) => value === null || value === undefined ? [] : [[`${prefix}.${key}`,value]]))
+exports.userInChatPrefix = (user, prefix = "users.$[u]") => Object.fromEntries(Object.entries(user).flatMap(([key, value]) => value === null || value === undefined ? [] : [[`${prefix}.${key}`, value]]))
 
 // projections
 exports.userProjection = {

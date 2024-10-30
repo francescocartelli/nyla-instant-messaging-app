@@ -1197,7 +1197,7 @@
                 "$ref": "./schemas/user_signin_schema.json"
               },
               "example": {
-                "username": "johndoe",
+                "userIdentifier": "johndoe",
                 "password": "Jonhdoe01!"
               }
             }

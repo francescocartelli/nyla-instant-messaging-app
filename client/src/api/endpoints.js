@@ -29,6 +29,8 @@ const chatMessagesEndpoint = (id) => `${chatEndpoint(id)}/${RESOURCES.MESSAGES}`
 const chatMessagesCursorEndpoint = (id, cursor) => `${chatMessagesEndpoint(id)}?cursor=${cursor}`
 const chatMessageEndpoint = (idChat, idMessage) => `${chatEndpoint(idChat)}/${RESOURCES.MESSAGES}/${idMessage}`
 
+const googleAuthenticateEndpoint = () => endpoint('authenticate/google')
+
 export {
     authEndpoint,
     signinEndpoint,
@@ -46,6 +48,7 @@ export {
     chatCurrentUserEndpoint,
     chatMessagesEndpoint,
     chatMessagesCursorEndpoint,
-    chatMessageEndpoint
+    chatMessageEndpoint,
+    googleAuthenticateEndpoint
 }
 

@@ -1,6 +1,5 @@
-const { oid, isOidValid } = require.main.require('./components/Db')
+const { oid, isOidValid, getUserCollection, configs: dbConfigs } = require.main.require('./components/Db')
 const { userProjection } = require.main.require('./components/User')
-const { getUserCollection, configs: dbConfigs } = require.main.require('./components/Db')
 
 const userCollection = getUserCollection()
 
@@ -32,11 +31,13 @@ const getUser = ({ id, ...user }) => {
     }, { projection: userProjection })
 }
 
-const getHash = (user = {}) => {
-    let { id, ...u } = user
-    if (id) u._id = oid(id)
-
-    return userCollection.findOne(u, { projection: { _id: 0, id: '$_id', hash: 1 } })
+const getUserHash = (userIdentifier) => {
+    return userCollection.findOne({
+        $or: [
+            { username: userIdentifier },
+            { email: userIdentifier }
+        ]
+    }, { projection: { _id: 0, id: '$_id', hash: 1 } })
 }
 
 const createUser = (user) => {
@@ -75,7 +76,7 @@ module.exports = {
     getUsers,
     getUser,
     getUserId,
-    getHash,
+    getUserHash,
     createUser,
     updateUser,
     deleteUser,

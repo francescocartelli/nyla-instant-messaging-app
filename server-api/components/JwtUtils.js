@@ -6,7 +6,8 @@ const { getDate, day } = require.main.require('./components/Utils')
 
 const cookieOptions = {
     httpOnly: true,
-    secure: false
+    secure: false, // when using https set it to true,
+    sameSite: 'strict'
 }
 
 const jwtCode = 'jwt'

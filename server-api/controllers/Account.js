@@ -1,6 +1,6 @@
 const usersServices = require.main.require("./services/User")
 
-const {  SIGN_UP_FAILED, SIGN_IN_FAILED } = require.main.require("./components/ResponseMessages")
+const { SIGN_UP_FAILED, SIGN_IN_FAILED } = require.main.require("./components/ResponseMessages")
 const { getHash, compare } = require.main.require("./components/CryptoUtils")
 const { newUser } = require.main.require("./components/User")
 const { generateCookieToken } = require.main.require("./components/JwtUtils")
@@ -25,22 +25,24 @@ module.exports.signUp = async (req, res, next) => {
 
 module.exports.singIn = async (req, res, next) => {
     try {
-        const { username, password } = req.body
+        const { userIdentifier, password } = req.body
 
-        const u = await usersServices.getHash({ username: username })
-
-        // check for username
+        const u = await usersServices.getUserHash(userIdentifier)
         if (!u) return res.status(401).json({ message: SIGN_IN_FAILED })
 
         const { id, hash } = u
-        // check for password
-        if (!(await compare(password, hash))) return res.status(401).json({ message: SIGN_IN_FAILED })
+        if (!hash || !(await compare(password, hash))) return res.status(401).json({ message: SIGN_IN_FAILED })
 
         const user = await usersServices.getUser({ id: id })
 
         res.cookie(...generateCookieToken(user))
         res.json(user)
     } catch (err) { next(err) }
+}
+
+module.exports.providerCallback = (req, res) => {
+    res.cookie(...generateCookieToken(req.user))
+    res.redirect(process.env.GOOGLE_SUCCESS_REDIRECT_URL)
 }
 
 module.exports.logOut = async (req, res) => {

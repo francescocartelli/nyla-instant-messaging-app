@@ -3,7 +3,7 @@ import { postConfigJSON, putConfigJSON, safeFetch } from "./utils"
 
 const getUsers = (username = "", searchType = "contains", options = {}) => safeFetch(searchUsersEndpoint(username, searchType), options)
 
-const signin = (username, password) => safeFetch(signinEndpoint(), postConfigJSON({ username, password }))
+const signin = (userIdentifier, password) => safeFetch(signinEndpoint(), postConfigJSON({ userIdentifier, password }))
 const signup = (username, password, email) => safeFetch(signupEndpoint(), postConfigJSON({ username, password, email }))
 
 const getCurrentUser = () => safeFetch(currentUserEndpoint())

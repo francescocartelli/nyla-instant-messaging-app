@@ -35,10 +35,16 @@ const boot = async () => {
   /* Initialize passport */
   const passport = require('passport')
   app.use(passport.initialize())
-
   const authenticate = passport.authenticate('jwt', { session: false })
 
-  require('./middleware/Strategy')
+  const { useJWTtrategy, useGoogleStrategy } = require('./middleware/PStrategies')
+  passport.use("jwt", useJWTtrategy)
+
+  if (process.env.GOOGLE_CLIENT_ID) passport.use(useGoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.GOOGLE_CALLBACK_URL
+  }))
 
   /* Controllers */
   const accountControllers = require('./controllers/Account')
@@ -91,6 +97,11 @@ const boot = async () => {
   app.post('/api/authenticate/signup', validate({ body: schemas.userSignUpSchema }), accountMiddlewares.validateSingUp, accountControllers.signUp)
   app.post('/api/authenticate/signin', validate({ body: schemas.userSignInSchema }), accountControllers.singIn)
   app.post('/api/authenticate/logout', authenticate, accountControllers.logOut)
+
+  if (process.env.GOOGLE_CLIENT_ID) {
+    app.get('/api/authenticate/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
+    app.get('/api/authenticate/google/callback', passport.authenticate('google', { failureRedirect: '/', session: false }), accountControllers.providerCallback)
+  }
 
   app.use(validationError)
   app.use(errorHandler)
