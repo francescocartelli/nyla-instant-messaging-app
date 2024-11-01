@@ -1,8 +1,7 @@
 import { useState } from 'react'
+import { ChevronRight, ThreeDots } from 'react-bootstrap-icons'
 
 import './Layout.css'
-
-import { ChevronRight, ThreeDots } from 'react-bootstrap-icons'
 
 function Tab({ onClick = () => { }, isActive = true, children = <></> }) {
     return <div className={`tab ${isActive ? "fore-1" : 'fore-2'}`} onClick={() => onClick()}>

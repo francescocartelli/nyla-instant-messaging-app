@@ -1,8 +1,7 @@
-import './Inputs.css'
-import 'styles/style.css'
-
-import { CheckCircle, ChevronUp, ExclamationCircle } from 'react-bootstrap-icons'
 import { useState } from 'react'
+import { CheckCircle, ChevronUp, ExclamationCircle } from 'react-bootstrap-icons'
+
+import './Inputs.css'
 
 function Text({ left, right, className = "", ...props }) {
     const disabled = props.disabled || props.readOnly ? ' disabled' : ''

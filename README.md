@@ -40,7 +40,6 @@ This repository contains the implementation of the web server (client folder), R
 <br>
 
 
-
 # Getting started (local development build)
 To start with the local development build (each server in single instance), <b>docker-compose</b> can be used ( manual configuration is also described below).
 
@@ -86,7 +85,7 @@ At first, the app will start with an empty database, generated with the first wr
   
         	MQ_SERVER_URL=<redis_server_host:redis_server_port>
 
-2. Optionally, provide your Google OAuth2 configurations once you <a href="https://support.google.com/cloud/answer/6158849">registered your application</a>. With a null `GOOGLE_CLIENT_ID` google authentication endpoints will no be exposed:
+2. Optionally, provide your Google OAuth2 configurations once you <a href="https://support.google.com/cloud/answer/6158849">registered your application</a>. With a null `GOOGLE_CLIENT_ID` Google authentication endpoints will not be exposed:
 
 			GOOGLE_CLIENT_ID=<your_google_client_id>
 			GOOGLE_CLIENT_SECRET=<your_google_client_secret>
@@ -134,46 +133,6 @@ The API documentation is generated using Swagger, and it provides a comprehensiv
 
 <br><br>
 
-# Folder Structure
-```
-.
-├── client
-|   ├── public
-|   └── src
-|       ├── api
-|       ├── components
-|       |   ├── Alerts
-|       |   ├── Common
-|       |   ├── Icons
-|       |   ├── Pages
-|       |   |   ├── Account
-|       |   |   ├── Chats
-|       |   |   ├── Home
-|       |   |   └── Users
-|       |   ├── UI
-|       |   |   ├── Footer
-|       |   |   ├── Nav
-|       |   |   └── Push
-|       |   └── Ws
-|       ├── styles
-|       └── utils
-|
-├── images
-|
-├── server-api
-|   ├── components
-|   ├── controllers
-|   ├── middleware
-|   ├── schemas
-|   |   └── abstract
-|   └── services
-|
-└── server-ws
-    └── services
-```
-
-<br><br>
-
 # Main Features (Images)
 ### Create and track your personal chats
 Create and track your personal chats and find new users.<br>
@@ -190,8 +149,8 @@ Emphasize your messages using Rich Text mode with ease: <b>bold</b>, <b>italic</
   <img src="images/rich_text_message_editor.png" width="200px">
   <img src="images/rich_text_chat.png" width="200px">
 
-### Fast password-based registration/authentication
-Registration/authentication using username and password.<br>
+### Google OAuth2 or password-based registration/authentication
+Registration/authentication using Google Auth2 or standard username and password.<br>
   <img src="images/login.png" width="200px">
   <img src="images/registration.png" width="200px">
 

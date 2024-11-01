@@ -4,10 +4,11 @@ import { Link } from "react-router-dom"
 
 import { useStatus, useRelativeDateTime } from "hooks"
 
-import { Button, LinkButton } from "components/Common/Buttons"
-import { StatusLayout, PagesControl, Tab, OptionsLayout } from "components/Common/Layout"
+import { Button, LinkButton } from "components/Commons/Buttons"
+import { StatusLayout, PagesControl, Tab, OptionsLayout } from "components/Commons/Layout"
+import { InformationBox, SomethingWentWrong } from "components/Commons/Misc"
+
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
-import { InformationBox, SomethingWentWrong } from "components/Common/Misc"
 
 import chatAPI from "api/chatAPI"
 
@@ -120,10 +121,10 @@ function PersonalChats() {
                 </div>
                 <div className="flex-grow-1"></div>
                 <OptionsLayout option={selectedOption} options={{
-                    group:<NewChatButton />,
+                    group: <NewChatButton />,
                     order: <OrderOption isAsc={isAsc} setAsc={setAsc} />,
                     filter: <FilterOption isGroup={isGroup} setGroup={setGroup} onReset={() => setChatsPage(1)} />
-                }}/>
+                }} />
                 {selectedOption !== "none" && <Button onClick={() => setSelectedOption("none")}><XCircleFill className="fore-2 size-1" /></Button>}
             </div>
             <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y h-0">

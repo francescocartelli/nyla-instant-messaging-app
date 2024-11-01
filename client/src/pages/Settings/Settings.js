@@ -1,12 +1,15 @@
 import { useState } from "react"
 import { Check2, Hourglass, Pencil, XCircle } from "react-bootstrap-icons"
 
-import { Button } from "components/Common/Buttons"
-import { Text } from "components/Common/Inputs"
 import { useStatus } from "hooks"
-import { StatusLayout } from "components/Common/Layout"
+
+import { Button } from "components/Commons/Buttons"
+import { Text } from "components/Commons/Inputs"
+import { StatusLayout } from "components/Commons/Layout"
+
+import { PasswordRegistration, UsernameRegistration } from "components/Account/Account"
+
 import userAPI from "api/userAPI"
-import { PasswordRegistration, UsernameRegistration } from "../Account/Account"
 
 function SettingSection({ children }) {
     return <h3 className="fore-2 m-0">{children}</h3>
@@ -73,7 +76,7 @@ function UsernameSetting({ user, setUser }) {
             onConfirm={(value) => userAPI.updateUser(user.id, { username: value })}
             confirmCallback={(value) => setUser(p => ({ ...p, username: value }))}
             onRenderChildren={(value, onChange, disabled, setInvalid) => <div className="d-flex flex-row flex-grow-1 gap-2">
-                <UsernameRegistration username={value} setUsername={onChange} disabled={disabled} setInvalid={setInvalid} />
+                <UsernameRegistration username={value} setUsername={onChange} disabled={disabled} setInvalid={setInvalid} onCheck={userAPI.getUsers}/>
             </div>}></SettingCard>
         <p className="fore-2 fs-80">Changing your username will affect your sing-in credential.</p>
     </>

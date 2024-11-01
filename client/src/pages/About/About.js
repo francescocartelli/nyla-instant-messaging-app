@@ -1,4 +1,3 @@
-import { Button } from "components/Common/Buttons"
 import { Logo } from "components/Icons/Icons"
 import { Github, Linkedin, Medium } from "react-bootstrap-icons"
 

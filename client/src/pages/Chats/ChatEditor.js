@@ -4,14 +4,17 @@ import { useNavigate } from "react-router-dom"
 
 import { useStatus } from "hooks"
 
-import { Button } from "components/Common/Buttons"
-import { Text } from "components/Common/Inputs"
-import { UserCard, UserList, UsersSearchList } from "components/Pages/Users/Users"
-import { StatusLayout } from "components/Common/Layout"
-import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
+import { Button } from "components/Commons/Buttons"
+import { Text } from "components/Commons/Inputs"
+import { StatusLayout } from "components/Commons/Layout"
+import { ErrorAlert, LoadingAlert } from "components/Commons/Alerts"
+
+import { UserCard, UserList, UsersSearchList } from "components/Users/Users"
+
+import { Crown, XCrown } from "components/Icons/Icons"
 
 import chatAPI from "api/chatAPI"
-import { Crown, XCrown } from "components/Icons/Icons"
+import userAPI from "api/userAPI"
 
 function EmptyUserList() {
     return <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
@@ -131,7 +134,7 @@ function UsersManager({ isAdmin, renderUserInSearch, renderUserInChat, users }) 
         </div>
         <div className="d-flex flex-grow-1 scroll-y h-0">
             {isSearchVisible ?
-                <UsersSearchList onRenderItem={renderUserInSearch} /> :
+                <UsersSearchList onSearch={userAPI.getUsers} onRenderItem={renderUserInSearch} /> :
                 <UserList users={users} status={{ isReady: true }} onRenderItem={renderUserInChat} onEmpty={() => <EmptyUserList />} />}
         </div>
     </>

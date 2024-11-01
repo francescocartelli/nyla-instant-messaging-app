@@ -5,22 +5,21 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { useStatus, useIsInViewport } from "hooks"
 
-import { getDateAndTime } from "utils/Dates"
+import { LoadingAlert } from "components/Commons/Alerts"
+import { ShowMoreLayout, StatusLayout } from "components/Commons/Layout"
+import { Button } from "components/Commons/Buttons"
+import { InformationBox, SomethingWentWrong } from "components/Commons/Misc"
 
-import { LoadingAlert } from "components/Alerts/Alerts"
-import { ShowMoreLayout, StatusLayout } from "components/Common/Layout"
-import { Button } from "components/Common/Buttons"
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
-import { ChatEditor } from "components/Pages/Chats/ChatEditor"
+
 import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
-import { InformationBox, SomethingWentWrong } from "components/Common/Misc"
+
 import { RTEditor, RTViewer, Toolbar } from "components/SEditor"
 
-import { format99Plus } from "utils/Numeric"
+import { ChatEditor } from "./ChatEditor"
+import { format99Plus, getDateAndTime, initialContent } from "./Utils"
 
 import chatAPI from "api/chatAPI"
-
-const initialContent = [{ type: 'paragraph', children: [{ text: '' }] }]
 
 function MessageEditor({ user, idChat, onMessagePending, onMessageSent, isDisabled }) {
     const [content, setContent] = useState(initialContent)

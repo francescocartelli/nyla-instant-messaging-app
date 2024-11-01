@@ -4,10 +4,10 @@ import { BoxArrowInRight, BoxArrowRight, Chat, ChatFill, ChevronDown, ChevronUp,
 
 import "./Nav.css"
 
-import { IsLogged, IsNotLogged } from "components/Common/Barriers"
+import { IsLogged, IsNotLogged } from "components/Commons/Barriers"
 import { Footer } from "../Footer/Footer"
 import { Logo, LogoGrad } from "components/Icons/Icons"
-import { StatusLayout } from "components/Common/Layout"
+import { StatusLayout } from "components/Commons/Layout"
 
 import { useStatus } from "hooks"
 
@@ -57,12 +57,12 @@ function AccountNavItem({ logout, onClickDefaultNavItems, username, navigate }) 
     return <>
         <StatusLayout status={logoutStatus}
             loading={<NavItem to="#"><Hourglass /></NavItem>}
-            ready={<div onClick={onClickDropDown} onBlur={() => {}} tabIndex={0} className="position-relative">
+            ready={<div onClick={onClickDropDown} tabIndex={0} className="position-relative" onBlur={onBlur}>
                 <div className="nav-item">
                     <span className="fore-2">{username}</span>
                     {isAccountMenuVisible ? <ChevronUp /> : <ChevronDown />}
                 </div>
-                {isAccountMenuVisible && <div className="card-2 nav-item-options gap-2" onBlur={() => setAccountMenuVisible(false)} autoFocus>
+                {isAccountMenuVisible && <div className="card-2 nav-item-options gap-2">
                     <NavItem onMouseDown={navigateToSetting}>
                         <default><Gear /><span >Settings</span></default>
                         <selected><GearFill /><span >Settings</span></selected>

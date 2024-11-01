@@ -1,16 +1,11 @@
 import { useState } from "react"
-import { Chat, Person, PersonFill, PersonXFill, Search, XCircleFill } from "react-bootstrap-icons"
-import { useNavigate } from "react-router-dom"
+import { Person, PersonFill, PersonXFill, Search, XCircleFill } from "react-bootstrap-icons"
 
-import { useStatus, useDebounce } from 'hooks'
+import { ErrorAlert, LoadingAlert } from "components/Commons/Alerts"
+import { StatusLayout } from "components/Commons/Layout"
+import { Text } from "components/Commons/Inputs"
 
-import { ErrorAlert, LoadingAlert } from "components/Alerts/Alerts"
-import { Text } from "components/Common/Inputs"
-import { StatusLayout } from "components/Common/Layout"
-import { Button } from "components/Common/Buttons"
-
-import userAPI from 'api/userAPI'
-import chatAPI from "api/chatAPI"
+import { useDebounce, useStatus } from "hooks"
 
 function UserCard({ user, badges, children }) {
     return <div className="row-center card-1 align-items-center position-relative">
@@ -24,9 +19,19 @@ function UserCard({ user, badges, children }) {
     </div>
 }
 
-function UsersSearchInput({ value, onChange, onLoading, onReady, onError, debounceDelay = 1000 }) {
+function UserList({ users, status, onEmpty, onRenderItem }) {
+    return <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y">
+        <StatusLayout status={status}
+            loading={<div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>}
+            ready={users?.length > 0 ? users.map(u => onRenderItem(u)) : onEmpty()}
+            error={<div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><ErrorAlert /></div>}
+        />
+    </div>
+}
+
+function UsersSearchInput({ value, onChange, onSearch, onLoading, onReady, onError, debounceDelay = 1000 }) {
     const [onDebouncePlay, onDebounceStop] = useDebounce((v) => {
-        userAPI.getUsers(v)
+        onSearch(v)
             .then(res => res.json())
             .then(u => onReady(u))
             .catch(err => onError(err))
@@ -47,24 +52,14 @@ function UsersSearchInput({ value, onChange, onLoading, onReady, onError, deboun
     </div>
 }
 
-function UserList({ users, status, onEmpty, onRenderItem }) {
-    return <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y">
-        <StatusLayout status={status}
-            loading={<div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>}
-            ready={users?.length > 0 ? users.map(u => onRenderItem(u)) : onEmpty()}
-            error={<div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><ErrorAlert /></div>}
-        />
-    </div>
-}
-
-function UsersSearchList({ onRenderItem = () => { } }) {
+function UsersSearchList({ onSearch, onRenderItem = () => { } }) {
     const [users, setUsers] = useState([])
     const [userSearch, setUserSearch] = useState("")
 
     const [userSearchStatus, userSearchStatusActions] = useStatus({ isReady: true })
 
     return <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y">
-        <UsersSearchInput value={userSearch} onChange={setUserSearch}
+        <UsersSearchInput onSearch={onSearch} value={userSearch} onChange={setUserSearch}
             onLoading={() => userSearchStatusActions.setLoading()}
             onReady={(u) => { setUsers(u); userSearchStatusActions.setReady() }}
             onError={(err) => { console.log(err); userSearchStatusActions.setError() }} />
@@ -82,33 +77,4 @@ function UsersSearchList({ onRenderItem = () => { } }) {
     </div>
 }
 
-function UsersSearch({ user }) {
-    const navigate = useNavigate()
-
-    const [redirectStatus, redirectStatusActions] = useStatus({ isReady: true })
-
-    const onRedirect = (idChat) => navigate(`/chats/${idChat}`)
-
-    const onClickOpenChat = (u) => {
-        redirectStatusActions.setLoading()
-        chatAPI.createChat({ name: null, users: [u, user], isGroup: false })
-            .then(res => res.json())
-            .then(chat => {
-                onRedirect(chat.id);
-                redirectStatusActions.setReady()
-            })
-            .catch(err => { console.log(err); redirectStatusActions.setError() })
-    }
-
-    return <div className="d-flex flex-grow-1 align-self-stretch mt-2 mb-2 h-0">
-        <UsersSearchList onRenderItem={(u) => <UserCard key={u.id} user={u}>
-            <div className="d-flex flex-grow-1 justify-content-end gap-2">
-                {user.id === u.id ?
-                    <div className="card-2"><p className="fore-2 m-0">You</p></div> :
-                    <Button disabled={redirectStatus.isLoading} onClick={() => onClickOpenChat(u)}>open chat <Chat className="size-2 fore-2-btn" /></Button>}
-            </div>
-        </UserCard>} />
-    </div>
-}
-
-export { UsersSearch, UsersSearchList, UsersSearchInput, UserList, UserCard }
+export { UserCard, UserList, UsersSearchInput, UsersSearchList }

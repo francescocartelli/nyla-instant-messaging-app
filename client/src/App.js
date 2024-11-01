@@ -7,23 +7,22 @@ import 'styles/style.css'
 import 'styles/colors.css'
 import 'styles/editor.css'
 
-import { AuthWall } from 'components/Common/AuthWalls'
-import { IsLogged, IsNotLogged } from 'components/Common/Barriers'
+import { AuthWall } from 'components/Commons/AuthWalls'
+import { IsLogged, IsNotLogged } from 'components/Commons/Barriers'
 
-import { Footer } from 'components/UI/Footer/Footer'
 import { Nav } from 'components/UI/Nav/Nav'
 import { PushContainer } from 'components/UI/Push/Push'
 import { WebSocketProvider } from 'components/Ws/WsContext'
 
-import { About } from 'components/Pages/About/About'
-import { Account } from './components/Pages/Account/Account'
-import { Home } from 'components/Pages/Home/Home'
-import { UsersSearch } from 'components/Pages/Users/Users'
-import { PersonalChats } from 'components/Pages/Chats/Chats'
-import { ChatPage } from 'components/Pages/Chats/Chat'
-import { NewChatEditor } from 'components/Pages/Chats/ChatEditor'
-import { NotFound } from 'components/Pages/NotFound/NotFound'
-import { Settings } from 'components/Pages/Settings/Settings'
+import { About } from 'pages/About/About'
+import { Account } from 'pages/Account/Account'
+import { Home } from 'pages/Home/Home'
+import { UsersSearch } from 'pages/Users/Users'
+import { PersonalChats } from 'pages/Chats/Chats'
+import { ChatPage } from 'pages/Chats/Chat'
+import { NewChatEditor } from 'pages/Chats/ChatEditor'
+import { NotFound } from 'pages/NotFound/NotFound'
+import { Settings } from 'pages/Settings/Settings'
 
 import { useAuth } from "hooks"
 
@@ -37,10 +36,6 @@ function BodyContainer({ children }) {
   return <div className='d-flex flex-column max-w-body-container flex-grow-1 adaptive-p mt-4-r'>
     {children}
   </div>
-}
-
-function FooterContainer({ children }) {
-  return <div className="flex-row justify-content-center hide-small gap-2">{children}</div>
 }
 
 function App() {
