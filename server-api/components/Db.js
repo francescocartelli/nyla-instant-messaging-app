@@ -1,16 +1,13 @@
 const { MongoClient, ObjectId } = require('mongodb')
 
-require('dotenv').config()
-
-const url = process.env.DATABASE_URL
-const options = { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000, serverSelectionTimeoutMS: 5000 }
+const defaultOptions = { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000, serverSelectionTimeoutMS: 5000 }
 
 let _db
 
-exports.connect = async () => {
+exports.connect = async (url, name, options = defaultOptions) => {
     try {
         const client = await MongoClient.connect(url, options)
-        _db = client.db(process.env.DATABASE_NAME)
+        _db = client.db(name)
 
         console.log("Connected to Mongodb!")
     } catch (err) {

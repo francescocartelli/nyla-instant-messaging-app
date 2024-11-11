@@ -1,53 +1,66 @@
-const usersServices = require.main.require("./services/User")
+const jwt = require('jsonwebtoken')
 
-const { SIGN_UP_FAILED, SIGN_IN_FAILED } = require.main.require("./components/ResponseMessages")
-const { getHash, compare } = require.main.require("./components/CryptoUtils")
-const { newUser } = require.main.require("./components/User")
-const { generateCookieToken } = require.main.require("./components/JwtUtils")
+const { SIGN_UP_FAILED, SIGN_IN_FAILED } = require("../components/ResponseMessages")
+const { newUser } = require("../components/User")
 
-require("dotenv").config()
+const usersServices = require("../services/User")
+const { getHash, compare, tokenPayload } = require('../services/Account')
 
-module.exports.signUp = async (req, res, next) => {
-    try {
-        const { password, ...u } = req.body
+const init = (secret, cookieOptions) => {
+    const cookieCode = 'jwt'
 
-        const hash = await getHash(password)
+    const generateToken = ({ id }) => jwt.sign(tokenPayload(id), secret)
+    const generateCookieToken = user => [cookieCode, generateToken(user), cookieOptions]
 
-        const { insertedId } = await usersServices.createUser(newUser({ ...u, hash: hash }))
-        if (!insertedId) return res.status(304).json({ message: SIGN_UP_FAILED })
+    const signUp = async (req, res, next) => {
+        try {
+            const { password, ...u } = req.body
 
-        const regUser = { id: insertedId, username: u.username, email: u.email }
+            const hash = await getHash(password)
 
-        res.cookie(...generateCookieToken(regUser))
-        res.json(regUser)
-    } catch (err) { next(err) }
-}
+            const { insertedId } = await usersServices.createUser(newUser({ ...u, hash: hash }))
+            if (!insertedId) return res.status(304).json({ message: SIGN_UP_FAILED })
 
-module.exports.singIn = async (req, res, next) => {
-    try {
-        const { userIdentifier, password } = req.body
+            const regUser = { id: insertedId, username: u.username, email: u.email }
 
-        const u = await usersServices.getUserHash(userIdentifier)
-        if (!u) return res.status(401).json({ message: SIGN_IN_FAILED })
+            res.cookie(...generateCookieToken(regUser))
+            res.json(regUser)
+        } catch (err) { next(err) }
+    }
 
-        const { id, hash } = u
-        if (!hash || !(await compare(password, hash))) return res.status(401).json({ message: SIGN_IN_FAILED })
+    const signIn = async (req, res, next) => {
+        try {
+            const { userIdentifier, password } = req.body
 
-        const user = await usersServices.getUser({ id: id })
+            const u = await usersServices.getUserHash(userIdentifier)
+            if (!u) return res.status(401).json({ message: SIGN_IN_FAILED })
 
-        res.cookie(...generateCookieToken(user))
-        res.json(user)
-    } catch (err) { next(err) }
-}
+            const { id, hash } = u
+            if (!hash || !(await compare(password, hash))) return res.status(401).json({ message: SIGN_IN_FAILED })
 
-module.exports.providerCallback = (req, res) => {
-    res.cookie(...generateCookieToken(req.user))
-    res.redirect(process.env.GOOGLE_SUCCESS_REDIRECT_URL)
-}
+            const user = await usersServices.getUser({ id: id })
 
-module.exports.logOut = async (req, res) => {
-    req.logOut(() => {
-        res.clearCookie("jwt")
+            res.cookie(...generateCookieToken(user))
+            res.json(user)
+        } catch (err) { next(err) }
+    }
+
+    const providerCallback = redirectUrl => (req, res) => {
+        res.cookie(...generateCookieToken(req.user))
+        res.redirect(redirectUrl)
+    }
+
+    const logOut = (req, res) => req.logOut(() => {
+        res.clearCookie(cookieCode)
         res.redirect("/")
     })
+
+    return {
+        signUp,
+        signIn,
+        providerCallback,
+        logOut
+    }
 }
+
+module.exports = init

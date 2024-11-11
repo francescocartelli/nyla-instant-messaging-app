@@ -1,4 +1,4 @@
-const { SERVER_ERROR } = require.main.require("./components/ResponseMessages")
+const { SERVER_ERROR } = require("../components/ResponseMessages")
 
 exports.errorHandler = (err, req, res, next) => {
     console.error(err.stack)

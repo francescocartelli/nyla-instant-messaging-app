@@ -1,12 +1,12 @@
-const { SENDER_REQUIRED, notFoundId, notCreated, notDeleted } = require.main.require("./components/ResponseMessages")
-const { getMessageNavigation, getNextCursor } = require.main.require("./components/Message")
-const { createPageCursor } = require.main.require("./components/Paging")
-const { mqCreateMessage, mqDeleteMessage } = require.main.require("./components/Redis")
-const { parseCursor } = require.main.require("./components/Utils")
+const { SENDER_REQUIRED, notFoundId, notCreated, notDeleted } = require("../components/ResponseMessages")
+const { getMessageNavigation, getNextCursor } = require("../components/Message")
+const { createPageCursor } = require("../components/Paging")
+const { mqCreateMessage, mqDeleteMessage } = require("../components/Redis")
+const { isOidValid } = require("../components/Db")
 
-const { sendToUsers } = require.main.require("./services/Redis")
-const messageServices = require.main.require("./services/Message")
-const chatServices = require.main.require("./services/Chat")
+const { broadcastMessage } = require("../services/Redis")
+const messageServices = require("../services/Message")
+const chatServices = require("../services/Chat")
 
 exports.getMessage = async (req, res, next) => {
     try {
@@ -23,7 +23,7 @@ exports.getMessage = async (req, res, next) => {
 exports.getMessages = async (req, res, next) => {
     try {
         const idChat = req.params.id
-        const cursor = parseCursor(req.query.cursor)
+        const cursor = isOidValid(req.query.cursor) ? req.query.cursor : undefined
 
         const messages = await messageServices.getMessages(idChat, cursor)
         const next = getNextCursor(messages)
@@ -43,7 +43,7 @@ exports.createMessage = async (req, res, next) => {
         if (!insertedId) return res.status(304).json({ message: notCreated("message") })
 
         // send message on mq
-        await sendToUsers(res.locals.chatUsers, JSON.stringify(mqCreateMessage({ id: insertedId, ...newMessage })))
+        await broadcastMessage(res.locals.chatUsers, JSON.stringify(mqCreateMessage({ id: insertedId, ...newMessage })))
 
         // not a critical write
         chatServices.updateChatLog(idChat)
@@ -64,7 +64,7 @@ exports.deleteMessage = async (req, res, next) => {
         if (deletedCount < 1) return res.status(304).json({ message: notDeleted("message") })
 
         // send message on mq
-        await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteMessage({ id: idMessage, chat: idChat })))
+        await broadcastMessage(res.locals.chatUsers, JSON.stringify(mqDeleteMessage({ id: idMessage, chat: idChat })))
 
         res.end()
     } catch (err) { next(err) }

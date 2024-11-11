@@ -1,6 +1,6 @@
-const { USERNAME_TAKEN, EMAIL_TAKEN } = require.main.require("./components/ResponseMessages")
+const { USERNAME_TAKEN, EMAIL_TAKEN } = require("../components/ResponseMessages")
 
-const usersServices = require.main.require("./services/User")
+const usersServices = require("../services/User")
 
 module.exports.validateSingUp = async (req, res, next) => {
     try {

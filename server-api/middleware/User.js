@@ -1,4 +1,4 @@
-const { USER_REQUIRED } = require.main.require("./components/ResponseMessages")
+const { USER_REQUIRED } = require("../components/ResponseMessages")
 
 exports.isUserCurrent = (idParam) => (req, res, next) => {
     const user = req.user

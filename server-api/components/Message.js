@@ -1,4 +1,4 @@
-const { oid } = require.main.require("./components/Db")
+const { oid } = require("./Db")
 
 exports.newMessage = ({chat, sender, content}) => ({
     chat: oid(chat),

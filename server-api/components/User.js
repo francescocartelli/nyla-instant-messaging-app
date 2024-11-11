@@ -1,4 +1,4 @@
-const { oid } = require.main.require("./components/Db")
+const { oid } = require("./Db")
 
 exports.newUser = ({ username, email, provider = null, hash = null, confirmed = false }) => ({
     username,

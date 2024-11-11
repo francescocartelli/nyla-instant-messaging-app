@@ -1,9 +1,8 @@
 const { Validator, ValidationError } = require("express-json-validator-middleware")
 const addFormats = require("ajv-formats")
+const fs = require("fs")
 
-var fs = require("fs")
-
-const { isOidValid } = require.main.require("./components/Db")
+const { isOidValid } = require("../components/Db")
 
 // Get schema files
 let schemas = {

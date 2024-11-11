@@ -1,9 +1,6 @@
 const { userInChatPrefix } = require("../components/User")
-
-const { oid } = require.main.require("./components/Db")
-
-const { newChat, chatProj } = require.main.require('./components/Chat')
-const { getChatCollection, configs: dbConfigs } = require.main.require('./components/Db')
+const { newChat, chatProj } = require('../components/Chat')
+const { oid, getChatCollection, configs: dbConfigs } = require('../components/Db')
 
 const chatCollection = getChatCollection()
 

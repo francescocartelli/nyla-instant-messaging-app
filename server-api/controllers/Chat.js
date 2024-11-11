@@ -1,15 +1,14 @@
-const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, NO_CHAT_DELETED, NO_MESSAGES_DELETED, GROUP_CHATS_OPERATION, notFoundId, notCreated, notModified } = require.main.require("./components/ResponseMessages")
-const { userInChat } = require.main.require("./components/User")
-const { createPage } = require.main.require("./components/Paging")
-const { getChatNavigation } = require.main.require("./components/Chat")
-const { parsePageNumber } = require.main.require("./components/Paging")
-const { parseBool } = require.main.require("./components/Utils")
-const { mqDeleteChat } = require.main.require("./components/Redis")
+const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, NO_CHAT_DELETED, NO_MESSAGES_DELETED, GROUP_CHATS_OPERATION, notFoundId, notCreated, notModified } = require("../components/ResponseMessages")
+const { userInChat } = require("../components/User")
+const { createPage, parsePageNumber } = require("../components/Paging")
+const { getChatNavigation } = require("../components/Chat")
+const { parseBool } = require("../components/Utils")
+const { mqDeleteChat } = require("../components/Redis")
 
-const chatServices = require.main.require("./services/Chat")
-const messagesServices = require.main.require("./services/Message")
-const usersServices = require.main.require("./services/User")
-const { sendToUsers } = require.main.require("./services/Redis")
+const chatServices = require("../services/Chat")
+const messagesServices = require("../services/Message")
+const usersServices = require("../services/User")
+const { broadcastMessage } = require("../services/Redis")
 
 exports.getChat = async (req, res, next) => {
     try {
@@ -91,7 +90,7 @@ exports.deleteChat = async (req, res, next) => {
         const { deletedCount } = await chatServices.deleteChat(id)
         if (deletedCount < 1) return res.status(304).json({ message: NO_CHAT_DELETED })
 
-        await sendToUsers(res.locals.chatUsers, JSON.stringify(mqDeleteChat({ chat: id })))
+        await broadcastMessage(res.locals.chatUsers, JSON.stringify(mqDeleteChat({ chat: id })))
 
         res.end()
     } catch (err) { next(err) }

@@ -1,7 +1,5 @@
-const { oid } = require.main.require('./components/Db')
-
-const { newMessage, messageProj } = require.main.require('./components/Message')
-const { getMessageCollection, configs: dbConfigs } = require.main.require('./components/Db')
+const { newMessage, messageProj } = require('../components/Message')
+const { oid, getMessageCollection, configs: dbConfigs } = require('../components/Db')
 
 const messagesCollection = getMessageCollection()
 

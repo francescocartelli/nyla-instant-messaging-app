@@ -1,4 +1,4 @@
-const { userInChat, userInDirectChat } = require.main.require("./components/User")
+const { userInChat, userInDirectChat } = require("./User")
 
 exports.newChat = ({ name, users, isGroup }) => ({
     name: isGroup ? name : null,

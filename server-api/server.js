@@ -19,11 +19,13 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(cookieParser())
 
-/* Initialize Mongodb */
-const { connect } = require('./components/Db')
+const { connect: connectDb } = require('./components/Db')
+const { connect: connectMq } = require('./components/Redis')
 
 const boot = async () => {
-  await connect()
+  /* Initialize connections */
+  await connectDb(process.env.DATABASE_URL, process.env.DATABASE_NAME)
+  await connectMq(process.env.MQ_SERVER_URL)
 
   /* Swagger */
   const swaggerUI = require('swagger-ui-express')
@@ -38,7 +40,7 @@ const boot = async () => {
   const authenticate = passport.authenticate('jwt', { session: false })
 
   const { useJWTtrategy, useGoogleStrategy } = require('./middleware/PStrategies')
-  passport.use("jwt", useJWTtrategy)
+  passport.use("jwt", useJWTtrategy({ secretOrKey: process.env.SECRET_OR_KEY }))
 
   if (process.env.GOOGLE_CLIENT_ID) passport.use(useGoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -47,7 +49,7 @@ const boot = async () => {
   }))
 
   /* Controllers */
-  const accountControllers = require('./controllers/Account')
+  const initAccountControllers = require('./controllers/Account')
   const chatControllers = require('./controllers/Chat')
   const messageControllers = require('./controllers/Message')
   const userControllers = require('./controllers/User')
@@ -94,13 +96,19 @@ const boot = async () => {
   /* ------------ */
   /* AUTHENTICATE */
   /* ------------ */
+  const accountControllers = initAccountControllers(process.env.SECRET_OR_KEY, {
+    httpOnly: true,
+    secure: false, // when using https set it to true,
+    sameSite: 'strict'
+  })
+
   app.post('/api/authenticate/signup', validate({ body: schemas.userSignUpSchema }), accountMiddlewares.validateSingUp, accountControllers.signUp)
-  app.post('/api/authenticate/signin', validate({ body: schemas.userSignInSchema }), accountControllers.singIn)
+  app.post('/api/authenticate/signin', validate({ body: schemas.userSignInSchema }), accountControllers.signIn)
   app.post('/api/authenticate/logout', authenticate, accountControllers.logOut)
 
   if (process.env.GOOGLE_CLIENT_ID) {
     app.get('/api/authenticate/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
-    app.get('/api/authenticate/google/callback', passport.authenticate('google', { failureRedirect: '/', session: false }), accountControllers.providerCallback)
+    app.get('/api/authenticate/google/callback', passport.authenticate('google', { failureRedirect: '/', session: false }), accountControllers.providerCallback(process.env.GOOGLE_SUCCESS_REDIRECT_URL))
   }
 
   app.use(validationError)

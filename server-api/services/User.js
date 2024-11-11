@@ -1,5 +1,5 @@
-const { oid, isOidValid, getUserCollection, configs: dbConfigs } = require.main.require('./components/Db')
-const { userProjection } = require.main.require('./components/User')
+const { oid, isOidValid, getUserCollection, configs: dbConfigs } = require('../components/Db')
+const { userProjection } = require('../components/User')
 
 const userCollection = getUserCollection()
 

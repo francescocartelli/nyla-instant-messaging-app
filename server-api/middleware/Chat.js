@@ -1,6 +1,6 @@
-const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, notFoundId } = require.main.require("./components/ResponseMessages")
+const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, notFoundId } = require("../components/ResponseMessages")
 
-const chatServices = require.main.require("./services/Chat")
+const chatServices = require("../services/Chat")
 
 exports.isUserInChat = (idParam, isAdminRequired = false) => async (req, res, next) => {
     try {

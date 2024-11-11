@@ -1,6 +1,6 @@
-const { notFoundId, USERNAME_TAKEN, notModified } = require.main.require("./components/ResponseMessages")
+const { notFoundId, USERNAME_TAKEN, notModified } = require("../components/ResponseMessages")
 
-const usersServices = require.main.require("./services/User")
+const usersServices = require("../services/User")
 
 module.exports.getUsers = async (req, res, next) => {
     try {

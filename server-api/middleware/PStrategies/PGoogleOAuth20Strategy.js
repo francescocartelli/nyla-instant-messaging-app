@@ -1,10 +1,9 @@
 const GoogleStrategy = require('passport-google-oauth20')
 
-require("dotenv").config()
+const { USERNAME_TAKEN, IDENTITY_NO_EMAIL } = require("../../components/ResponseMessages")
+const { newUser } = require("../../components/User")
 
-const usersServices = require.main.require("./services/User")
-const { USERNAME_TAKEN, IDENTITY_NO_EMAIL } = require.main.require("./components/ResponseMessages")
-const { newUser } = require.main.require("./components/User")
+const usersServices = require("../../services/User")
 
 const generateUsername = (name, { maxLength = 20, suffixLength = 5 } = {}) => name.replace(/[^a-zA-Z0-9]/g, '').substring(0, maxLength - suffixLength)
 const generateUsernameUUID = ({ usernameUUIDLength = 4 } = {}) => Math.random().toString(36).slice(-usernameUUIDLength)

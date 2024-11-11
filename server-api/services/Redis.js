@@ -1,22 +1,5 @@
-const redis = require('redis')
+const { publish } = require("../components/Redis")
 
-require('dotenv').config()
+const createMessageBroadcast = message => user => publish(`user:${user}`, message)
 
-const [host, port] = process.env.MQ_SERVER_URL.split(':')
-
-const redisClient = redis.createClient({socket: {
-    host: host,
-    port: port
-}})
-
-exports.sendToUsers = async (users, message) => {
-    if (!redisClient.isReady) await redisClient.connect()
-
-    // map each user id to the redis publish on user channel promise
-    const pubs = users.map(user => {
-        const userChannel = `user:${user}`
-        return redisClient.publish(userChannel, message)
-    })
-
-    return Promise.all(pubs)
-}
+exports.broadcastMessage = (users, message) => Promise.all(users.map(createMessageBroadcast(message)))
