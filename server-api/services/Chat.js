@@ -1,8 +1,21 @@
-const { userInChatPrefix } = require("../components/User")
-const { newChat, chatProj } = require('../components/Chat')
-const { oid, getChatCollection, configs: dbConfigs } = require('../components/Db')
+const { userInChatPrefix, userInChat } = require("../model/User")
+const { newChat } = require('../model/Chat')
+
+const { oid, getChatCollection, configs: dbConfigs } = require('../config/Db')
 
 const chatCollection = getChatCollection()
+
+const chatProj = {
+    _id: 0,
+    id: '$_id',
+    name: 1,
+    users: { $concat: ["/api/chats/", { $toString: "$_id" }, "/users"] },
+    nUsers: { $size: "$users" },
+    messages: { $concat: ["/api/chats/", { $toString: "$_id" }, "/messages"] },
+    isGroup: 1,
+    createdAt: 1,
+    updatedAt: 1
+}
 
 const personalChatsQuery = (idUser, { isGroup }) => ({
     users: { $elemMatch: { id: oid(idUser) } },
@@ -89,7 +102,7 @@ const getChatUsersMap = async (idChat) => {
 const addUser = (idChat, user) => {
     return chatCollection.updateOne(
         { _id: oid(idChat) },
-        { $push: { users: user } }
+        { $push: { users: userInChat(user) } }
     )
 }
 

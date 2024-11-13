@@ -1,19 +1,18 @@
 const { v4: uuidv4 } = require('uuid')
-const { logger } = require.main.require('./components/Logger')
 
 const getDefault = (map, key, defaultValue = new Map()) => {
     if (!map.has(key)) map.set(key, defaultValue)
     return map.get(key)
 }
 
-const createConnectionManager = () => {
+const createConnectionManager = ({ log = () => { } }) => {
     const connGroups = new Map()
 
     const add = (key, ws, id = uuidv4()) => {
         const group = getDefault(connGroups, key)
         group.set(id, ws)
 
-        logger.debug(`added: ${key}-${id}`)
+        log(`added: ${key}-${id}`)
 
         return {
             to: to(group), // send message to all connections in group
@@ -35,7 +34,7 @@ const createConnectionManager = () => {
         onRemoveConnection(group.get(id))
         group.delete(id)
 
-        logger.debug(`removed: ${id}`)
+        log(`removed: ${id}`)
     }
 
     const removeGroup = (group, key, onClose, force = false) => {
@@ -44,10 +43,10 @@ const createConnectionManager = () => {
         connGroups.delete(key)
         onClose()
 
-        logger.debug(`deleted: ${key}`)
+        log(`deleted: ${key}`)
     }
 
     return { addConnection: add }
 }
 
-exports.createConnectionManager = createConnectionManager
+module.exports = createConnectionManager

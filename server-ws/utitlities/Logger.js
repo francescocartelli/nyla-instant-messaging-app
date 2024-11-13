@@ -1,9 +1,7 @@
 const winston = require('winston')
 
-require('dotenv').config()
-
-exports.logger = winston.createLogger({
-    level: process.env.LOGGING_LEVEL,
+const createLogger = level => winston.createLogger({
+    level,
     format: winston.format.combine(
         winston.format.timestamp({format: 'YYYY-MM-DD HH:mm:ss'}),
         winston.format.printf(({ timestamp, message }) => `${timestamp} | ${message}`)
@@ -12,3 +10,5 @@ exports.logger = winston.createLogger({
         new winston.transports.Console()
     ]
 })
+
+module.exports = createLogger

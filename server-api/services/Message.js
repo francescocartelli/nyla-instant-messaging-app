@@ -1,10 +1,25 @@
-const { newMessage, messageProj } = require('../components/Message')
-const { oid, getMessageCollection, configs: dbConfigs } = require('../components/Db')
+const { oid, getMessageCollection, configs: dbConfigs } = require('../config/Db')
 
 const messagesCollection = getMessageCollection()
 
-exports.createMessage = (message) => {
-    return messagesCollection.insertOne(newMessage(message))
+const messageProj = {
+    _id: 0,
+    id: '$_id',
+    chat: { $concat: ["/api/chats/", { $toString: "$chat" }] },
+    idChat: "$chat",
+    sender: { $concat: ["/api/users/", { $toString: "$sender" }] },
+    idSender: "$sender",
+    content: 1,
+    createdAt: 1
+}
+
+exports.createMessage = ({chat, sender, content}) => {
+    return messagesCollection.insertOne({
+        chat: oid(chat),
+        sender: oid(sender),
+        content: content,
+        createdAt: new Date()
+    })
 }
 
 exports.getMessage = (idChat, idMessage) => {

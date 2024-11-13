@@ -1,4 +1,4 @@
-const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, notFoundId } = require("../components/ResponseMessages")
+const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, notFoundId } = require("../constants/ResponseMessages")
 
 const chatServices = require("../services/Chat")
 

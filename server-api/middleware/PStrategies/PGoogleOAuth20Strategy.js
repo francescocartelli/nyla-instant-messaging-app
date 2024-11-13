@@ -1,7 +1,6 @@
 const GoogleStrategy = require('passport-google-oauth20')
 
-const { USERNAME_TAKEN, IDENTITY_NO_EMAIL } = require("../../components/ResponseMessages")
-const { newUser } = require("../../components/User")
+const { USERNAME_TAKEN, IDENTITY_NO_EMAIL } = require("../../constants/ResponseMessages")
 
 const usersServices = require("../../services/User")
 
@@ -29,7 +28,7 @@ const getValidEmail = emails => {
 
 const register = async ({ displayName, ...user }) => {
     const username = await generateUniqueUsername(displayName)
-    const { insertedId } = await usersServices.createUser(newUser({ username, ...user }))
+    const { insertedId } = await usersServices.createUser({ username, ...user })
 
     return { id: insertedId, username, email: user.email }
 }

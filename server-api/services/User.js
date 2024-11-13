@@ -1,7 +1,15 @@
-const { oid, isOidValid, getUserCollection, configs: dbConfigs } = require('../components/Db')
-const { userProjection } = require('../components/User')
+const { oid, isOidValid, getUserCollection, configs: dbConfigs } = require('../config/Db')
+const { newUser } = require('../model/User')
 
 const userCollection = getUserCollection()
+
+const userProjection = {
+    _id: 0,
+    id: '$_id',
+    username: 1,
+    bio: 1,
+    confirmed: 1
+}
 
 const searchQueries = {
     exact: (username) => ({ username: { $regex: `^${username}$`, $options: 'i' } }),
@@ -41,7 +49,7 @@ const getUserHash = (userIdentifier) => {
 }
 
 const createUser = (user) => {
-    return userCollection.insertOne(user)
+    return userCollection.insertOne(newUser(user))
 }
 
 const updateUser = (id, user) => {

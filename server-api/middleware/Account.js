@@ -1,4 +1,4 @@
-const { USERNAME_TAKEN, EMAIL_TAKEN } = require("../components/ResponseMessages")
+const { USERNAME_TAKEN, EMAIL_TAKEN } = require("../constants/ResponseMessages")
 
 const usersServices = require("../services/User")
 

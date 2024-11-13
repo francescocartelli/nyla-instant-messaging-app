@@ -12,8 +12,8 @@ exports.createPage = (page, nPages, items, getNavigation) => ({
     next: page < nPages ? getNavigation(page + 1) : null
 })
 
-exports.createPageCursor = (next, items, getNavigation) => ({
+exports.createPageCursor = ({ items, nextCursor, next }) => ({
     ...items,
-    nextCursor: next,
-    next: next ? getNavigation(next) : null
+    nextCursor,
+    next: next || null
 })
