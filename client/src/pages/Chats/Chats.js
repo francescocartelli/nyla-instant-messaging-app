@@ -44,7 +44,7 @@ function ChatCardSketeleton() {
 
 function NewChatButton() {
     return <div className="d-flex flex-row gap-2">
-        <LinkButton className="col fore-1" to="/users">Direct<PersonChat className="size-1" /></LinkButton>
+        <LinkButton className="col fore-1" to="/people">Direct<PersonChat className="size-1" /></LinkButton>
         <LinkButton className="col fore-1" to="/chats/new">Group<PeopleChat className="size-1" /></LinkButton>
     </div>
 }

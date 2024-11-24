@@ -1,14 +1,16 @@
-const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, notFoundId } = require("../constants/ResponseMessages")
+const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, notFoundId, GROUP_CHATS_OPERATION } = require("../constants/ResponseMessages")
 
 const chatServices = require("../services/Chat")
 
-exports.isUserInChat = (idParam, isAdminRequired = false) => async (req, res, next) => {
+exports.isUserInChat = (idParam, { isAdminRequired = false, isGroupRequired = false } = {}) => async (req, res, next) => {
     try {
         const user = req.user
         const idChat = req.params[idParam]
 
         const chat = await chatServices.getChat(idChat, false)
         if (!chat) return res.status(404).json({ message: notFoundId("chat") })
+
+        if (isGroupRequired && !chat.isGroup) return res.status(400).json({ message: GROUP_CHATS_OPERATION })
 
         const userInChat = chat.users.find(u => u.id.toString() === user.id.toString())
         if (!userInChat) return res.status(401).json({ message: USER_IN_CHAT_REQUIRED })

@@ -9,7 +9,7 @@ import { useDebounce, useStatus } from "hooks"
 
 function UserCard({ user, badges, children }) {
     return <div className="row-center card-1 align-items-center position-relative">
-        <div className="crd-icon-30"><PersonFill className="fore-2 size-2" /></div>
+        <div className="crd-icon-30 fore-2">{user.username.substring(0, 2)}</div>
         <div className="d-flex flex-column">
             <span className="fs-110 fw-500">{user.username}</span>
             <span className="fore-2 fs-80"><i>{user.bio}</i></span>

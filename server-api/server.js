@@ -68,12 +68,12 @@ const boot = async () => {
   app.get('/api/chats/personal', authenticate, safeController(chatControllers.getChatsPersonal))
   app.get('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(chatControllers.getChat))
   app.post('/api/chats', authenticate, validate({ body: schemas.chatCreateSchema }), safeController(chatControllers.createChat))
-  app.put('/api/chats/:id', authenticate, validateId('id'), validate({ body: schemas.chatUpdateSchema }), chatMiddleware.isUserInChat('id', true), safeController(chatControllers.updateChat))
-  app.delete('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id', true), safeController(chatControllers.deleteChat))
-  app.post('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id', true), safeController(chatControllers.addUser))
-  app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), validate({ body: schemas.chatUserUpdateSchema }), chatMiddleware.isUserInChat('id', true), safeController(chatControllers.updateUser))
-  app.delete('/api/chats/:id/users/current', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(chatControllers.removeCurrentUser))
-  app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id', true), safeController(chatControllers.removeUser))
+  app.put('/api/chats/:id', authenticate, validateId('id'), validate({ body: schemas.chatUpdateSchema }), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.updateChat))
+  app.delete('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id', { isAdminRequired: true }), safeController(chatControllers.deleteChat))
+  app.post('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.addUser))
+  app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), validate({ body: schemas.chatUserUpdateSchema }), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.updateUser))
+  app.delete('/api/chats/:id/users/current', authenticate, validateId('id'), chatMiddleware.isUserInChat('id', { isGroupRequired: true }), safeController(chatControllers.removeCurrentUser))
+  app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.removeUser))
   app.get('/api/chats/:id/users', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(chatControllers.getUsers))
 
   /* -------- */

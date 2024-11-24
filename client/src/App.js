@@ -58,7 +58,7 @@ function App() {
             <Route path="/chats/new" element={<AuthWall {...auth}><NewChatEditor user={user} /></AuthWall>} />
             <Route path="/chats/:id" element={<AuthWall {...auth}><ChatPage user={user} /></AuthWall>} />
             <Route path="/chats" element={<AuthWall {...auth}><PersonalChats /></AuthWall>} />
-            <Route path="/users" element={<AuthWall {...auth}><UsersSearch user={user} /></AuthWall>} />
+            <Route path="/people" element={<AuthWall {...auth}><UsersSearch user={user} /></AuthWall>} />
             <Route path="/settings" element={<AuthWall {...auth}><Settings user={user} setUser={setUser} /></AuthWall>} />
             <Route exact path="/" element={<Home />} />
             <Route path="*" element={<NotFound />} />

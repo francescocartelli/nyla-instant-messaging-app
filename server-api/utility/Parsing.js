@@ -4,5 +4,5 @@ const translations = {
     'null': null
 }
 
-exports.parseBool = value => value.toLowerCase ? translations[value.toLowerCase()] : value
+exports.parseBool = value => value?.toLowerCase ? translations[value.toLowerCase()] : value
 exports.parseNull = value => value === "null" ? null : value

@@ -17,6 +17,7 @@
     flex-grow: 1;
     flex-basis: 0;
     transition: 0.2s;
+    font-size: 0.9rem;
 }
 
 .tabs-layout .tab:hover {

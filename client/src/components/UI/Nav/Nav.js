@@ -105,20 +105,24 @@ function Nav({ isWaitingUser, user, setUser }) {
                 <NavItem to={"/"} exactPath={true} className="hide-small p-0" onClick={onClickDefaultNavItems}>
                     <Logo className="size-1" /><span><b>nyla</b></span>
                 </NavItem>
-                <NavItem to={"/about"} onClick={onClickDefaultNavItems}>
-                    <default><InfoCircle /> <span>About</span></default>
-                    <selected><InfoCircleFill /> <span>About</span></selected>
-                </NavItem>
                 <IsLogged isWaitingUser={isWaitingUser} user={user}>
                     <NavItem to={"/chats"} onClick={onClickDefaultNavItems}>
                         <default><Chat /> <span>Chats</span></default>
                         <selected><ChatFill /> <span>Chats</span></selected>
                     </NavItem>
-                    <NavItem to={"/users"} onClick={onClickDefaultNavItems}>
-                        <default><People /> <span>Users</span></default>
-                        <selected><PeopleFill /> <span>Users</span></selected>
+                </IsLogged>
+                <IsLogged isWaitingUser={isWaitingUser} user={user}>
+                    <NavItem to={"/people"} onClick={onClickDefaultNavItems}>
+                        <default><People /> <span>People</span></default>
+                        <selected><PeopleFill /> <span>People</span></selected>
                     </NavItem>
-                    <FlexGrow />
+                </IsLogged>
+                <NavItem to={"/about"} onClick={onClickDefaultNavItems}>
+                    <default><InfoCircle /> <span>About</span></default>
+                    <selected><InfoCircleFill /> <span>About</span></selected>
+                </NavItem>
+                <FlexGrow />
+                <IsLogged isWaitingUser={isWaitingUser} user={user}>
                     <AccountNavItem navigate={navigate} logout={logout} username={user?.username} onClickDefaultNavItems={onClickDefaultNavItems} />
                 </IsLogged>
                 <IsNotLogged isWaitingUser={isWaitingUser} user={user}>

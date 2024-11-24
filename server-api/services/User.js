@@ -1,4 +1,5 @@
 const { oid, isOidValid, getUserCollection, configs: dbConfigs } = require('../config/Db')
+
 const { newUser } = require('../model/User')
 
 const userCollection = getUserCollection()

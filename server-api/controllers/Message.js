@@ -42,9 +42,8 @@ exports.createMessage = async (req, res) => {
     if (!insertedId) return res.status(304).json({ message: notCreated("message") })
 
     // send message on mq
-    await mqServices.createMessage(res.locals.chatUsers, { id: insertedId, ...newMessage })
+    mqServices.createMessage(res.locals.chatUsers, { id: insertedId, ...newMessage })
 
-    // not a critical write
     chatServices.updateChatLog(idChat)
 
     res.json({ id: insertedId })
@@ -61,7 +60,7 @@ exports.deleteMessage = async (req, res) => {
     if (deletedCount < 1) return res.status(304).json({ message: notDeleted("message") })
 
     // send message on mq
-    await mqServices.deleteMessage(res.locals.chatUsers, { id: idMessage, chat: idChat })
+    mqServices.deleteMessage(res.locals.chatUsers, { id: idMessage, chat: idChat })
 
     res.end()
 }

@@ -1,188 +1,136 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { ArrowDown, KeyFill, QuestionCircle, ThreeDotsVertical } from "react-bootstrap-icons"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowDown, BugFill, Check2, Hourglass, KeyFill, QuestionCircle, ThreeDotsVertical, TrashFill } from "react-bootstrap-icons"
-import { v4 as uuidv4 } from 'uuid'
 
-import { useStatus, useIsInViewport } from "hooks"
+import { useVieport, useStatus, useCounter } from "hooks"
 
-import { LoadingAlert } from "components/Commons/Alerts"
-import { ShowMoreLayout, StatusLayout } from "components/Commons/Layout"
 import { Button } from "components/Commons/Buttons"
+import { StatusLayout } from "components/Commons/Layout"
 import { InformationBox, SomethingWentWrong } from "components/Commons/Misc"
 
 import { PeopleChat, PersonChat } from "components/Icons/Icons"
 
 import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
 
-import { RTEditor, RTViewer, Toolbar } from "components/SEditor"
-
 import { ChatEditor } from "./ChatEditor"
-import { format99Plus, getDateAndTime, initialContent } from "./Utils"
+import { MessageCard, MessageEditor, SkeletonMessages } from "./Messages"
+import { createMessage as onCreateMessage, format99Plus } from "./Utils"
 
 import chatAPI from "api/chatAPI"
 
-function MessageEditor({ user, idChat, onMessagePending, onMessageSent, isDisabled }) {
-    const [content, setContent] = useState(initialContent)
-    const editorRef = useRef()
-
-    const isSendButtonDisabled = isDisabled
-
-    const resetEditor = () => {
-        setContent(initialContent)
-        editorRef.current.reset()
-    }
-
-    const onSubmitMessage = (ev) => {
-        ev.preventDefault()
-
-        const message = { id: uuidv4(), content: content, isPending: true, idSender: user.id }
-
-        onMessagePending(message)
-        resetEditor()
-        chatAPI.sendMessage(idChat, { content: content })
-            .then(res => res.json())
-            .then(({ id }) => onMessageSent(message.id, { ...message, id: id.toString(), isPending: false, isError: false }))
-            .catch(err => onMessageSent(message.id, { ...message, isPending: false, isError: true }))
-    }
-
-    return <div className="d-flex flex-row gap-2 align-items-center card-1">
-        <RTEditor value={content} setValue={setContent} toolbar={<Toolbar />} placeholder="Write yout message here..." ref={editorRef} />
-        <form onSubmit={onSubmitMessage}>
-            <Button type="submit" className={"circle"} disabled={isSendButtonDisabled}><Check2 className="fore-success size-1" /></Button>
-        </form>
-    </div>
-}
-
-function DateLabel({ date }) {
-    return <div className="d-flex align-items-center card-2 text-center align-self-center">
-        <span className="fs-80 fore-2 pr-2 pl-2">{date}</span>
-    </div>
-}
-
-function MessageCard({ idChat, message, prev }) {
-    const [isDeleting, setDeleting] = useState(false)
-
-    const [date, time] = getDateAndTime(message.createdAt)
-    const isDateVisible = prev ? (getDateAndTime(prev.createdAt)[0] !== date) : false
-    const isSenderChanged = prev ? (message.idSender?.toString() !== prev.idSender?.toString()) : true
-
-    const onClickMessageDelete = () => {
-        setDeleting(true)
-        chatAPI.deleteMessage(idChat, message.id).then().catch(err => setDeleting(false))
-    }
-
-    const isRichText = (typeof message.content) !== "string"
-
-    return <>
-        {isDateVisible && <DateLabel date={date} />}
-        <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${isSenderChanged ? "mt-2" : ""}`}>
-            {message.isFromOther && isSenderChanged && <span className="fore-2 fs-80 fw-600">{message.senderUsername}</span>}
-            {isRichText ? <RTViewer value={message.content} /> : <p className="m-0 text-wrap">{message.content}</p>}
-            <div className="d-flex flex-row gap-1 align-items-center">
-                <span className="fore-2 fs-70 pr-2 flex-grow-1">{time}</span>
-                {!message.isFromOther && <>
-                    {message.isError && <BugFill className="fore-2" />}
-                    {message.isPending && <Hourglass className="fore-2" />}
-                    {!message.isPending && !message.isError && <ShowMoreLayout> {isDeleting ?
-                        <Hourglass className="fore-2" /> :
-                        <TrashFill className="fore-2-btn" onClick={onClickMessageDelete} />}
-                    </ShowMoreLayout>}
-                </>}
-            </div>
-        </div>
-    </>
-}
-
-function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing }) {
-    const chatName = chat.isGroup ? chat.name : `Chat with ${users.find(u => u.id !== user.id)?.username}`
-
+function Chat({ id, user, chat, chatStatus, isUnauthorized, onOpenChatEditor, usernamesTranslation, onChatDelete }) {
     const [messages, setMessages] = useState([])
     const [messagesStatus, messagesStatusActions] = useStatus()
+    const [messagesRefetchStatus, messagesRefetchStatusActions] = useStatus({ isReady: true })
     const messagesCursor = useRef(null)
 
-    const usernamesTranslation = useMemo(() => Object.fromEntries(users.map(({ id, username }) => [id.toString(), username])), [users])
-    const messageMapping = useCallback((message) => ({
+    const [newMessagesNumber, incrementNewMessagesNumber, resetNewMessagesNumber] = useCounter(0)
+
+    const lastRef = useRef(null)
+    const { isInViewport: isLastInViewport, scrollTo: scrollToLastMessage } = useVieport(lastRef, resetNewMessagesNumber)
+
+    const isFirstLoadingDone = useRef(false)
+    const isScrollRequired = useRef(false)
+    const isMessageReceived = useRef(false)
+
+    const isMappingReady = useMemo(() => Object.keys(usernamesTranslation).length > 0, [usernamesTranslation])
+    const messageMapping = useCallback(message => ({
         ...message,
         senderUsername: (usernamesTranslation[message.idSender.toString()] || "<deleted>"),
         isFromOther: user.id !== message.idSender
     }), [user, usernamesTranslation])
 
-    const [newMessagesNumber, setNewMessagesNumber] = useState(0)
-
-    const lastRef = useRef(null)
-    const isLastInViewport = useIsInViewport(lastRef)
-    const scrollToLastMessage = () => lastRef.current.scrollIntoView({ behavior: "smooth" })
-
-    useEffect(() => {
-        if (isLastInViewport) setNewMessagesNumber(0) // reset hint when bottom is reached
-    }, [isLastInViewport])
-
-    const getMessages = useCallback((callback = () => { }) => {
-        messagesStatusActions.setLoading()
-        chatAPI.getMessages(id, messagesCursor.current)
+    const getMessages = useCallback((cur, { setReady, setLoading, setError }) => {
+        setLoading()
+        chatAPI.getMessages(id, cur)
             .then(res => res.json())
             .then(res => {
-                const lastMessageId = res.messages.at(-1)?.id
-                const cursor = messagesCursor.current
-                const isRefetching = lastMessageId === cursor
-                if (isRefetching) return
+                if (res.messages.length > 0 && res.nextCursor === messagesCursor.current) return
 
                 setMessages(p => [...[...res.messages.map(messageMapping)].reverse(), ...p])
                 messagesCursor.current = res.nextCursor
-                messagesStatusActions.setReady()
-                callback()
+                setReady()
             })
-            .catch(err => { messagesStatusActions.setError(); console.log(err) })
-    }, [id, messagesCursor, messageMapping, messagesStatusActions])
+            .catch(err => setError())
+    }, [id, messageMapping])
 
-    const messageReceived = useCallback((message) => {
+    const messageReceived = useCallback(message => {
         if (user.id === message.idSender) return
 
         setMessages(p => [...p, messageMapping(message)])
-        if (!isLastInViewport) setNewMessagesNumber(p => p + 1)
-        else scrollToLastMessage()
-    }, [user.id, messageMapping, isLastInViewport])
+
+        isMessageReceived.current = true
+    }, [user.id, messageMapping])
 
     /* get messages async */
     useEffect(() => {
-        if (Object.keys(usernamesTranslation).length < 1) return
+        if (isFirstLoadingDone.current) return
+        if (!isMappingReady) return
 
-        getMessages(scrollToLastMessage)
-    }, [getMessages, usernamesTranslation])
+        isScrollRequired.current = true
+        getMessages(messagesCursor.current, messagesStatusActions)
+
+        isFirstLoadingDone.current = true
+    }, [getMessages, isMappingReady, messagesStatusActions])
 
     /* ws events handlers  */
-    const navigate = useNavigate()
     const [subscribe, unsubscribe] = useContext(WebSocketContext)
 
     useEffect(() => {
+        if (!isMappingReady) return
+
         const channelCreateMessage = channelTypes.createMessageInChat(id)
         subscribe(channelCreateMessage, ({ message }) => messageReceived(message))
 
         return () => unsubscribe(channelCreateMessage)
-    }, [id, subscribe, unsubscribe, messageReceived])
+    }, [id, subscribe, unsubscribe, isMappingReady, messageReceived])
 
     useEffect(() => {
         const channelDeleteMessage = channelTypes.deleteMessageInChat(id)
         subscribe(channelDeleteMessage, ({ message }) => setMessages(p => p.filter(i => i.id !== message.id)))
 
         const channelDeleteChat = channelTypes.deleteChat(id)
-        subscribe(channelDeleteChat, () => navigate("/chats"))
+        subscribe(channelDeleteChat, onChatDelete)
 
         return () => {
             unsubscribe(channelDeleteMessage)
             unsubscribe(channelDeleteChat)
         }
-    }, [id, subscribe, unsubscribe, navigate])
+    }, [id, subscribe, unsubscribe, onChatDelete])
 
-    const onClickNewMessages = () => { setNewMessagesNumber(0); scrollToLastMessage() }
-    const onClickEditChat = () => setEditing(true)
-
-    const onMessagePending = message => {
-        setMessages(p => [...p, messageMapping(message)])
+    const onClickNewMessages = useCallback(() => {
+        resetNewMessagesNumber()
         scrollToLastMessage()
-    }
+    }, [scrollToLastMessage, resetNewMessagesNumber])
 
+    const createMessage = useCallback(props => onCreateMessage({ ...props, idSender: user.id }), [user])
+    const onMessagePending = useCallback(message => setMessages(p => [...p, messageMapping(message)]), [messageMapping, setMessages])
     const onMessageSent = (id, message) => setMessages(p => p.map(m => m.id === id ? message : m))
+    const onDeleteMessage = useCallback(message => () => chatAPI.deleteMessage(id, message.id), [id])
+
+    const onSendMessage = useCallback(content => {
+        const message = createMessage({ content })
+
+        isScrollRequired.current = true
+        onMessagePending(message)
+        chatAPI.sendMessage(id, { content }).then(res => res.json())
+            .then(res => onMessageSent(message.id, createMessage({ ...message, id: res.id.toString(), isPending: false, isError: false })))
+            .catch(err => onMessageSent(message.id, createMessage({ ...message, isPending: false, isError: true })))
+    }, [id, createMessage, onMessagePending])
+
+    const onGetPreviousMessagesClick = useCallback(() => getMessages(messagesCursor.current, messagesRefetchStatusActions), [messagesCursor, getMessages, messagesRefetchStatusActions])
+
+    // when message list rerenders scroll bottom if needed
+    useEffect(() => {
+        if (isScrollRequired.current) {
+            scrollToLastMessage()
+            isScrollRequired.current = false
+        }
+        if (isMessageReceived.current) {
+            isLastInViewport ? scrollToLastMessage() : incrementNewMessagesNumber()
+            isMessageReceived.current = false
+        }
+    }, [messages, isLastInViewport, scrollToLastMessage, incrementNewMessagesNumber])
 
     return <>
         <div className="d-flex flex-row card-1 align-items-center gap-2">
@@ -196,11 +144,11 @@ function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing })
                 </>}
                 ready={<>
                     {chat.isGroup ? <PeopleChat className="size-2" /> : <PersonChat className="size-2" />}
-                    < div className="d-flex flex-column flex-grow-1">
-                        <span className="fs-110 fw-500">{chatName}</span>
+                    <div className="d-flex flex-column flex-grow-1">
+                        <span className="fs-110 fw-500">{chat.chatName}</span>
                         {chat.isGroup && <span className="fs-80 fore-2">{`${chat.nUsers} users`}</span>}
                     </div>
-                    <Button className="circle" onClick={onClickEditChat}><ThreeDotsVertical className="fore-2-btn size-1" /></Button></>}
+                    <Button className="circle" onClick={onOpenChatEditor}><ThreeDotsVertical className="fore-2-btn size-1" /></Button></>}
                 error={isUnauthorized ? <>
                     <KeyFill className="size-2 fore-2" />
                     <div className="d-flex flex-column flex-grow-1">
@@ -217,12 +165,16 @@ function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing })
             />
         </div >
         <div className="d-flex flex-column flex-grow-1 h-0 gap-2 scroll-y pr-2 pl-2">
-            {messagesCursor.current !== null && <Button disabled={!messagesStatus.isReady} onClick={() => getMessages()}>Get Previous Messages...</Button>}
+            {messagesCursor.current !== null && <StatusLayout status={messagesRefetchStatus}
+                loading={<Button onClick={onGetPreviousMessagesClick} disabled={true}>Loading...</Button>}
+                ready={<Button onClick={onGetPreviousMessagesClick}>Get Previous Messages...</Button>}
+                error={<Button onClick={onGetPreviousMessagesClick}>Error while retrieving more messages. Retry?</Button>}
+            />}
             <StatusLayout status={messagesStatus}
-                loading={<LoadingAlert />}
+                loading={<SkeletonMessages />}
                 ready={<>
                     {messages.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
-                    {messages.map((message, i, arr) => <MessageCard key={message.id} idChat={id} message={message} prev={i > 0 ? arr[i - 1] : null} />)}
+                    {messages.map((message, i, arr) => <MessageCard key={message.id} message={message} prev={i > 0 ? arr[i - 1] : null} onDelete={onDeleteMessage(message)} />)}
                 </>}
                 error={<SomethingWentWrong explanation="It is not possible to load any message!" />}
             />
@@ -236,7 +188,7 @@ function Chat({ id, user, chat, chatStatus, isUnauthorized, users, setEditing })
                         <span className="fs-70">{format99Plus(newMessagesNumber)}</span>
                     </div>
                 </Button>}
-            <MessageEditor idChat={id} user={user} isDisabled={!messagesStatus.isReady} onMessagePending={onMessagePending} onMessageSent={onMessageSent} />
+            <MessageEditor onSendMessage={onSendMessage} isDisabled={!messagesStatus.isReady} />
         </div>
     </>
 }
@@ -254,7 +206,11 @@ function ChatPage({ user }) {
 
     const [isEditing, setEditing] = useState(false)
 
-    const onCloseChatEditor = () => setEditing(false)
+    const onOpenChatEditor = useCallback(() => setEditing(true), [])
+    const onCloseChatEditor = useCallback(() => setEditing(false), [])
+
+    const navigate = useNavigate()
+    const onChatDelete = useCallback(() => navigate("/chats"), [navigate])
 
     useEffect(() => {
         const controller = new AbortController()
@@ -282,10 +238,18 @@ function ChatPage({ user }) {
         return () => { controller?.abort() }
     }, [id, chatStatusActions, userStatusActions])
 
+    const usernamesTranslation = useMemo(() => Object.fromEntries(users.map(({ id, username }) => [id.toString(), username])), [users])
+
+    const fullChat = useMemo(() => ({
+        ...chat,
+        chatName: chat.isGroup ? chat.name : `Chat with ${users.find(u => u.id !== user.id)?.username}`
+    }
+    ), [user, users, chat])
+
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-3">
         {isEditing ?
             <ChatEditor id={id} user={user} chat={chat} setChat={setChat} users={users} areUsersLoading={userStatus.isLoading} setUsers={setUsers} close={onCloseChatEditor} /> :
-            <Chat id={id} user={user} chat={chat} chatStatus={chatStatus} isUnauthorized={isUnauthorized} users={users} setEditing={setEditing} />
+            <Chat id={id} user={user} chat={fullChat} chatStatus={chatStatus} usernamesTranslation={usernamesTranslation} isUnauthorized={isUnauthorized} onOpenChatEditor={onOpenChatEditor} onChatDelete={onChatDelete} />
         }
     </div>
 }
