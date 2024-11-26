@@ -4,8 +4,8 @@ services:
     build:
       context: ./client
     environment:
-      - REACT_APP_PROXY_URL=http://server-api:3001
-      - REACT_APP_WSS_URL=ws://server-ws:8080
+      - VITE_PROXY_URL=http://server-api:3001
+      - VITE_WSS_URL=ws://server-ws:8080
     ports:
       - 3000:3000
     depends_on:

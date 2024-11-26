@@ -1,20 +1,20 @@
-import React, { useCallback, useMemo, useState } from "react"
-import { Check, Check2, Check2Square, ChevronDown, ChevronRight, ChevronUp, DoorOpenFill, Hourglass, Pencil, Person, ThreeDotsVertical, TrashFill, X, XCircle } from "react-bootstrap-icons"
-import { useNavigate } from "react-router-dom"
+import React, { useCallback, useMemo, useState } from 'react'
+import { Check, Check2, Check2Square, ChevronDown, ChevronRight, ChevronUp, DoorOpenFill, Hourglass, Pencil, Person, ThreeDotsVertical, TrashFill, X, XCircle } from 'react-bootstrap-icons'
+import { useNavigate } from 'react-router-dom'
 
-import { useStatus } from "hooks"
+import { useStatus } from '@/hooks'
 
-import { Button } from "components/Commons/Buttons"
-import { Text } from "components/Commons/Inputs"
-import { StatusLayout } from "components/Commons/Layout"
-import { ErrorAlert, LoadingAlert } from "components/Commons/Alerts"
+import { Button } from '@/components/Commons/Buttons'
+import { Text } from '@/components/Commons/Inputs'
+import { StatusLayout } from '@/components/Commons/Layout'
+import { ErrorAlert, LoadingAlert } from '@/components/Commons/Alerts'
 
-import { UserCard, UserList, UsersSearchList } from "components/Users/Users"
+import { UserCard, UserList, UsersSearchList } from '@/components/Users/Users'
 
-import { Crown, XCrown } from "components/Icons/Icons"
+import { Crown, XCrown } from '@/components/Icons/Icons'
 
-import chatAPI from "api/chatAPI"
-import userAPI from "api/userAPI"
+import chatAPI from '@/api/chatAPI'
+import userAPI from '@/api/userAPI'
 
 function EmptyUserList() {
     return <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">

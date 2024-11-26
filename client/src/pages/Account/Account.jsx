@@ -1,21 +1,21 @@
-import { useState } from "react"
-import { BoxArrowInRight, EyeFill, EyeSlashFill, LockFill, PersonFill, PersonPlusFill } from "react-bootstrap-icons"
-import { Link, useNavigate } from "react-router-dom"
+import { useState } from 'react'
+import { BoxArrowInRight, EyeFill, EyeSlashFill, LockFill, PersonFill, PersonPlusFill } from 'react-bootstrap-icons'
+import { Link, useNavigate } from 'react-router-dom'
 
-import { useStatus } from "hooks"
+import { useStatus } from '@/hooks'
 
-import { ErrorAlert, LoadingAlert } from "components/Commons/Alerts"
-import { Text } from "components/Commons/Inputs"
-import { Button } from "components/Commons/Buttons"
-import { StatusLayout, TabsLayout } from "components/Commons/Layout"
+import { ErrorAlert, LoadingAlert } from '@/components/Commons/Alerts'
+import { Text } from '@/components/Commons/Inputs'
+import { Button } from '@/components/Commons/Buttons'
+import { StatusLayout, TabsLayout } from '@/components/Commons/Layout'
 
-import { Logo } from "components/Icons/Icons"
+import { Logo } from '@/components/Icons/Icons'
 
-import { EmailRegistration, PasswordRegistration, UsernameRegistration } from "components/Account/Account"
+import { EmailRegistration, PasswordRegistration, UsernameRegistration } from '@/components/Account/Account'
 
-import userAPI from "api/userAPI"
+import userAPI from '@/api/userAPI'
 
-import { googleAuthenticateEndpoint } from "api/endpoints"
+import { googleAuthenticateEndpoint } from '@/api/endpoints'
 
 import './Account.css'
 
@@ -155,7 +155,7 @@ function Account({ setUser }) {
             <div title={<>Sign In <BoxArrowInRight className="size-1" /></>}><LoginTab signinSuccessful={onSigninSuccessful} /></div>
             <div title={<>Sign Up <PersonPlusFill className="size-1" /></>}><RegistrationTab signupSuccessful={onSignupSuccessful} /></div>
         </TabsLayout>
-        <GoogleSignInLink className="mt-4" href={`${process.env.REACT_APP_PROXY_URL}${googleAuthenticateEndpoint()}`} />
+        <GoogleSignInLink className="mt-4" href={`${import.meta.env.VITE_PROXY_URL}${googleAuthenticateEndpoint()}`} />
     </div>
 }
 

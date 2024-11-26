@@ -1,4 +1,4 @@
-import { WrenchAdjustable } from "react-bootstrap-icons"
+import { WrenchAdjustable } from 'react-bootstrap-icons'
 
 function WorkInProgress() {
     return <div className="d-flex flex-row flex-grow-1 justify-content-center align-items-center gap-2">

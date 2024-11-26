@@ -1,11 +1,11 @@
-import { useState } from "react"
-import { Person, PersonFill, PersonXFill, Search, XCircleFill } from "react-bootstrap-icons"
+import { useState } from 'react'
+import { Person, PersonFill, PersonXFill, Search, XCircleFill } from 'react-bootstrap-icons'
 
-import { ErrorAlert, LoadingAlert } from "components/Commons/Alerts"
-import { StatusLayout } from "components/Commons/Layout"
-import { Text } from "components/Commons/Inputs"
+import { ErrorAlert, LoadingAlert } from '@/components/Commons/Alerts'
+import { StatusLayout } from '@/components/Commons/Layout'
+import { Text } from '@/components/Commons/Inputs'
 
-import { useDebounce, useStatus } from "hooks"
+import { useDebounce, useStatus } from '@/hooks'
 
 function UserCard({ user, badges, children }) {
     return <div className="row-center card-1 align-items-center position-relative">

@@ -1,12 +1,12 @@
-import { useCallback, useMemo, useState, useRef } from "react"
-import { BugFill, Hourglass, TrashFill, Check2 } from "react-bootstrap-icons"
+import { useCallback, useMemo, useState, useRef } from 'react'
+import { BugFill, Hourglass, TrashFill, Check2 } from 'react-bootstrap-icons'
 
-import { ShowMoreLayout } from "components/Commons/Layout"
-import { Button } from "components/Commons/Buttons"
-import { RTViewer } from "components/SEditor"
-import { RTEditor, Toolbar } from "components/SEditor"
+import { ShowMoreLayout } from '@/components/Commons/Layout'
+import { Button } from '@/components/Commons/Buttons'
+import { RTViewer } from '@/components/SEditor'
+import { RTEditor, Toolbar } from '@/components/SEditor'
 
-import { getDateAndTime, initialContent } from "./Utils"
+import { getDateAndTime, initialContent } from './Utils'
 
 function DateLabel({ date }) {
     return <div className="d-flex align-items-center card-2 text-center align-self-center">

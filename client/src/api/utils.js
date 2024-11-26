@@ -1,4 +1,4 @@
-import { contentTypeJSON } from "./configs"
+import { contentTypeJSON } from './configs'
 
 const JSONBody = body => ({
     headers: contentTypeJSON,

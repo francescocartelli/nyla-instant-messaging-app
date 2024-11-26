@@ -1,5 +1,5 @@
-import { currentUserEndpoint, googleAuthenticateEndpoint, logoutEndpoint, searchUsersEndpoint, signinEndpoint, signupEndpoint, userEndpoint } from "./endpoints"
-import { postConfigJSON, putConfigJSON, safeFetch } from "./utils"
+import { currentUserEndpoint, googleAuthenticateEndpoint, logoutEndpoint, searchUsersEndpoint, signinEndpoint, signupEndpoint, userEndpoint } from './endpoints'
+import { postConfigJSON, putConfigJSON, safeFetch } from './utils'
 
 const getUsers = (username = "", searchType = "contains", options = {}) => safeFetch(searchUsersEndpoint(username, searchType), options)
 

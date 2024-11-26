@@ -1,14 +1,14 @@
-import { Chat } from "react-bootstrap-icons"
-import { useNavigate } from "react-router-dom"
+import { Chat } from 'react-bootstrap-icons'
+import { useNavigate } from 'react-router-dom'
 
-import { useStatus } from 'hooks'
+import { useStatus } from '@/hooks'
 
-import { Button } from "components/Commons/Buttons"
+import { Button } from '@/components/Commons/Buttons'
 
-import { UserCard, UsersSearchList } from "components/Users/Users"
+import { UserCard, UsersSearchList } from '@/components/Users/Users'
 
-import userAPI from 'api/userAPI'
-import chatAPI from "api/chatAPI"
+import userAPI from '@/api/userAPI'
+import chatAPI from '@/api/chatAPI'
 
 function UsersSearch({ user }) {
     const navigate = useNavigate()

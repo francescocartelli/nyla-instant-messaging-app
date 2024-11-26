@@ -116,11 +116,11 @@ At first, the app will start with an empty database, generated with the first wr
 1. In <b>client</b>, <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/client/.env.example">.env.example</a> file provides the basic configurations. Use it for generating a <b>.env</b> file:
    - Providing url for react-proxy server (to <b>server-api</b>):
    
-		  REACT_APP_PROXY_URL=http://localhost:3001
+		  VITE_PROXY_URL=http://localhost:3001
 
    - Providing the url for ws-server:
    
-		  REACT_APP_WSS_URL=ws://<ws_server_host:ws_server_port>
+		  VITE_WSS_URL=ws://<ws_server_host:ws_server_port>
 
 2. From the <b>client</b> root folder, install the packages, then run the client:
 

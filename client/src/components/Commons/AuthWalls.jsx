@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom"
+import { Navigate } from 'react-router-dom'
 
 const AuthWall = ({ user, isLoading, children }) => {
     // if the app refresh user won't be present when auth wall is evaluated

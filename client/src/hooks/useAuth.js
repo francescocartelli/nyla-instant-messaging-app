@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react'
 
 function useAuth(getCurrentUserApi) {
     const [user, setUser] = useState(false)

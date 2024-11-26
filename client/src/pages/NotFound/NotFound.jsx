@@ -1,4 +1,4 @@
-import { QuestionDiamond } from "react-bootstrap-icons"
+import { QuestionDiamond } from 'react-bootstrap-icons'
 
 function NotFound() {
     return <div className="d-flex flex-row flex-grow-1 justify-content-center align-items-center gap-2">

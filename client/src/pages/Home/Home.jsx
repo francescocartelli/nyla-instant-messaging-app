@@ -1,4 +1,4 @@
-import { Logo } from 'components/Icons/Icons'
+import { Logo } from '@/components/Icons/Icons'
 
 import './Home.css'
 

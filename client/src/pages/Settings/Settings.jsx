@@ -1,15 +1,15 @@
-import { useState } from "react"
-import { Check2, Hourglass, Pencil, XCircle } from "react-bootstrap-icons"
+import { useState } from 'react'
+import { Check2, Hourglass, Pencil, XCircle } from 'react-bootstrap-icons'
 
-import { useStatus } from "hooks"
+import { useStatus } from '@/hooks'
 
-import { Button } from "components/Commons/Buttons"
-import { Text } from "components/Commons/Inputs"
-import { StatusLayout } from "components/Commons/Layout"
+import { Button } from '@/components/Commons/Buttons'
+import { Text } from '@/components/Commons/Inputs'
+import { StatusLayout } from '@/components/Commons/Layout'
 
-import { PasswordRegistration, UsernameRegistration } from "components/Account/Account"
+import { PasswordRegistration, UsernameRegistration } from '@/components/Account/Account'
 
-import userAPI from "api/userAPI"
+import userAPI from '@/api/userAPI'
 
 function SettingSection({ children }) {
     return <h3 className="fore-2 m-0">{children}</h3>

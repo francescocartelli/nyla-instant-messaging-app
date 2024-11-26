@@ -1,17 +1,17 @@
-import { useCallback, useMemo, useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { BoxArrowInRight, BoxArrowRight, Chat, ChatFill, ChevronDown, ChevronUp, Gear, GearFill, Hourglass, InfoCircle, InfoCircleFill, List, People, PeopleFill, XCircleFill } from "react-bootstrap-icons"
+import { useCallback, useMemo, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { BoxArrowInRight, BoxArrowRight, Chat, ChatFill, ChevronDown, ChevronUp, Gear, GearFill, Hourglass, InfoCircle, InfoCircleFill, List, People, PeopleFill, XCircleFill } from 'react-bootstrap-icons'
 
-import "./Nav.css"
+import './Nav.css'
 
-import { IsLogged, IsNotLogged } from "components/Commons/Barriers"
-import { Footer } from "../Footer/Footer"
-import { Logo, LogoGrad } from "components/Icons/Icons"
-import { StatusLayout } from "components/Commons/Layout"
+import { IsLogged, IsNotLogged } from '@/components/Commons/Barriers'
+import { Footer } from '../Footer/Footer'
+import { Logo, LogoGrad } from '@/components/Icons/Icons'
+import { StatusLayout } from '@/components/Commons/Layout'
 
-import { useStatus } from "hooks"
+import { useStatus } from '@/hooks'
 
-import userAPI from "api/userAPI"
+import userAPI from '@/api/userAPI'
 
 function FlexGrow() {
     return <div className="hide-small flex-grow-1"></div>

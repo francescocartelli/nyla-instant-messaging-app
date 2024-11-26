@@ -1,22 +1,22 @@
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
-import { ArrowDown, KeyFill, QuestionCircle, ThreeDotsVertical } from "react-bootstrap-icons"
-import { useNavigate, useParams } from "react-router-dom"
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowDown, KeyFill, QuestionCircle, ThreeDotsVertical } from 'react-bootstrap-icons'
+import { useNavigate, useParams } from 'react-router-dom'
 
-import { useVieport, useStatus, useCounter } from "hooks"
+import { useVieport, useStatus, useCounter } from '@/hooks'
 
-import { Button } from "components/Commons/Buttons"
-import { StatusLayout } from "components/Commons/Layout"
-import { InformationBox, SomethingWentWrong } from "components/Commons/Misc"
+import { Button } from '@/components/Commons/Buttons'
+import { StatusLayout } from '@/components/Commons/Layout'
+import { InformationBox, SomethingWentWrong } from '@/components/Commons/Misc'
 
-import { PeopleChat, PersonChat } from "components/Icons/Icons"
+import { PeopleChat, PersonChat } from '@/components/Icons/Icons'
 
-import { WebSocketContext, channelTypes } from "components/Ws/WsContext"
+import { WebSocketContext, channelTypes } from '@/components/Ws/WsContext'
 
-import { ChatEditor } from "./ChatEditor"
-import { MessageCard, MessageEditor, SkeletonMessages } from "./Messages"
-import { createMessage as onCreateMessage, format99Plus } from "./Utils"
+import { ChatEditor } from './ChatEditor'
+import { MessageCard, MessageEditor, SkeletonMessages } from './Messages'
+import { createMessage as onCreateMessage, format99Plus } from './Utils'
 
-import chatAPI from "api/chatAPI"
+import chatAPI from '@/api/chatAPI'
 
 function Chat({ id, user, chat, chatStatus, isUnauthorized, onOpenChatEditor, usernamesTranslation, onChatDelete }) {
     const [messages, setMessages] = useState([])

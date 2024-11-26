@@ -1,4 +1,4 @@
-const { useState, useCallback } = require("react")
+import { useState, useCallback } from 'react'
 
 function useCounter(initial) {
     const [counter, setCounter] = useState(initial)

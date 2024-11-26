@@ -1,6 +1,6 @@
-import { useState } from "react"
-import { useSlate } from "slate-react"
-import { Transforms } from "slate"
+import { useState } from 'react'
+import { useSlate } from 'slate-react'
+import { Transforms } from 'slate'
 
 import { isBlockActive, isLinkActive, isMarkActive, toggleBlock, toggleLink, toggleMark } from './utils'
 

@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import useWS from 'hooks/useWS'
+import useWS from '@/hooks/useWS'
 
 const channelTypes = {
     createMessageInChat: idChat => `MESSAGE_CREATE_${idChat}`,

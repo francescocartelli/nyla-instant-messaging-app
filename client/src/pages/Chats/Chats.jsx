@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react"
-import { ArrowDownUp, ChevronRight, ClockHistory, Funnel, PeopleFill, PlusCircleFill, SortNumericDown, SortNumericUp, XCircleFill } from "react-bootstrap-icons"
-import { Link } from "react-router-dom"
+import { useEffect, useState } from 'react'
+import { ArrowDownUp, ChevronRight, ClockHistory, Funnel, PeopleFill, PlusCircleFill, SortNumericDown, SortNumericUp, XCircleFill } from 'react-bootstrap-icons'
+import { Link } from 'react-router-dom'
 
-import { useStatus, useRelativeDateTime } from "hooks"
+import { useStatus, useRelativeDateTime } from '@/hooks'
 
-import { Button, LinkButton } from "components/Commons/Buttons"
-import { StatusLayout, PagesControl, Tab, OptionsLayout } from "components/Commons/Layout"
-import { InformationBox, SomethingWentWrong } from "components/Commons/Misc"
+import { Button, LinkButton } from '@/components/Commons/Buttons'
+import { StatusLayout, PagesControl, Tab, OptionsLayout } from '@/components/Commons/Layout'
+import { InformationBox, SomethingWentWrong } from '@/components/Commons/Misc'
 
-import { PeopleChat, PersonChat } from "components/Icons/Icons"
+import { PeopleChat, PersonChat } from '@/components/Icons/Icons'
 
-import chatAPI from "api/chatAPI"
+import chatAPI from '@/api/chatAPI'
 
 function ChatCard({ chat, relativeDateTime }) {
     const spanClassname = "d-flex flex-row align-items-center text-nowrap fs-80 fore-2 gap-2"

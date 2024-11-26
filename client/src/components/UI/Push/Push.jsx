@@ -3,10 +3,10 @@ import { InfoCircle, XCircle } from 'react-bootstrap-icons'
 import { useNavigate } from 'react-router'
 
 import './Push.css'
-import 'styles/style.css'
+import '@/styles/style.css'
 
-import { flatRTNodes } from 'components/SEditor/utils'
-import { WebSocketContext, channelTypes } from 'components/Ws/WsContext'
+import { flatRTNodes } from '@/components/SEditor/utils'
+import { WebSocketContext, channelTypes } from '@/components/Ws/WsContext'
 
 function Notification({ title, text, onClick, onClose, delay = 4000 }) {
     const refOnClose = useRef(onClose)

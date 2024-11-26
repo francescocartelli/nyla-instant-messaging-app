@@ -1,10 +1,10 @@
-import { useState } from "react"
-import { Check2, EnvelopeFill, Hourglass, Lock, LockFill, PersonFill, XCircle } from "react-bootstrap-icons"
+import { useState } from 'react'
+import { Check2, EnvelopeFill, Hourglass, Lock, LockFill, PersonFill, XCircle } from 'react-bootstrap-icons'
 
-import { useDebounce, useStatus } from "hooks"
+import { useDebounce, useStatus } from '@/hooks'
 
-import { TextVal } from "components/Commons/Inputs"
-import { StatusLayout } from "components/Commons/Layout"
+import { TextVal } from '@/components/Commons/Inputs'
+import { StatusLayout } from '@/components/Commons/Layout'
 
 const usernameReg = /^(?=[a-zA-Z0-9._]{8,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/
 const emailReg = /^\S+@\S+\.\S+$/

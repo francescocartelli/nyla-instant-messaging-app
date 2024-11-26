@@ -1,6 +1,6 @@
 import { Code, ListOl, ListUl, TypeBold, TypeH1, TypeH2, TypeItalic, TypeUnderline } from 'react-bootstrap-icons'
 
-import { BlockButton, MarkButton } from "./buttons"
+import { BlockButton, MarkButton } from './buttons'
 import { HEADING_ONE, HEADING_TWO, ORDERED_LIST, UNORDERED_LIST } from './blockTypes'
 import { BOLD, CODE, ITALIC, UNDERLINE } from './markTypes'
 

@@ -1,5 +1,5 @@
-import { chatCurrentUserEndpoint, chatEndpoint, chatMessageEndpoint, chatMessagesCursorEndpoint, chatMessagesEndpoint, chatsEndpoint, chatUserEndpoint, chatUsersEndpoint, personalChatsEndpoint } from "./endpoints"
-import { deleteConfig, postConfigJSON, putConfigJSON, safeFetch } from "./utils"
+import { chatCurrentUserEndpoint, chatEndpoint, chatMessageEndpoint, chatMessagesCursorEndpoint, chatMessagesEndpoint, chatsEndpoint, chatUserEndpoint, chatUsersEndpoint, personalChatsEndpoint } from './endpoints'
+import { deleteConfig, postConfigJSON, putConfigJSON, safeFetch } from './utils'
 
 const userInChatMapping = ({ id }, owner) => ({ id, isAdmin: id === owner.id.toString() })
 const userInDirectChatMapping = ({ id }) => ({ id })

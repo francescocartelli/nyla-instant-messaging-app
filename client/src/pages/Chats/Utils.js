@@ -1,4 +1,4 @@
-import dayjs from "dayjs"
+import dayjs from 'dayjs'
 import { v4 as uuidv4 } from 'uuid'
 
 const format99Plus = number => number > 99 ? "99+" : number

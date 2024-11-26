@@ -19,7 +19,7 @@ function useWS(user) {
             ws.current?.close()
             return
         }
-        const wsURL = new URL(process.env.REACT_APP_WSS_URL)
+        const wsURL = new URL(import.meta.env.VITE_WSS_URL)
         ws.current = new WebSocket(`ws://${window.location.hostname}:${wsURL.port}`)
         ws.current.onopen = () => { console.log('WS open') }
         ws.current.onclose = () => { console.log('WS close') }

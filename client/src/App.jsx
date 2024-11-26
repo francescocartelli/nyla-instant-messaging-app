@@ -1,32 +1,32 @@
-import { useCallback } from "react"
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { useCallback } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 
 import './App.css'
 
-import 'styles/style.css'
-import 'styles/colors.css'
-import 'styles/editor.css'
+import '@/styles/style.css'
+import '@/styles/colors.css'
+import '@/styles/editor.css'
 
-import { AuthWall } from 'components/Commons/AuthWalls'
-import { IsLogged, IsNotLogged } from 'components/Commons/Barriers'
+import { AuthWall } from '@/components/Commons/AuthWalls'
+import { IsLogged, IsNotLogged } from '@/components/Commons/Barriers'
 
-import { Nav } from 'components/UI/Nav/Nav'
-import { PushContainer } from 'components/UI/Push/Push'
-import { WebSocketProvider } from 'components/Ws/WsContext'
+import { Nav } from '@/components/UI/Nav/Nav'
+import { PushContainer } from '@/components/UI/Push/Push'
+import { WebSocketProvider } from '@/components/Ws/WsContext'
 
-import { About } from 'pages/About/About'
-import { Account } from 'pages/Account/Account'
-import { Home } from 'pages/Home/Home'
-import { UsersSearch } from 'pages/Users/Users'
-import { PersonalChats } from 'pages/Chats/Chats'
-import { ChatPage } from 'pages/Chats/Chat'
-import { NewChatEditor } from 'pages/Chats/ChatEditor'
-import { NotFound } from 'pages/NotFound/NotFound'
-import { Settings } from 'pages/Settings/Settings'
+import { About } from '@/pages/About/About'
+import { Account } from '@/pages/Account/Account'
+import { Home } from '@/pages/Home/Home'
+import { UsersSearch } from '@/pages/Users/Users'
+import { PersonalChats } from '@/pages/Chats/Chats'
+import { ChatPage } from '@/pages/Chats/Chat'
+import { NewChatEditor } from '@/pages/Chats/ChatEditor'
+import { NotFound } from '@/pages/NotFound/NotFound'
+import { Settings } from '@/pages/Settings/Settings'
 
-import { useAuth } from "hooks"
+import { useAuth } from '@/hooks'
 
-import usersAPI from 'api/userAPI'
+import usersAPI from '@/api/userAPI'
 
 function MainContainer({ children }) {
   return <div className="main-container">{children}</div>

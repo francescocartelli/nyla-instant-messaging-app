@@ -1,7 +1,6 @@
-import { useCallback, useMemo } from "react"
-
-const dayjs = require("dayjs")
-const relativeTime = require("dayjs/plugin/relativeTime")
+import { useCallback, useMemo } from 'react'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 
 function useRelativeDateTime(dt) {
     const now = useMemo(() => {

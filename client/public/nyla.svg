@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
+    <path d="M0,5.333v0Z" transform="translate(2.667 10.667) rotate(180)" fill="#1376aa" />
+    <path d="M0,2.667,2.667,5.333V0Z" transform="translate(5.333 10.667) rotate(180)" fill="#7ec6ed" />
+    <path d="M2.667,2.667,0,5.333V0Z" transform="translate(5.333 13.333) rotate(180)" fill="#b0ddf5" />
+    <path d="M2.667,2.667,0,5.333V0Z" transform="translate(5.333 8) rotate(180)" fill="#61b9e8" />
+    <path d="M0,2.667,2.667,5.333V0Z" transform="translate(8 8) rotate(180)" fill="#48a6d8" />
+    <path d="M2.667,2.667,0,5.333V0Z" transform="translate(10.667 8) rotate(180)" fill="#256f96" />
+    <path d="M2.667,2.667,0,5.333V0Z" transform="translate(8 5.333) rotate(180)" fill="#288dc3" />
+    <path d="M2.667,2.667,0,5.333V0Z" transform="translate(13.333 10.667) rotate(180)" fill="#225a77" />
+    <path d="M0,2.667,2.667,5.333V0Z" transform="translate(8 13.333) rotate(180)" fill="#c3e5f7" />
+    <path d="M0,2.667,2.667,5.333V0Z" transform="translate(10.667 5.333) rotate(180)" fill="#1d79aa" />
+    <path d="M0,2.667,2.667,5.333V0Z" transform="translate(13.333 8) rotate(180)" fill="#276383" />
+    <path d="M0,2.667,2.667,5.333V0Z" transform="translate(13.333 13.333) rotate(180)" fill="#16445c" />
+    <path d="M2.667,2.667,0,5.333V0Z" transform="translate(8 16) rotate(180)" fill="#d4ecf8" />
+    <path d="M0,2.667,2.667,0V5.333Z" transform="translate(0 5.333)" fill="#93cfef" />
+    <path d="M2.667,2.667,0,0V5.333Z" transform="translate(13.333 5.333)" fill="#1b4f6a" />
+</svg>
