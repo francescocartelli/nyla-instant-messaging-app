@@ -7,6 +7,17 @@
     line-height: normal;
 }
 
+.no-ul-style {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.transparent-button {
+    background: none;
+    border: none;
+}
+
 .b-bottom {
     border-bottom: 1px solid #2A2F35;
 }
@@ -78,6 +89,15 @@
     top: 4em;
     width: 100%;
     z-index: 100;
+    padding: 0.5em;
+}
+
+.position-absolute-large {
+    position: absolute;
+}
+
+.hide-large {
+    display: inherit !important;
 }
 
 @media only screen and (max-width: 600px) {
@@ -102,4 +122,12 @@
         display: flex;
         flex-direction: column;
     }
+
+    .position-absolute-large {
+        position: relative;
+    }
+
+    .hide-large {
+        display: inherit !important;
+    }    
 }

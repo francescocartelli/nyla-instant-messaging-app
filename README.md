@@ -1,6 +1,6 @@
 
 <div align="center">
-<img src='./client/public/icon_sm.png'>
+<img src='./images/icon_sm.png'>
 
 <h1>Nyla</h1>
 <p>Nyla is an example of an instant messaging application.</p>

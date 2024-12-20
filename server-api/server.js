@@ -99,7 +99,8 @@ const boot = async () => {
   const accountControllers = initAccountControllers(process.env.SECRET_OR_KEY, {
     httpOnly: true,
     secure: false, // when using https set it to true,
-    sameSite: 'strict'
+    sameSite: 'strict',
+    maxAge: 1000*60*60*24
   })
 
   app.post('/api/authenticate/signup', validate({ body: schemas.userSignUpSchema }), accountMiddlewares.validateSingUp, safeController(accountControllers.signUp))

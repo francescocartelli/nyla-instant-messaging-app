@@ -6,6 +6,7 @@ function useWS(user) {
 
     const subscribe = (channel, callback) => {
         channels.current[channel] = callback
+        return () => unsubscribe(channel)
     }
 
     const unsubscribe = (channel) => {

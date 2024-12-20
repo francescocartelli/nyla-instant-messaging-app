@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 
 function useIsInViewport(ref) {
     const [isIntersecting, setIsIntersecting] = useState(false)
@@ -14,7 +14,8 @@ function useIsInViewport(ref) {
     return isIntersecting
 }
 
-function useVieport(ref, onVieport) {
+function useVieport(onVieport) {
+    const ref = useRef(null)
     const isInViewport = useIsInViewport(ref)
 
     const scrollTo = useCallback(() => ref.current.scrollIntoView({ behavior: "smooth" }), [ref])
@@ -24,6 +25,7 @@ function useVieport(ref, onVieport) {
     }, [isInViewport, onVieport])
 
     return {
+        ref,
         isInViewport,
         scrollTo
     }

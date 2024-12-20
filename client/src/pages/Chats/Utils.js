@@ -14,12 +14,21 @@ const getDateAndTime = datetime => {
 
 const initialContent = [{ type: 'paragraph', children: [{ text: '' }] }]
 
-const createMessage = ({ id, content, idSender, isPending = true, isError = false }) => ({
-    id: id || uuidv4(),
-    content,
-    isPending,
-    isError,
-    idSender
-})
+const createMessage = ({ id, idChat, content, idSender, senderUsername, isFromOther, createdAt, isPending = false, isError = false }) => {
+    const [date, time] = getDateAndTime(createdAt)
+
+    return {
+        id: id || uuidv4(),
+        idChat,
+        content,
+        idSender,
+        senderUsername,
+        isFromOther,
+        createdAtDate: date,
+        createdAtTime: time,
+        isPending,
+        isError
+    }
+}
 
 export { format99Plus, getDateAndTime, initialContent, createMessage }
