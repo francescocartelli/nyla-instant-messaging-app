@@ -10,7 +10,7 @@ import { UserCard, UsersSearchList } from '@/components/Users/Users'
 import userAPI from '@/api/userAPI'
 import chatAPI from '@/api/chatAPI'
 
-function UsersSearch({ user }) {
+function UsersSearchPage({ user }) {
     const navigate = useNavigate()
 
     const [redirectStatus, redirectStatusActions] = useStatus({ isReady: true })
@@ -39,4 +39,4 @@ function UsersSearch({ user }) {
     </div>
 }
 
-export { UsersSearch }
+export default UsersSearchPage

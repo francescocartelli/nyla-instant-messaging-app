@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import { ChevronRight, ThreeDots } from 'react-bootstrap-icons'
+import { useCallback, useMemo, useState } from 'react'
+import { ChevronRight, ThreeDots, ThreeDotsVertical } from 'react-bootstrap-icons'
+
+import { Button } from '@/components/Commons/Buttons'
 
 import './Layout.css'
 
@@ -62,4 +64,19 @@ function ShowMoreLayout({ children }) {
     </>
 }
 
-export { TabsLayout, StatusLayout, OptionsLayout, PagesControl, Tab, ShowMoreLayout }
+function MoreOptions({ buttons }) {
+    const [isExpanded, setExpanded] = useState(false)
+    const toggleExpansion = useCallback(() => setExpanded(p => !p), [])
+
+    const requireExpanded = useMemo(() => buttons.length > 1, [buttons])
+    const isVisible = useMemo(() => !requireExpanded || isExpanded, [requireExpanded, isExpanded])
+
+    return <div className='d-flex flex-row gap-1 align-items-center'>
+        {isVisible && buttons}
+        {requireExpanded && <Button onClick={toggleExpansion}>
+            {isExpanded ? <ChevronRight className="fore-2 size-1" /> : <ThreeDotsVertical className="fore-2 size-1" />}
+        </Button>}
+    </div>
+}
+
+export { MoreOptions, OptionsLayout, PagesControl, ShowMoreLayout, StatusLayout, Tab, TabsLayout }

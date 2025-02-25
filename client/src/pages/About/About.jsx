@@ -2,7 +2,7 @@ import { Github, Linkedin, Medium } from 'react-bootstrap-icons'
 
 import { Logo } from '@/components/Icons/Icons'
 
-function About() {
+function AboutPage() {
     return <div className="d-flex flex-row flex-grow-1 justify-content-center align-items-center gap-2">
         <div className="d-flex flex-column gap-5">
             <div className="d-flex flex-column align-items-center">
@@ -28,4 +28,4 @@ function About() {
     </div>
 }
 
-export { About }
+export default AboutPage

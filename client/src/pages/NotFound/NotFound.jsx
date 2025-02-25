@@ -1,6 +1,6 @@
 import { QuestionDiamond } from 'react-bootstrap-icons'
 
-function NotFound() {
+function NotFoundPage() {
     return <div className="d-flex flex-row flex-grow-1 justify-content-center align-items-center gap-2">
         <div className="d-flex flex-column align-items-center gap-2">
             <QuestionDiamond className="fore-1" size={128} />
@@ -10,4 +10,4 @@ function NotFound() {
     </div>
 }
 
-export { NotFound }
+export default NotFoundPage

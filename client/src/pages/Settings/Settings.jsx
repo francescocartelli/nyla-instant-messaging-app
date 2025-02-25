@@ -1,61 +1,12 @@
-import { useState } from 'react'
-import { Check2, Hourglass, Pencil, XCircle } from 'react-bootstrap-icons'
 
-import { useStatus } from '@/hooks'
 
-import { Button } from '@/components/Commons/Buttons'
 import { Text } from '@/components/Commons/Inputs'
-import { StatusLayout } from '@/components/Commons/Layout'
 
 import { PasswordRegistration, UsernameRegistration } from '@/components/Account/Account'
 
+import { SettingCard, SettingSection, SettingSubSection } from '@/components/Settings/Settings'
+
 import userAPI from '@/api/userAPI'
-
-function SettingSection({ children }) {
-    return <h3 className="fore-2 m-0">{children}</h3>
-}
-
-function SettingSubSection({ children }) {
-    return <h5 className="fore-2 m-0">{children}</h5>
-}
-
-function SettingCard({ onRenderChildren, onConfirm, confirmCallback, initialValue, initialInvalid = false }) {
-    const [isEditing, setEditing] = useState(false)
-    const [value, setValue] = useState(initialValue)
-    const [isInvalid, setInvalid] = useState(initialInvalid)
-
-    const [confirmStatus, confirmStatusActions] = useStatus({ isReady: true })
-
-    const onClickConfirm = (ev) => {
-        ev.preventDefault()
-        setEditing(false)
-        confirmStatusActions.setLoading()
-        onConfirm(value)
-            .then(() => {
-                confirmStatusActions.setReady()
-                confirmCallback(value)
-            })
-            .catch(err => {
-                setValue(initialValue)
-                confirmStatusActions.setError()
-            })
-    }
-
-    const onClickCancel = () => { setValue(initialValue); setEditing(false) }
-
-    return <div className="d-flex flex-column gap-2">
-        <div className="d-flex flex-row gap-2 align-items-center">
-            {onRenderChildren(value, setValue, !isEditing, setInvalid)}
-            <StatusLayout status={confirmStatus}
-                loading={<Button onClick={() => { }}><Hourglass className="fore-2 size-1" /></Button>}
-                ready={isEditing ? <>
-                    <Button disabled={isInvalid} onClick={onClickConfirm}><Check2 className="fore-2 size-1" /></Button>
-                    <Button onClick={onClickCancel}><XCircle className="fore-2 size-1" /></Button>
-                </> : <Button onClick={() => setEditing(true)}><Pencil className="fore-2 size-1" /></Button>}
-            />
-        </div>
-    </div>
-}
 
 function BioSetting({ user, setUser }) {
     return <>
@@ -76,7 +27,7 @@ function UsernameSetting({ user, setUser }) {
             onConfirm={(value) => userAPI.updateUser(user.id, { username: value })}
             confirmCallback={(value) => setUser(p => ({ ...p, username: value }))}
             onRenderChildren={(value, onChange, disabled, setInvalid) => <div className="d-flex flex-row flex-grow-1 gap-2">
-                <UsernameRegistration username={value} setUsername={onChange} disabled={disabled} setInvalid={setInvalid} onCheck={userAPI.getUsers}/>
+                <UsernameRegistration username={value} setUsername={onChange} disabled={disabled} setInvalid={setInvalid} onCheck={userAPI.getUsers} />
             </div>}></SettingCard>
         <p className="fore-2 fs-80">Changing your username will affect your sing-in credential.</p>
     </>
@@ -104,7 +55,7 @@ function PasswordSetting() {
     </>
 }
 
-function Settings({ user, setUser }) {
+function SettingsPage({ user, setUser }) {
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-2 mt-3 scroll-y h-0">
         <SettingSection>Profile Details</SettingSection>
         <p className="fore-2">Update your profile details to ensure accurate and up-to-date information is displayed.</p>
@@ -115,4 +66,4 @@ function Settings({ user, setUser }) {
     </div>
 }
 
-export { Settings }
+export default SettingsPage

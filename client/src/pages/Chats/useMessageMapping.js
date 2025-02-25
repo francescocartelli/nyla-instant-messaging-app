@@ -1,7 +1,6 @@
+import { useMemo } from 'react'
 import dayjs from 'dayjs'
 import { v4 as uuidv4 } from 'uuid'
-
-const format99Plus = number => number > 99 ? "99+" : number
 
 const getDateAndTime = datetime => {
     const dt = dayjs(datetime)
@@ -11,8 +10,6 @@ const getDateAndTime = datetime => {
 
     return [date, time]
 }
-
-const initialContent = [{ type: 'paragraph', children: [{ text: '' }] }]
 
 const createMessage = ({ id, idChat, content, idSender, senderUsername, isFromOther, createdAt, isPending = false, isError = false }) => {
     const [date, time] = getDateAndTime(createdAt)
@@ -31,4 +28,15 @@ const createMessage = ({ id, idChat, content, idSender, senderUsername, isFromOt
     }
 }
 
-export { format99Plus, getDateAndTime, initialContent, createMessage }
+function useMessageMapping(users, user) {
+    const usernamesTranslation = useMemo(() => Object.fromEntries(users.map(({ id, username }) => [id.toString(), username])), [users])
+    const messageMapping = useMemo(() => Object.keys(usernamesTranslation).length > 0 ? message => createMessage({
+        ...message,
+        senderUsername: (usernamesTranslation[message.idSender.toString()] || "<deleted>"),
+        isFromOther: user.id !== message.idSender
+    }) : null, [user, usernamesTranslation])
+
+    return messageMapping
+}
+
+export default useMessageMapping

@@ -1,17 +1,15 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { BoxArrowInRight, BoxArrowRight, Chat, ChatFill, ChevronDown, ChevronUp, Gear, GearFill, Hourglass, InfoCircle, InfoCircleFill, List, People, PeopleFill, XCircleFill } from 'react-bootstrap-icons'
+import { Link, useLocation } from 'react-router-dom'
 
 import './Nav.css'
 
 import { IsLogged, IsNotLogged } from '@/components/Commons/Barriers'
-import { Footer } from '../Footer/Footer'
-import { Logo, LogoGrad } from '@/components/Icons/Icons'
 import { StatusLayout } from '@/components/Commons/Layout'
+import { Logo, LogoGrad } from '@/components/Icons/Icons'
+import { Footer } from '../Footer/Footer'
 
 import { useStatus } from '@/hooks'
-
-import userAPI from '@/api/userAPI'
 
 function FlexGrow() {
     return <div className="hide-small flex-grow-1"></div>
@@ -74,20 +72,20 @@ function AccountNavItem({ logout, onClickDefaultNavItems, username }) {
     </>
 }
 
-function Nav({ isWaitingUser, user, setUser }) {
+function Nav({ isWaitingUser, user, setUser, onLogout }) {
     const [isCollapsed, setCollapsed] = useState(true)
 
     const onClickDefaultNavItems = () => setCollapsed(true)
 
     const logout = useCallback((pendingCallback, fullFillCallback, rejectCallback) => {
         pendingCallback()
-        userAPI.logout()
+        onLogout()
             .then(() => {
                 setUser(false)
                 fullFillCallback()
             })
             .catch(rejectCallback)
-    }, [setUser])
+    }, [setUser, onLogout])
 
     const onBlur = ev => {
         if (!ev.currentTarget.contains(ev.relatedTarget)) onClickDefaultNavItems()

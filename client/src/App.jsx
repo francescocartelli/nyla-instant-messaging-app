@@ -14,15 +14,15 @@ import { Nav } from '@/components/UI/Nav/Nav'
 import { PushContainer } from '@/components/UI/Push/Push'
 import { WebSocketProvider } from '@/components/Ws/WsContext'
 
-import { About } from '@/pages/About/About'
-import { Account } from '@/pages/Account/Account'
-import { Home } from '@/pages/Home/Home'
-import { UsersSearch } from '@/pages/Users/Users'
-import { PersonalChats } from '@/pages/Chats/Chats'
-import { ChatPage } from '@/pages/Chats/Chat'
-import { NewChatEditor } from '@/pages/Chats/ChatEditor'
-import { NotFound } from '@/pages/NotFound/NotFound'
-import { Settings } from '@/pages/Settings/Settings'
+import AboutPage from '@/pages/About/About'
+import AccountPage from '@/pages/Account/Account'
+import HomePage from '@/pages/Home/Home'
+import UsersSearchPage from '@/pages/Users/Users'
+import ChatsPage from '@/pages/Chats/Chats'
+import ChatPage from '@/pages/Chats/Chat'
+import NewChatEditorPage from '@/pages/Chats/NewChatEditor'
+import NotFoundPage from '@/pages/NotFound/NotFound'
+import SettingsPage from '@/pages/Settings/Settings'
 
 import { useAuth } from '@/hooks'
 
@@ -47,21 +47,21 @@ function App() {
     <Router>
       <WebSocketProvider user={user}>
         <PushContainer />
-        <Nav isWaitingUser={isLoading} user={user} setUser={setUser} />
+        <Nav isWaitingUser={isLoading} user={user} setUser={setUser} onLogout={usersAPI.logout} />
         <BodyContainer>
           <Routes>
-            <Route path="/about" element={<About />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/account" element={<>
-              <IsNotLogged isWaitingUser={isLoading} user={user}><Account setUser={setUser} /> </IsNotLogged>
+              <IsNotLogged isWaitingUser={isLoading} user={user}><AccountPage setUser={setUser} /> </IsNotLogged>
               <IsLogged isWaitingUser={isLoading} user={user}><Navigate to="/" /></IsLogged>
             </>} />
-            <Route path="/chats/new" element={<AuthWall {...auth}><NewChatEditor user={user} /></AuthWall>} />
-            <Route path="/chats/:id" element={<AuthWall {...auth}><ChatPage user={user} /></AuthWall>} />
-            <Route path="/chats" element={<AuthWall {...auth}><PersonalChats /></AuthWall>} />
-            <Route path="/people" element={<AuthWall {...auth}><UsersSearch user={user} /></AuthWall>} />
-            <Route path="/settings" element={<AuthWall {...auth}><Settings user={user} setUser={setUser} /></AuthWall>} />
-            <Route exact path="/" element={<Home />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/chats/new" element={<AuthWall {...auth}><NewChatEditorPage user={user} /></AuthWall>} />
+            <Route path="/chats/:id/*" element={<AuthWall {...auth}><ChatPage user={user} /></AuthWall>} />
+            <Route path="/chats" element={<AuthWall {...auth}><ChatsPage /></AuthWall>} />
+            <Route path="/people" element={<AuthWall {...auth}><UsersSearchPage user={user} /></AuthWall>} />
+            <Route path="/settings" element={<AuthWall {...auth}><SettingsPage user={user} setUser={setUser} /></AuthWall>} />
+            <Route exact path="/" element={<HomePage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BodyContainer>
       </WebSocketProvider>

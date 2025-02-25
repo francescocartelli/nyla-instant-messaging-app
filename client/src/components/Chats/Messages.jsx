@@ -1,8 +1,10 @@
 import { useMemo } from 'react'
-import { BugFill, Hourglass, TrashFill } from 'react-bootstrap-icons'
+import { ArrowDown, BugFill, Hourglass, TrashFill } from 'react-bootstrap-icons'
 
 import { ShowMoreLayout } from '@/components/Commons/Layout'
 import { RTViewer } from '@/components/SEditor'
+
+import { Button } from '@/components/Commons/Buttons'
 
 function DateLabel({ date }) {
     return <div className="d-flex align-items-center card-2 text-center align-self-center">
@@ -10,13 +12,22 @@ function DateLabel({ date }) {
     </div>
 }
 
+function NewMessagesBadge({ onClick, count }) {
+    const formattedCount = useMemo(() => count > 99 ? "99+" : count, [count])
+
+    return <Button onClick={onClick} className="box-glow position-absolute" style={{ top: "-50px", right: "1.5em" }}>
+        <ArrowDown className="fore-2 size-1" />
+        <div className="position-absolute crd-icon-15" style={{ backgroundColor: "#BD44D6", top: "-0.6em", left: "-0.6em" }}>
+            <span className="fs-70">{formattedCount}</span>
+        </div>
+    </Button>
+}
+
 function MessageCard({ message, isGroup, prev, onDelete }) {
     const isDateVisible = useMemo(() => prev?.createdAtDate !== message.createdAtDate, [prev, message.createdAtDate])
     const isSenderChanged = useMemo(() => !prev || (message.idSender?.toString() !== prev?.idSender.toString()), [message, prev])
     const isSenderVisible = useMemo(() => isGroup && message.isFromOther && isSenderChanged, [isGroup, message, isSenderChanged])
     const isRichText = useMemo(() => (typeof message.content) !== "string", [message])
-
-    const onDeleteMessageClick = () => onDelete(message)
 
     return <>
         {isDateVisible && <DateLabel date={message.createdAtDate} />}
@@ -29,7 +40,7 @@ function MessageCard({ message, isGroup, prev, onDelete }) {
                     {message.isError && <BugFill className="fore-2" />}
                     {message.isPending && <Hourglass className="fore-2" />}
                     {!message.isPending && !message.isError && <ShowMoreLayout>
-                        <TrashFill className="fore-2-btn" onClick={onDeleteMessageClick} />
+                        <TrashFill className="fore-2-btn" onClick={onDelete} />
                     </ShowMoreLayout>}
                 </>}
             </div>
@@ -75,4 +86,4 @@ function SkeletonMessages() {
     </>
 }
 
-export { MessageCard, SkeletonMessages }
+export { MessageCard, SkeletonMessages, NewMessagesBadge }

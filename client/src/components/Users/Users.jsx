@@ -1,11 +1,19 @@
 import { useState } from 'react'
-import { Person, PersonFill, PersonXFill, Search, XCircleFill } from 'react-bootstrap-icons'
+import { Person, PersonXFill, Search, XCircleFill } from 'react-bootstrap-icons'
 
 import { ErrorAlert, LoadingAlert } from '@/components/Commons/Alerts'
-import { StatusLayout } from '@/components/Commons/Layout'
 import { Text } from '@/components/Commons/Inputs'
+import { StatusLayout } from '@/components/Commons/Layout'
+import { Button } from '@/components/Commons/Buttons'
 
 import { useDebounce, useStatus } from '@/hooks'
+
+function EmptyUserList() {
+    return <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
+        <Person className="size-2 fore-2" />
+        <p className="m-0 text-center fore-2"><i>Users in chat will appear here...</i></p>
+    </div>
+}
 
 function UserCard({ user, badges, children }) {
     return <div className="row-center card-1 align-items-center position-relative">
@@ -77,4 +85,20 @@ function UsersSearchList({ onSearch, onRenderItem = () => { } }) {
     </div>
 }
 
-export { UserCard, UserList, UsersSearchInput, UsersSearchList }
+function UsersManager({ isAdmin, renderUserInSearch, renderUserInChat, users, onSearch }) {
+    const [isSearchVisible, setSearchVisible] = useState(false)
+
+    return <>
+        <div className="d-flex flex-row gap-2 card-1 align-items-center">
+            <span className="fs-110 fw-500 flex-grow-1">Users in chat: {users?.length}</span>
+            {isAdmin && <Button onClick={() => setSearchVisible(p => !p)}>{isSearchVisible ? "Show users" : "Add users"}</Button>}
+        </div>
+        <div className="d-flex flex-grow-1 scroll-y h-0">
+            {isSearchVisible ?
+                <UsersSearchList onSearch={onSearch} onRenderItem={renderUserInSearch} /> :
+                <UserList users={users} status={{ isReady: true }} onRenderItem={renderUserInChat} onEmpty={() => <EmptyUserList />} />}
+        </div>
+    </>
+}
+
+export { UserCard, UserList, UsersManager, UsersSearchInput, UsersSearchList }
