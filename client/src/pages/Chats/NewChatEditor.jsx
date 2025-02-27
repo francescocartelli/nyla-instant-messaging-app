@@ -3,10 +3,11 @@ import { Check2Square, XCircle } from 'react-bootstrap-icons'
 import { useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/Commons/Buttons'
+import { Text } from '@/components/Commons/Inputs'
 
 import { UsersManager, UserCard } from '@/components/Users/Users'
 
-import { NewChatBasicSettings, UserBadges } from '@/components/Chats/ChatEditor'
+import { UserBadges, BasicSettings } from '@/components/Chats/ChatEditor'
 
 import chatAPI from '@/api/chatAPI'
 import userAPI from '@/api/userAPI'
@@ -22,12 +23,20 @@ function UserInChat({ user, onAdd, onRemove, isSelf, isSelected }) {
     </UserCard>
 }
 
+function NewChatBasicSettings({ name, onChange, close }) {
+    return <BasicSettings title="Create new chat:" close={close} isGroup={true}>
+        <div className="d-flex flex-row gap-2">
+            <Text className="flex-grow-1" placeholder="Group name..." value={name} onChange={onChange} />
+        </div>
+    </BasicSettings>
+}
+
 function NewChatEditorPage({ user }) {
     const [chat, setChat] = useState({ name: "", users: [user], isGroup: true })
     const [isLoading, setLoading] = useState(false)
 
     const navigate = useNavigate()
-    const onClose = () => navigate("/chats")
+    const onClose = useCallback(() => navigate("/chats"), [navigate])
 
     const onSubmit = () => {
         setLoading(true)

@@ -5,10 +5,10 @@ import { Button } from '@/components/Commons/Buttons'
 
 import './Layout.css'
 
-function Tab({ onClick = () => { }, isActive = true, children = <></> }) {
-    return <div className={`tab ${isActive ? "fore-1" : 'fore-2'}`} onClick={() => onClick()}>
+function Tab({ onClick = () => { }, isActive = true, children = <></>, disabled }) {
+    return <button className={`tab ${isActive ? "fore-1" : 'fore-2'}`} onClick={() => onClick()} disabled={disabled}>
         {children}
-    </div>
+    </button>
 }
 
 function TabsLayout({ children }) {

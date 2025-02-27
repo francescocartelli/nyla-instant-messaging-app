@@ -36,7 +36,10 @@ function SettingCard({ onRenderChildren, onConfirm, confirmCallback, initialValu
             })
     }
 
-    const onClickCancel = () => { setValue(initialValue); setEditing(false) }
+    const onClickCancel = () => {
+        setValue(initialValue)
+        setEditing(false)
+    }
 
     return <div className="d-flex flex-column gap-2">
         <div className="d-flex flex-row gap-2 align-items-center">

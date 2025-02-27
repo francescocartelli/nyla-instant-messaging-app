@@ -26,6 +26,15 @@
     transition: 0.2s;
 }
 
+.tab {
+    background-color: transparent;
+    border: none;
+}
+
+.tab:disabled {
+    opacity: 0.5;
+}
+
 .pages-control {
     display: flex;
     flex-direction: row;

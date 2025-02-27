@@ -6,7 +6,7 @@ import './Nav.css'
 
 import { IsLogged, IsNotLogged } from '@/components/Commons/Barriers'
 import { StatusLayout } from '@/components/Commons/Layout'
-import { Logo, LogoGrad } from '@/components/Icons/Icons'
+import { Logo, LogoGrad } from '@/components/Icons'
 import { Footer } from '../Footer/Footer'
 
 import { useStatus } from '@/hooks'

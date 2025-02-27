@@ -3,7 +3,7 @@ import { KeyFill, QuestionCircle, ThreeDotsVertical } from 'react-bootstrap-icon
 
 import { Button } from '@/components/Commons/Buttons'
 import { StatusLayout } from '@/components/Commons/Layout'
-import { PeopleChat, PersonChat } from '@/components/Icons/Icons'
+import { PeopleChat, PersonChat } from '@/components/Icons'
 
 function ChatAlert({ icon, title, subtitle }) {
     return <>

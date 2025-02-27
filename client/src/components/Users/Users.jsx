@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Person, PersonXFill, Search, XCircleFill } from 'react-bootstrap-icons'
 
-import { ErrorAlert, LoadingAlert } from '@/components/Commons/Alerts'
+import { ErrorAlert } from '@/components/Commons/Alerts'
+import { Button } from '@/components/Commons/Buttons'
 import { Text } from '@/components/Commons/Inputs'
 import { StatusLayout } from '@/components/Commons/Layout'
-import { Button } from '@/components/Commons/Buttons'
 
-import { useDebounce, useStatus } from '@/hooks'
+import { useDebounce, useRange, useStatus } from '@/hooks'
 
 function EmptyUserList() {
     return <div className="card-1 d-flex flex-row justify-content-center align-items-center gap-2">
@@ -27,10 +27,26 @@ function UserCard({ user, badges, children }) {
     </div>
 }
 
+function UserCardSkeleton() {
+    return <div className="row-center card-1 align-items-center position-relative w-100">
+        <div className="crd-icon-30 fore-2 skeleton">_</div>
+        <div className="d-flex flex-column gap-1 flex-grow-1">
+            <span className="skeleton skeleton-text-precise">________________</span>
+            <span className="skeleton skeleton-text-precise">________________________________</span>
+        </div>
+        <span className='skeleton skeleton-icon-squared-2'>_</span>
+    </div>
+}
+
+function UserCardSkeletons({ nItems }) {
+    const items = useRange(nItems)
+    return items.map((_, i) => <UserCardSkeleton key={i} />)
+}
+
 function UserList({ users, status, onEmpty, onRenderItem }) {
     return <div className="d-flex flex-column gap-3 flex-grow-1 scroll-y">
         <StatusLayout status={status}
-            loading={<div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><LoadingAlert /></div>}
+            loading={<UserCardSkeletons nItems={10}/>}
             ready={users?.length > 0 ? users.map(u => onRenderItem(u)) : onEmpty()}
             error={<div className="d-flex flex-grow-1 align-items-center justify-content-center m-2"><ErrorAlert /></div>}
         />
@@ -101,4 +117,5 @@ function UsersManager({ isAdmin, renderUserInSearch, renderUserInChat, users, on
     </>
 }
 
-export { UserCard, UserList, UsersManager, UsersSearchInput, UsersSearchList }
+export { UserCard, UserCardSkeleton, UserList, UsersManager, UsersSearchInput, UsersSearchList }
+

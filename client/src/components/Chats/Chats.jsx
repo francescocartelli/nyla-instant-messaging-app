@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { Button, LinkButton } from '@/components/Commons/Buttons'
 import { Tab } from '@/components/Commons/Layout'
-import { PeopleChat, PersonChat } from '@/components/Icons/Icons'
+import { PeopleChat, PersonChat } from '@/components/Icons'
 
 function ChatCard({ chat, relativeDateTime }) {
     const spanClassname = "d-flex flex-row align-items-center text-nowrap fs-80 fore-2 gap-2"
@@ -42,10 +42,10 @@ function NewChatButton() {
     </div>
 }
 
-function OrderOption({ isAsc = false, setAsc = () => { } }) {
+function OrderOption({ isAsc = false, setAsc = () => { }, ...props }) {
     return <div className="d-flex flex-row gap-2 align-items-center">
         <span className="fore-2 text-nowrap"><i>Sorted by date: <b>{isAsc ? "ascending" : "descending"}</b></i></span>
-        <Button onClick={() => setAsc(p => !p)}>
+        <Button onClick={() => setAsc(p => !p)} {...props}>
             {isAsc ?
                 <SortNumericUp className="fore-1 size-1" /> :
                 <SortNumericDown className="fore-1 size-1" />}
@@ -53,7 +53,7 @@ function OrderOption({ isAsc = false, setAsc = () => { } }) {
     </div>
 }
 
-function FilterOption({ isGroup = false, setGroup = () => { }, onReset = () => { } }) {
+function FilterOption({ isGroup = false, setGroup = () => { }, onReset = () => { }, disabled }) {
     const onSetGroupClick = (value) => {
         setGroup(value)
         onReset()
@@ -63,9 +63,9 @@ function FilterOption({ isGroup = false, setGroup = () => { }, onReset = () => {
         <span className="fore-2 text-nowrap"><i>Filter by:</i></span>
         <div className="d-flex flex-row gap-2 align-items-center">
             <div className="tabs-layout card-1 gap-1 p-0">
-                <Tab onClick={() => onSetGroupClick(null)} isActive={isGroup === null}>None</Tab>
-                <Tab onClick={() => onSetGroupClick(true)} isActive={isGroup === true}>Group</Tab>
-                <Tab onClick={() => onSetGroupClick(false)} isActive={isGroup === false}>Direct</Tab>
+                <Tab onClick={() => onSetGroupClick(null)} isActive={isGroup === null} disabled={disabled}>None</Tab>
+                <Tab onClick={() => onSetGroupClick(true)} isActive={isGroup === true} disabled={disabled}>Group</Tab>
+                <Tab onClick={() => onSetGroupClick(false)} isActive={isGroup === false} disabled={disabled}>Direct</Tab>
             </div>
         </div>
     </div>

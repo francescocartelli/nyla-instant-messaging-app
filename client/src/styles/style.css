@@ -214,6 +214,11 @@
     min-width: 100px;
 }
 
+.skeleton-text-precise {
+    width: fit-content;
+    border-radius: 0.4em;   
+}
+
 .skeleton-text {
     width: 100%;
     border-radius: 0.4em;

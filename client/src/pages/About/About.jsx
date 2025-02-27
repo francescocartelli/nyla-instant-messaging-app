@@ -1,6 +1,6 @@
 import { Github, Linkedin, Medium } from 'react-bootstrap-icons'
 
-import { Logo } from '@/components/Icons/Icons'
+import { Logo } from '@/components/Icons'
 
 function AboutPage() {
     return <div className="d-flex flex-row flex-grow-1 justify-content-center align-items-center gap-2">

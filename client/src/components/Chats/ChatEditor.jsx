@@ -1,12 +1,10 @@
 import React, { useState } from 'react'
-import { X } from 'react-bootstrap-icons'
-import { Check, ChevronDown, ChevronUp, TrashFill } from 'react-bootstrap-icons'
+import { Check, ChevronDown, ChevronUp, TrashFill, X } from 'react-bootstrap-icons'
 
-import { Crown } from '@/components/Icons/Icons'
+import { Crown } from '@/components/Icons'
 
 import { ErrorAlert, LoadingAlert } from '@/components/Commons/Alerts'
 import { Button } from '@/components/Commons/Buttons'
-import { Text } from '@/components/Commons/Inputs'
 import { StatusLayout } from '@/components/Commons/Layout'
 
 import { useStatus } from '@/hooks'
@@ -28,14 +26,6 @@ function BasicSettings({ title, close, isGroup, children }) {
         </div>
         {isGroup && children}
     </div>
-}
-
-function NewChatBasicSettings({ name, onChange, close }) {
-    return <BasicSettings title="Create new chat:" close={close} isGroup={true}>
-        <div className="d-flex flex-row gap-2">
-            <Text className="flex-grow-1" placeholder="Group name..." value={name} onChange={onChange} />
-        </div>
-    </BasicSettings>
 }
 
 function AdvancedSettings({ deleteChat }) {
@@ -74,5 +64,5 @@ function AdvancedSettings({ deleteChat }) {
     </div>
 }
 
-export { AdvancedSettings, BasicSettings, NewChatBasicSettings, UserBadges }
+export { AdvancedSettings, BasicSettings, UserBadges }
 

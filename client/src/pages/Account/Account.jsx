@@ -1,72 +1,55 @@
-import { useState } from 'react'
-import { BoxArrowInRight, EyeFill, EyeSlashFill, LockFill, PersonFill, PersonPlusFill } from 'react-bootstrap-icons'
+import { useCallback, useMemo, useState } from 'react'
+import { BoxArrowInRight, PersonPlusFill } from 'react-bootstrap-icons'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useStatus } from '@/hooks'
+import { useStatus, useValidation } from '@/hooks'
 
 import { ErrorAlert, LoadingAlert } from '@/components/Commons/Alerts'
 import { Button } from '@/components/Commons/Buttons'
-import { Text } from '@/components/Commons/Inputs'
 import { StatusLayout, TabsLayout } from '@/components/Commons/Layout'
 
-import { GoogleColored, Logo } from '@/components/Icons/Icons'
+import { Logo } from '@/components/Icons'
 
-import { EmailRegistration, PasswordRegistration, UsernameRegistration } from '@/components/Account/Account'
-
-import userAPI from '@/api/userAPI'
+import { EmailInput, EmailRegistration, GoogleSignInLink, PasswordInput, PasswordRegistration, RepeatPassword, UsernameRegistration } from '@/components/Account/Account'
 
 import { googleAuthenticateEndpoint } from '@/api/endpoints'
+import userAPI from '@/api/userAPI'
+
+import useCheckUsernameValidation from './useCheckUsernameValidation'
 
 import './Account.css'
 
-function LoginTab({ signinSuccessful }) {
-    const [userIdentifier, setUserIdentifier] = useState("")
-    const [password, setPassword] = useState("")
-    const [isShowPassword, setShowPassword] = useState(false)
-    const [message, setMessage] = useState("")
+const usernameReg = /^(?=[a-zA-Z0-9._]{8,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/
+const emailReg = /^\S+@\S+\.\S+$/
+const passwordReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{8,}$/
 
+function LoginTab({ signinSuccessful }) {
+    const [userIdentifier, setUserIdentifier] = useState('')
+    const [password, setPassword] = useState('')
+
+    const [message, setMessage] = useState('')
     const [loginStatus, loginStatusActions] = useStatus({ isReady: true })
 
-    const onSubmit = (ev) => {
+    const onSubmit = ev => {
         ev.preventDefault()
         loginStatusActions.setLoading()
-        userAPI.signin(userIdentifier, password)
-            .then(res => res.json())
-            .then(res => {
-                loginStatusActions.setReady()
-                signinSuccessful(res)
-            })
-            .catch(err => {
-                loginStatusActions.setReady()
-                err.json()
-                    .then(err => setMessage(err.message))
-            })
-
+        userAPI.signin(userIdentifier, password).then(res => res.json())
+            .then(res => signinSuccessful(res))
+            .catch(err => { err.json().then(err => setMessage(err.message)) })
+            .finally(loginStatusActions.setReady)
     }
 
-    const onChangeUserIdentifier = ev => setUserIdentifier(ev.target.value)
-    const onChangePassword = ev => setPassword(ev.target.value)
-    const onShowPassword = ev => setShowPassword(false)
-    const onHidePassword = ev => setShowPassword(true)
-
-    const passwordType = isShowPassword ? "text" : "password"
-    const isLoginButtonDisabled = !userIdentifier || !password
+    const isLoginButtonDisabled = useMemo(() => !userIdentifier || !password, [userIdentifier, password])
 
     return <form className="d-flex align-self-stretch flex-column gap-3" onSubmit={onSubmit}>
         {message && <div className="card-1 warning fs-80 p-2"><span><i>{message}</i></span></div>}
         <div className="d-flex flex-column gap-2">
-            <Text autoComplete="new-password" value={userIdentifier} placeholder="Username or email..." onChange={onChangeUserIdentifier} left={<PersonFill className="fore-2 size-1" />} />
-            <Text autoComplete="new-password" type={passwordType} placeholder="Password..." value={password} onChange={onChangePassword} left={<LockFill className="fore-2 size-1" />}
-                right={isShowPassword ?
-                    <EyeFill className="fore-2-btn size-1" onClick={onShowPassword} /> :
-                    <EyeSlashFill className="fore-2-btn size-1" onClick={onHidePassword} />
-                } />
+            <EmailInput value={userIdentifier} onChange={ev => setUserIdentifier(ev.target.value)} />
+            <PasswordInput value={password} onChange={ ev => setPassword(ev.target.value)} />
         </div>
         <StatusLayout status={loginStatus}
             loading={<LoadingAlert />}
-            ready={<div className="d-flex align-self-stretch">
-                <Button className="flex-grow-1" type="submit" disabled={isLoginButtonDisabled}>Login</Button>
-            </div>}
+            ready={<div className="d-flex align-self-stretch"><Button className="flex-grow-1" type="submit" disabled={isLoginButtonDisabled}>Login</Button></div>}
             error={<ErrorAlert />}
         />
         <p className="align-self-center fore-2 fs-80">
@@ -76,58 +59,43 @@ function LoginTab({ signinSuccessful }) {
 }
 
 function RegistrationTab({ signupSuccessful }) {
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
-    const [email, setEMail] = useState("")
+    const onCheckUsername = useCallback(u => userAPI.getUsers(u, 'exact').then(res => res.json()), [])
 
-    const [isUsernameInvalidOrTaken, setUsernameInvalidOrTaken] = useState(true)
-    const [isAnyPasswordInvalid, setAnyPasswordInvalid] = useState(true)
-    const [isEmailInvalid, setEmailInvalid] = useState(true)
+    const username = useCheckUsernameValidation('', value => usernameReg.test(value), onCheckUsername, 2000)
+    const email = useValidation('', value => emailReg.test(value))
+    const password = useValidation('', value => passwordReg.test(value))
+    const passwordRepeat = useValidation('', value => value === password.value)
 
-    const [message, setMessage] = useState("")
-
+    const [message, setMessage] = useState('')
     const [registrationStatus, registrationStatusActions] = useStatus({ isReady: true })
 
     const onRegister = ev => {
         ev.preventDefault()
         registrationStatusActions.setLoading()
-        userAPI.signup(username, password, email)
-            .then(res => res.json())
-            .then(res => {
-                registrationStatusActions.setReady()
-                signupSuccessful(res)
-            })
-            .catch(err => {
-                registrationStatusActions.setReady()
-                err.json()
-                    .then(err => setMessage(err.message))
-            })
-
+        userAPI.signup(username.value, password.value, email.value).then(res => res.json())
+            .then(signupSuccessful)
+            .catch(err => { err.json().then(err => setMessage(err.message)) })
+            .finally(registrationStatus.setReady)
     }
 
-    const isRegisterButtonDisabled = isUsernameInvalidOrTaken || isAnyPasswordInvalid || isEmailInvalid
+    const isSubmitDisabled = useMemo(() => username.isInvalid || username.isTaken || password.isInvalid || passwordRepeat.isInvalid || email.isInvalid, [username, password, passwordRepeat, email])
 
     return <form className="d-flex flex-column align-self-stretch gap-3" onSubmit={onRegister}>
         {message && <div className="card-1 warning fs-80 p-2"><span><i>{message}</i></span></div>}
         <div className="d-flex flex-column gap-2">
-            <UsernameRegistration username={username} setUsername={setUsername} setInvalid={setUsernameInvalidOrTaken} onCheck={userAPI.getUsers} />
-            <EmailRegistration email={email} setEMail={setEMail} isEmailInvalid={isEmailInvalid} setEmailInvalid={setEmailInvalid}/>
-            <PasswordRegistration password={password} setPassword={setPassword} setInvalid={setAnyPasswordInvalid} />
+            <UsernameRegistration value={username.value} onChange={ev => username.setValue(ev.target.value)} isTaken={username.isTaken} checkStatus={username.checkStatus} isInvalid={username.isInvalid} />
+            <EmailRegistration value={email.value} onChange={ev => email.setValue(ev.target.value)} isInvalid={email.isInvalid} />
+            <PasswordRegistration value={password.value} onChange={ev => password.setValue(ev.target.value)} isInvalid={password.isInvalid} />
+            <RepeatPassword value={passwordRepeat.value} onChange={ev => passwordRepeat.setValue(ev.target.value)} isInvalid={passwordRepeat.isInvalid} />
         </div>
         <StatusLayout status={registrationStatus}
             loading={<LoadingAlert />}
             ready={<div className="d-flex align-self-stretch">
-                <Button type="submit" className="flex-grow-1" disabled={isRegisterButtonDisabled}>Register</Button>
+                <Button type="submit" className="flex-grow-1" disabled={isSubmitDisabled}>Register</Button>
             </div>}
             error={<ErrorAlert />}
         />
     </form>
-}
-
-function GoogleSignInLink({className, ...props}) {
-    return <a className={`google-sign-in-link ${className}`} {...props}>
-        <GoogleColored /> <span className="fore-1">Sign in with Google</span>
-    </a>
 }
 
 function AccountPage({ setUser }) {
