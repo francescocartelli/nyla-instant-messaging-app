@@ -2,9 +2,8 @@ import { useCallback, useMemo, useState } from 'react'
 import { BoxArrowInRight, PersonPlusFill } from 'react-bootstrap-icons'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useStatus, useValidation } from '@/hooks'
+import { useRemoteValidation, useStatus, useValidation } from '@/hooks'
 
-import { ErrorAlert, LoadingAlert } from '@/components/Commons/Alerts'
 import { Button } from '@/components/Commons/Buttons'
 import { StatusLayout, TabsLayout } from '@/components/Commons/Layout'
 
@@ -15,13 +14,9 @@ import { EmailInput, EmailRegistration, GoogleSignInLink, PasswordInput, Passwor
 import { googleAuthenticateEndpoint } from '@/api/endpoints'
 import userAPI from '@/api/userAPI'
 
-import useCheckUsernameValidation from './useCheckUsernameValidation'
+import { emailReg, passwordReg, usernameReg } from '@/constants/regs'
 
 import './Account.css'
-
-const usernameReg = /^(?=[a-zA-Z0-9._]{8,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/
-const emailReg = /^\S+@\S+\.\S+$/
-const passwordReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{8,}$/
 
 function LoginTab({ signinSuccessful }) {
     const [userIdentifier, setUserIdentifier] = useState('')
@@ -39,19 +34,20 @@ function LoginTab({ signinSuccessful }) {
             .finally(loginStatusActions.setReady)
     }
 
-    const isLoginButtonDisabled = useMemo(() => !userIdentifier || !password, [userIdentifier, password])
+    const isLoginButtonDisabled = useMemo(() => !userIdentifier || !password || loginStatus.isLoading, [userIdentifier, password, loginStatus])
 
     return <form className="d-flex align-self-stretch flex-column gap-3" onSubmit={onSubmit}>
         {message && <div className="card-1 warning fs-80 p-2"><span><i>{message}</i></span></div>}
         <div className="d-flex flex-column gap-2">
             <EmailInput value={userIdentifier} onChange={ev => setUserIdentifier(ev.target.value)} />
-            <PasswordInput value={password} onChange={ ev => setPassword(ev.target.value)} />
+            <PasswordInput value={password} onChange={ev => setPassword(ev.target.value)} />
         </div>
-        <StatusLayout status={loginStatus}
-            loading={<LoadingAlert />}
-            ready={<div className="d-flex align-self-stretch"><Button className="flex-grow-1" type="submit" disabled={isLoginButtonDisabled}>Login</Button></div>}
-            error={<ErrorAlert />}
-        />
+        <div className="d-flex align-self-stretch"><Button className="flex-grow-1" type="submit" disabled={isLoginButtonDisabled}>
+            <StatusLayout status={loginStatus}
+                loading={<>loading...</>}
+                ready={<>login</>}
+            />
+        </Button></div>
         <p className="align-self-center fore-2 fs-80">
             <i>You forgot your <Link to="/login/forgot/username"><u>username</u></Link> or <Link to="/login/forgot"><u>password</u></Link>?</i>
         </p>
@@ -59,9 +55,11 @@ function LoginTab({ signinSuccessful }) {
 }
 
 function RegistrationTab({ signupSuccessful }) {
-    const onCheckUsername = useCallback(u => userAPI.getUsers(u, 'exact').then(res => res.json()), [])
+    const onCheckUsername = useCallback((u, setInvalid) => userAPI.getUsers(u, 'exact')
+        .then(res => res.json())
+        .then(users => setInvalid(users.length > 0)), [])
 
-    const username = useCheckUsernameValidation('', value => usernameReg.test(value), onCheckUsername, 2000)
+    const username = useRemoteValidation('', value => usernameReg.test(value), onCheckUsername, 2000)
     const email = useValidation('', value => emailReg.test(value))
     const password = useValidation('', value => passwordReg.test(value))
     const passwordRepeat = useValidation('', value => value === password.value)
@@ -75,26 +73,33 @@ function RegistrationTab({ signupSuccessful }) {
         userAPI.signup(username.value, password.value, email.value).then(res => res.json())
             .then(signupSuccessful)
             .catch(err => { err.json().then(err => setMessage(err.message)) })
-            .finally(registrationStatus.setReady)
+            .finally(registrationStatusActions.setReady)
     }
 
-    const isSubmitDisabled = useMemo(() => username.isInvalid || username.isTaken || password.isInvalid || passwordRepeat.isInvalid || email.isInvalid, [username, password, passwordRepeat, email])
+    const isSubmitDisabled = useMemo(() =>
+        username.isInvalid ||
+        username.isRemoteInvalid ||
+        password.isInvalid ||
+        passwordRepeat.isInvalid ||
+        email.isInvalid || !registrationStatus.isReady,
+        [username, password, passwordRepeat, email])
 
     return <form className="d-flex flex-column align-self-stretch gap-3" onSubmit={onRegister}>
         {message && <div className="card-1 warning fs-80 p-2"><span><i>{message}</i></span></div>}
         <div className="d-flex flex-column gap-2">
-            <UsernameRegistration value={username.value} onChange={ev => username.setValue(ev.target.value)} isTaken={username.isTaken} checkStatus={username.checkStatus} isInvalid={username.isInvalid} />
+            <UsernameRegistration value={username.value} onChange={ev => username.setValue(ev.target.value)} isTaken={username.isRemoteInvalid} checkStatus={username.checkStatus} isInvalid={username.isInvalid} />
             <EmailRegistration value={email.value} onChange={ev => email.setValue(ev.target.value)} isInvalid={email.isInvalid} />
             <PasswordRegistration value={password.value} onChange={ev => password.setValue(ev.target.value)} isInvalid={password.isInvalid} />
             <RepeatPassword value={passwordRepeat.value} onChange={ev => passwordRepeat.setValue(ev.target.value)} isInvalid={passwordRepeat.isInvalid} />
         </div>
-        <StatusLayout status={registrationStatus}
-            loading={<LoadingAlert />}
-            ready={<div className="d-flex align-self-stretch">
-                <Button type="submit" className="flex-grow-1" disabled={isSubmitDisabled}>Register</Button>
-            </div>}
-            error={<ErrorAlert />}
-        />
+        <div className="d-flex align-self-stretch">
+            <Button type="submit" className="flex-grow-1" disabled={isSubmitDisabled}>
+                <StatusLayout status={registrationStatus}
+                    loading={<>loading...</>}
+                    ready={<>register</>}
+                    error={<>an error has occured...</>} />
+            </Button>
+        </div>
     </form>
 }
 

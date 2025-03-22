@@ -10,7 +10,7 @@ function useArray(initial = [], lookup = x => x) {
         extend: x => setItems(p => [...p, ...x]),
         prextend: x => setItems(p => [...x, ...p]),
         delete: id => setItems(p => p.filter(q => lookup(q) !== id)),
-        clear: () => setItems(0)
+        clear: () => setItems([])
     }), [lookup])
 
     return [items, actions]

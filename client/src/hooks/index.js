@@ -5,9 +5,10 @@ import useDebounce from './useDebounce'
 import useInit from './useInit'
 import useRange from './useRange'
 import useRelativeDateTime from './useRelativeDateTime'
+import useRemoteValidation from './useRemoteValidation'
 import useStatus from './useStatus'
 import useValidation from './useValidation'
 import useVieport from './useViewport'
 
-export { useArray, useAuth, useCounter, useDebounce, useInit, useRange, useRelativeDateTime, useStatus, useValidation, useVieport }
+export { useArray, useAuth, useCounter, useDebounce, useInit, useRange, useRelativeDateTime, useRemoteValidation, useStatus, useValidation, useVieport }
 

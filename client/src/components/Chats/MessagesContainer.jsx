@@ -58,7 +58,7 @@ function useMessagesContainer(
         messagesActions.set(message.id, { ...message, isPending: true, isError: false })
         deleteMessage(message)
             .then(() => messagesActions.delete(message.id))
-            .catch(() => messagesActions.set(message.id, { ...message, isLoading: false, isError: true }))
+            .catch(() => messagesActions.set(message.id, { ...message, isPending: false, isError: true }))
     }, [deleteMessage, messagesActions])
 
     const onSendMessage = useCallback(content => {

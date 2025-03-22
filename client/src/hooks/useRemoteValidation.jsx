@@ -2,26 +2,23 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { useStatus, useValidation, useDebounce } from '@/hooks'
 
-export function useCheckUsernameValidation(initial, test, onCheck, debounceDelay) {
+function useRemoteValidation(initial, test, onCheck, debounceDelay) {
     const { value, setValue, isInvalid } = useValidation(initial, test)
 
-    const [isTaken, setTaken] = useState(true)
+    const [isRemoteInvalid, setRemoteInvalid] = useState(true)
     const [checkStatus, checkStatusActions] = useStatus({ isReady: true })
 
-    const debounceCallback = useCallback(u => {
-        onCheck(u).then(users => {
-            setTaken(users.length > 0)
-            checkStatusActions.setReady()
-        }).catch(() => {
-            setTaken(true)
+    const debounceCallback = useCallback(param => onCheck(param, setRemoteInvalid)
+        .then(checkStatusActions.setReady)
+        .catch(() => {
+            setRemoteInvalid(true)
             checkStatusActions.setError()
-        })
-    }, [checkStatusActions, onCheck])
+        }), [checkStatusActions, onCheck])
     const [check, stopCheck] = useDebounce(debounceCallback, debounceDelay)
 
     useEffect(() => {
-        setTaken(true)
-        if (value && !isInvalid) {
+        setRemoteInvalid(true)
+        if (value !== initial && !isInvalid) {
             checkStatusActions.setLoading()
             check(value)
         } else {
@@ -30,7 +27,7 @@ export function useCheckUsernameValidation(initial, test, onCheck, debounceDelay
         }
     }, [value, isInvalid, check, stopCheck, checkStatusActions])
 
-    return { value, setValue, isInvalid, checkStatus, isTaken }
+    return { value, setValue, isInvalid, checkStatus, isRemoteInvalid }
 }
 
-export default useCheckUsernameValidation
+export default useRemoteValidation
