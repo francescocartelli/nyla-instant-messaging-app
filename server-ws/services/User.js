@@ -2,21 +2,22 @@ const cookieParser = require('cookie-parser')
 
 const cookieParserMiddleware = cookieParser()
 
-const extractJWT = req => req.cookies?.jwt
+const extractCookieJWT = req => req.cookies?.jwt
 
-const createUserStore = retrieveUser => req => new Promise((resolve, reject) => {
-    cookieParserMiddleware(req, {}, async () => {
-        const jwt = extractJWT(req)
-        if (!jwt) reject({ status: 401, message: "Missing JWT cookie" })
+const extractJWT = req => new Promise((resolve, reject) => cookieParserMiddleware(req, {}, () => {
+    try {
+        resolve(extractCookieJWT(req))
+    } catch (err) {
+        reject(err)
+    }
+}))
 
-        try {
-            const { data } = await retrieveUser(jwt)
-            resolve(data)
-        } catch (err) {
-            reject({ status: err.response.status, message: err.response.statusText })
-        }
-    })
-})
+const createUserStore = retrieveUser => async (req) => {
+    const jwt = await extractJWT(req)
+    if (!jwt) reject({ status: 401, message: "Missing JWT cookie" })
+
+    return retrieveUser(jwt)
+}
 
 
 module.exports = createUserStore

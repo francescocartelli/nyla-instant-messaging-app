@@ -1,19 +1,22 @@
 const WebSocket = require('ws')
-const axios = require('axios')
 
 const { connect, subscribe, unsubscribe } = require('./config/Mq')
 
 const createUserStore = require('./services/User')
 
-const createLogger = require('./utitlities/Logger')
-const createConnectionManager = require('./utitlities/ConnectionManager')
-const { jwtTCookieHeader } = require('./utitlities/CookieJWT')
-const { getChannel } = require('./utitlities/Channels')
+const createLogger = require('./utilities/Logger')
+const createConnectionManager = require('./utilities/ConnectionManager')
+const { jwtTCookieHeader } = require('./utilities/CookieJWT')
+const { getChannel } = require('./utilities/Channels')
 
 require('dotenv').config()
 
 const logger = createLogger(process.env.LOGGING_LEVEL)
-const getCurrentUser = createUserStore(jwt => axios.get(`http://${process.env.API_SERVER_URL}/api/users/current`, jwtTCookieHeader(jwt)))
+
+const getCurrentUser = createUserStore(async jwt => fetch(`http://${process.env.API_SERVER_URL}/api/users/current`, {
+    method: 'GET',
+    headers: jwtTCookieHeader(jwt)
+}).then(res => res.json()))
 
 const { addConnection } = createConnectionManager({ log: logger.debug })
 

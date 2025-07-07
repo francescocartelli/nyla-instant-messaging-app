@@ -1,7 +1,5 @@
 const jwtTCookieHeader = jwt => ({
-    headers: {
-        Cookie: `jwt=${jwt};`
-    }
+    Cookie: `jwt=${jwt};`
 })
 
 exports.jwtTCookieHeader = jwtTCookieHeader
