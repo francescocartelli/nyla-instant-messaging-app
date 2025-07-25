@@ -1,19 +1,32 @@
-const { Validator, ValidationError } = require("express-json-validator-middleware")
+const Ajv = require('ajv')
+const addFormats = require('ajv-formats')
 
 const dbServices = require("../services/DbServices")
 
-const validator = new Validator({ allErrors: true })
+const ajv = new Ajv({ allErrors: true })
+addFormats(ajv)
 
-exports.validate = validator.validate
+const addSchema = schema => ajv.addSchema(schema)
 
-exports.validationError = (err, req, res, next) => {
-    if (err instanceof ValidationError) {
-        console.log(err.validationErrors)
-        return res.status(400).send(err)
+const validateBody = schema => {
+    const validate = ajv.compile(schema)
+
+    return (req, res, next) => {
+        const isValid = validate(req.body)
+        
+        if (!isValid) return res.status(400).json({
+            errors: validate.errors.map(err => ({
+                field: err.instancePath || err.params.missingProperty,
+                message: err.message
+            }))
+        })
+
+        next()
     }
-
-    next(err)
 }
+
+exports.validateBody = validateBody
+exports.addSchema = addSchema
 
 exports.validateId = (idParam) => (req, res, next) => {
     const id = req.params[idParam]
