@@ -4,6 +4,7 @@ import useWS from '@/hooks/useWS'
 
 const channelTypes = {
     createMessageInChat: idChat => `MESSAGE_CREATE_${idChat}`,
+    updatedMessageInChat: idChat => `MESSAGE_UPDATE_${idChat}`,
     deleteMessageInChat: idChat => `MESSAGE_DELETE_${idChat}`,
     deleteChat: idChat => `CHAT_DELETE_${idChat}`,
     createMessage: () => 'MESSAGE_CREATE'

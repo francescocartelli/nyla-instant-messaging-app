@@ -27,6 +27,7 @@ const removeCurrentUserChat = (idChat) => safeFetch(chatCurrentUserEndpoint(idCh
 
 const getMessages = (idChat, cursor, options) => safeFetch(chatMessagesCursorEndpoint(idChat, cursor), options)
 const sendMessage = (idChat, { content }) => safeFetch(chatMessagesEndpoint(idChat), postConfigJSON({ content }))
+const updateMessage = (idChat, { id, content }) => safeFetch(chatMessageEndpoint(idChat, id), putConfigJSON({ content }))
 const deleteMessage = (idChat, idMessage) => safeFetch(chatMessageEndpoint(idChat, idMessage), deleteConfig())
 
 const chatAPI = {
@@ -42,6 +43,7 @@ const chatAPI = {
     removeCurrentUserChat,
     getMessages,
     sendMessage,
+    updateMessage,
     deleteMessage
 }
 

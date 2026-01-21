@@ -55,7 +55,8 @@ function ChatPage({ user }) {
     const messageMapping = useMessageMapping(users, user)
 
     const getMessages = useCallback(cur => chatAPI.getMessages(id, cur).then(res => res.json()), [id])
-    const sendMessage = useCallback(({ content }) => chatAPI.sendMessage(id, { content }).then(res => res.json()), [id])
+    const sendMessage = useCallback(message => chatAPI.sendMessage(id, message).then(res => res.json()), [id])
+    const updateMessage = useCallback(message => chatAPI.updateMessage(id, message), [id])
     const deleteMessage = useCallback(message => chatAPI.deleteMessage(id, message.id), [id])
 
     /* get messages async and create ws events handlers */
@@ -63,6 +64,7 @@ function ChatPage({ user }) {
 
     const onDeleteChatSubscription = callback => subscribe(channelTypes.deleteChat(id), callback)
     const onCreateMessageSubscription = callback => subscribe(channelTypes.createMessageInChat(id), callback)
+    const onUpdateSubscription = callback => subscribe(channelTypes.updatedMessageInChat(id), callback)
     const onDeleteMessageSubscription = callback => subscribe(channelTypes.deleteMessageInChat(id), callback)
 
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch mt-2 gap-3">
@@ -76,9 +78,11 @@ function ChatPage({ user }) {
                         onDeleteChatSubscription={onDeleteChatSubscription} />
                     {messageMapping ? <MessagesContainer userId={user.id} isGroup={chat.isGroup} messageMapping={messageMapping}
                         onCreateMessageSubscription={onCreateMessageSubscription}
+                        onUpdateMessageSubscription={onUpdateSubscription}
                         onDeleteMessageSubscription={onDeleteMessageSubscription}
                         getMessages={getMessages}
                         sendMessage={sendMessage}
+                        updateMessage={updateMessage}
                         deleteMessage={deleteMessage}
                     /> : <SkeletonMessages />}
                 </>}
