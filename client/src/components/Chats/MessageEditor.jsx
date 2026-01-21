@@ -6,8 +6,8 @@ import { RTEditor, Toolbar } from '@/components/SEditor'
 
 const initialContent = [{ type: 'paragraph', children: [{ text: '' }] }]
 
-function MessageEditor({ onSendMessage, isDisabled }) {
-    const [content, setContent] = useState(initialContent)
+function MessageEditor({ initial, onSendMessage, isDisabled }) {
+    const [content, setContent] = useState(initial || initialContent)
     const editorRef = useRef()
 
     const resetEditor = useCallback(() => {
@@ -21,12 +21,12 @@ function MessageEditor({ onSendMessage, isDisabled }) {
         resetEditor()
     }
 
-    return <div className="d-flex flex-row gap-2 align-items-center card-1">
+    return <>
         <RTEditor value={content} setValue={setContent} toolbar={<Toolbar />} placeholder="Write yout message here..." ref={editorRef} />
         <form onSubmit={onSubmitMessage}>
             <Button type="submit" className={"circle"} disabled={isDisabled}><Check2 className="fore-success size-1" /></Button>
         </form>
-    </div>
+    </>
 }
 
 export default MessageEditor

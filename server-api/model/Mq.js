@@ -1,5 +1,6 @@
 const messageTypes = {
     MESSAGE_CREATE: 'MESSAGE_CREATE',
+    MESSAGE_UPDATE: 'MESSAGE_UPDATE',
     MESSAGE_DELETE: 'MESSAGE_DELETE',
     CHAT_DELETE: 'CHAT_DELETE'
 }
@@ -14,6 +15,20 @@ exports.mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername
         chatName: chatName,
         senderUsername: senderUsername,
         content: content
+    }
+})
+
+exports.mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUsername, updatedAt }) => ({
+    type: messageTypes.MESSAGE_UPDATE,
+    chat: chat,
+    message: {
+        id: id,
+        idSender: sender,
+        idChat: chat,
+        chatName,
+        senderUsername,
+        content,
+        updatedAt
     }
 })
 

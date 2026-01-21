@@ -11,7 +11,7 @@ const getDateAndTime = datetime => {
     return [date, time]
 }
 
-const createMessage = ({ id, idChat, content, idSender, senderUsername, isFromOther, createdAt, isPending = false, isError = false }) => {
+const createMessage = ({ id, idChat, content, idSender, senderUsername, isFromOther, createdAt, updatedAt, isPending = false, isError = false }) => {
     const [date, time] = getDateAndTime(createdAt)
 
     return {
@@ -23,6 +23,7 @@ const createMessage = ({ id, idChat, content, idSender, senderUsername, isFromOt
         isFromOther,
         createdAtDate: date,
         createdAtTime: time,
+        updatedAt,
         isPending,
         isError
     }

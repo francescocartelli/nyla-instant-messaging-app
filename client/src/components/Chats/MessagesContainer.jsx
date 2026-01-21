@@ -11,10 +11,12 @@ import MessageEditor from '@/components/Chats/MessageEditor'
 
 import { NewMessagesBadge } from './Messages'
 
-function Messages({ messages, isGroup, onDeleteMessage }) {
+function Messages({ messages, isGroup, onUpdateMessage, onDeleteMessage }) {
     return <>
         {messages.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
-        {messages.map((message, i, arr) => <MessageCard key={message.id} message={message} isGroup={isGroup} prev={arr[i - 1]} onDelete={() => onDeleteMessage(message)} />)}
+        {messages.map((message, i, arr) => <MessageCard key={message.id} message={message} isGroup={isGroup} prev={arr[i - 1]}
+            onUpdate={onUpdateMessage}
+            onDelete={() => onDeleteMessage(message)} />)}
     </>
 }
 
@@ -22,9 +24,11 @@ function useMessagesContainer(
     userId,
     messageMapping,
     onCreateMessageSubscription,
+    onUpdateMessageSubscription,
     onDeleteMessageSubscription,
     getMessages,
     sendMessage,
+    updateMessage,
     deleteMessage
 ) {
     const lookupMessages = useCallback(({ id }) => id, [])
@@ -70,6 +74,19 @@ function useMessagesContainer(
             .catch(err => messagesActions.set(message.id, { ...message, isPending: false, isError: true }))
     }, [sendMessage, userId, messageMapping, messagesActions])
 
+    const onUpdateMessage = useCallback(message => new Promise((resolve, reject) => {
+        messagesActions.set(message.id, { ...message, isPending: true, isError: false })
+        updateMessage(message)
+            .then(res => {
+                messagesActions.set(message.id, { ...message, isPending: false, isError: false })
+                resolve(res)
+            })
+            .catch(err => {
+                messagesActions.set(message.id, { ...message, isPending: false, isError: true })
+                reject(err)
+            })
+    }))
+
     const onNewMessagesBadgeClick = useCallback(() => { resetNewMessagesNumber(); scrollToLastMessage() }, [scrollToLastMessage, resetNewMessagesNumber])
     const onGetPreviousMessagesClick = useCallback(() => onGetMessages(messagesCursor.current, messagesRefetchStatusActions), [onGetMessages, messagesRefetchStatusActions])
 
@@ -78,6 +95,11 @@ function useMessagesContainer(
         if (userId === message.idSender) return
         messagesActions.append(messageMapping(message))
         isMessageReceived.current = true
+    }, [userId, messageMapping, messagesActions])
+
+    const messageUpdated = useCallback(message => {
+        if (userId === message.idSender) return
+        messagesActions.set(message.id, messageMapping(message))
     }, [userId, messageMapping, messagesActions])
 
     const messageDeleted = useCallback(message => (userId !== message.idSender) && messagesActions.delete(message.id), [userId, messagesActions])
@@ -92,10 +114,15 @@ function useMessagesContainer(
 
     useEffect(() => {
         const unsubCreateMessage = onCreateMessageSubscription(({ message }) => messageReceived(message))
+        const unsubUpdateMessage = onUpdateMessageSubscription(({ message }) => messageUpdated(message))
         const unsubDeleteMessage = onDeleteMessageSubscription(({ message }) => messageDeleted(message))
 
-        return () => { unsubCreateMessage(); unsubDeleteMessage() }
-    }, [onCreateMessageSubscription, onDeleteMessageSubscription, messageReceived, messageDeleted])
+        return () => {
+            unsubCreateMessage()
+            unsubUpdateMessage()
+            unsubDeleteMessage()
+        }
+    }, [onCreateMessageSubscription, onUpdateMessageSubscription, onDeleteMessageSubscription, messageReceived, messageDeleted])
 
     // when message list rerenders scroll to bottom if needed or update the new messages number
     useEffect(() => {
@@ -112,7 +139,7 @@ function useMessagesContainer(
     return {
         messagesCursor, messages, messagesStatus, messagesRefetchStatus,
         newMessagesNumber, onNewMessagesBadgeClick, lastRef,
-        onSendMessage, onDeleteMessage, onGetPreviousMessagesClick
+        onSendMessage, onUpdateMessage, onDeleteMessage, onGetPreviousMessagesClick
     }
 }
 
@@ -121,20 +148,25 @@ function MessagesContainer({
     isGroup,
     messageMapping,
     onCreateMessageSubscription,
+    onUpdateMessageSubscription,
     onDeleteMessageSubscription,
     getMessages,
     sendMessage,
+    updateMessage,
     deleteMessage
 }) {
     const { messagesCursor, messages, messagesStatus, messagesRefetchStatus,
         newMessagesNumber, onNewMessagesBadgeClick, lastRef,
-        onSendMessage, onDeleteMessage, onGetPreviousMessagesClick } = useMessagesContainer(
+        onSendMessage, onDeleteMessage, onUpdateMessage,
+        onGetPreviousMessagesClick } = useMessagesContainer(
             userId,
             messageMapping,
             onCreateMessageSubscription,
+            onUpdateMessageSubscription,
             onDeleteMessageSubscription,
             getMessages,
             sendMessage,
+            updateMessage,
             deleteMessage
         )
 
@@ -148,14 +180,16 @@ function MessagesContainer({
                 /></Button>}
             <StatusLayout status={messagesStatus}
                 loading={<SkeletonMessages />}
-                ready={<Messages messages={messages} isGroup={isGroup} onDeleteMessage={onDeleteMessage} />}
+                ready={<Messages messages={messages} isGroup={isGroup} onUpdateMessage={onUpdateMessage} onDeleteMessage={onDeleteMessage} />}
                 error={<SomethingWentWrong explanation="It is not possible to load any message!" />}
             />
             <div ref={lastRef} style={{ color: "transparent" }}>_</div>
         </div>
         <div className="position-relative">
             {newMessagesNumber > 0 && <NewMessagesBadge onClick={onNewMessagesBadgeClick} count={newMessagesNumber} />}
-            <MessageEditor onSendMessage={onSendMessage} isDisabled={!messagesStatus.isReady} />
+            <div className="d-flex flex-row gap-2 align-items-center card-1">
+                <MessageEditor onSendMessage={onSendMessage} isDisabled={!messagesStatus.isReady} />
+            </div>
         </div>
     </>
 }

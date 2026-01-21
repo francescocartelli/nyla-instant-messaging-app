@@ -1,8 +1,10 @@
-import { useMemo } from 'react'
-import { ArrowDown, BugFill, Hourglass, TrashFill } from 'react-bootstrap-icons'
+import { useCallback, useMemo, useState } from 'react'
+import { ArrowDown, BugFill, Hourglass, PencilFill, TrashFill } from 'react-bootstrap-icons'
 
 import { ShowMoreLayout } from '@/components/Commons/Layout'
 import { RTViewer } from '@/components/SEditor'
+
+import MessageEditor from '@/components/chats/MessageEditor'
 
 import { Button } from '@/components/Commons/Buttons'
 
@@ -23,23 +25,40 @@ function NewMessagesBadge({ onClick, count }) {
     </Button>
 }
 
-function MessageCard({ message, isGroup, prev, onDelete }) {
+function MessageCard({ message, isGroup, prev, onUpdate, onDelete }) {
+    const [isEdit, setEdit] = useState(false)
+
     const isDateVisible = useMemo(() => prev?.createdAtDate !== message.createdAtDate, [prev, message.createdAtDate])
     const isSenderChanged = useMemo(() => !prev || (message.idSender?.toString() !== prev?.idSender.toString()), [message, prev])
     const isSenderVisible = useMemo(() => isGroup && message.isFromOther && isSenderChanged, [isGroup, message, isSenderChanged])
     const isRichText = useMemo(() => (typeof message.content) !== "string", [message])
 
+    const onUpdateContent = useCallback(content => {
+        onUpdate({ ...message, content })
+            .then(() => setEdit(false))
+            .catch(() => setEdit(false))
+    }, [message])
+
     return <>
         {isDateVisible && <DateLabel date={message.createdAtDate} />}
-        <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${isSenderChanged ? "mt-2" : ""}`}>
+        <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${isSenderChanged ? "mt-2" : ""}`}
+            style={{ width: isEdit ? '100%' : 'auto' }}>
             {isSenderVisible && <span className="fore-2 fs-80 fw-600">{message.senderUsername}</span>}
-            {isRichText ? <RTViewer value={message.content} /> : <p className="m-0 text-wrap">{message.content}</p>}
+            {isEdit ?
+                <div className="d-flex flex-row gap-2 align-items-center">
+                    <MessageEditor initial={message.content} onSendMessage={onUpdateContent} isDisabled={message.isPending} />
+                </div> : <>
+                    {isRichText ?
+                        <RTViewer key={message.updatedAt || ''} value={message.content} /> :
+                        <p className="m-0 text-wrap">{message.content}</p>}
+                </>}
             <div className="d-flex flex-row gap-1 align-items-center">
                 <span className="fore-2 fs-70 pr-2 flex-grow-1">{message.createdAtTime}</span>
                 {!message.isFromOther && <>
                     {message.isError && <BugFill className="fore-2" />}
                     {message.isPending && <Hourglass className="fore-2" />}
-                    {!message.isPending && !message.isError && <ShowMoreLayout>
+                    {!message.isPending && !message.isError && !isEdit && <ShowMoreLayout>
+                        <PencilFill className="fore-2-btn" onClick={() => setEdit(true)} />
                         <TrashFill className="fore-2-btn" onClick={onDelete} />
                     </ShowMoreLayout>}
                 </>}
@@ -86,4 +105,4 @@ function SkeletonMessages() {
     </>
 }
 
-export { MessageCard, SkeletonMessages, NewMessagesBadge }
+export { MessageCard, NewMessagesBadge, SkeletonMessages }

@@ -9,9 +9,8 @@ const { getMessageNavigation } = require("../utility/Navigation")
 const { parseNull } = require("../utility/Parsing")
 
 exports.getMessage = async (req, res) => {
-    const [idChat, idMessage] = [req.params.id, req.params.idm]
+    const { id: idChat, idm: idMessage } = req.params
 
-    // get message messageServices
     const message = await messageServices.getMessage(idChat, idMessage)
     if (!message) return req.status(404).json({ message: notFoundId("message") })
 
@@ -33,9 +32,15 @@ exports.getMessages = async (req, res) => {
 }
 
 exports.createMessage = async (req, res) => {
-    const [user, message, idChat] = [req.user, req.body, req.params.id]
+    const { user, body: message, params: { id: idChat } } = req
 
-    let newMessage = { chat: idChat, sender: user.id, ...message, chatName: res.locals.chatName, senderUsername: user.username }
+    let newMessage = {
+        chat: idChat,
+        sender: user.id,
+        ...message,
+        chatName: res.locals.chatName,
+        senderUsername: user.username
+    }
 
     // write message on database
     const { insertedId } = await messageServices.createMessage(newMessage)
@@ -47,6 +52,28 @@ exports.createMessage = async (req, res) => {
     chatServices.updateChatLog(idChat)
 
     res.json({ id: insertedId })
+}
+
+exports.updateMessage = async (req, res) => {
+    const { user, params: { id: idChat, idm: idMessage }, body: message } = req
+
+    const { modifiedCount } = await messageServices.updateMessage(idChat, idMessage, message)
+    if (modifiedCount < 1) return res.status(304).json({ message: notModified() })
+
+    const updatedMessage = await messageServices.getMessage(idChat, idMessage)
+    if (!updatedMessage) return req.status(404).json({ message: notFoundId("message") })
+
+    mqServices.updateMessage(res.locals.chatUsers, {
+        ...updatedMessage,
+        chat: idChat,
+        chatName: res.locals.chatName,
+        sender: user.id,
+        senderUsername: user.username
+    })
+
+    chatServices.updateChatLog(idChat)
+
+    res.end()
 }
 
 exports.deleteMessage = async (req, res) => {

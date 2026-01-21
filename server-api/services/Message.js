@@ -10,10 +10,18 @@ const messageProj = {
     sender: { $concat: ["/api/users/", { $toString: "$sender" }] },
     idSender: "$sender",
     content: 1,
-    createdAt: 1
+    createdAt: 1,
+    updatedAt: 1
 }
 
-exports.createMessage = ({chat, sender, content}) => {
+exports.getMessage = (idChat, idMessage) => {
+    return messagesCollection.findOne({
+        _id: oid(idMessage),
+        chat: oid(idChat)
+    }, { projection: messageProj })
+}
+
+exports.createMessage = ({ chat, sender, content }) => {
     return messagesCollection.insertOne({
         chat: oid(chat),
         sender: oid(sender),
@@ -22,11 +30,16 @@ exports.createMessage = ({chat, sender, content}) => {
     })
 }
 
-exports.getMessage = (idChat, idMessage) => {
-    return messagesCollection.findOne({
+exports.updateMessage = (idChat, idMessage, { content }) => {
+    return messagesCollection.updateOne({
         _id: oid(idMessage),
         chat: oid(idChat)
-    }, { projection: messageProj })
+    }, {
+        $set: {
+            content,
+            updatedAt: new Date()
+        }
+    })
 }
 
 exports.getMessages = (idChat, cursor) => {
