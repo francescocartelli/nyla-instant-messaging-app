@@ -82,7 +82,7 @@ const boot = async () => {
   app.get('/api/chats/:id/messages', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.getMessages))
   app.post('/api/chats/:id/messages', authenticate, validateId('id'), validateBody(schemas.messageCreateSchema), chatMiddleware.isUserInChat('id'), safeController(messageControllers.createMessage))
   app.get('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.getMessage))
-  app.put('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.updateMessage))
+  app.put('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), validateBody(schemas.messageCreateSchema), chatMiddleware.isUserInChat('id'), safeController(messageControllers.updateMessage))
   app.delete('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.deleteMessage))
 
   /* ----- */
