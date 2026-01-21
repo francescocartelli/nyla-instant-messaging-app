@@ -53,7 +53,7 @@ function MessageCard({ message, isGroup, prev, onUpdate, onDelete }) {
                         <p className="m-0 text-wrap">{message.content}</p>}
                 </>}
             <div className="d-flex flex-row gap-1 align-items-center">
-                <span className="fore-2 fs-70 pr-2 flex-grow-1">{message.createdAtTime}</span>
+                <span className="fore-2 fs-70 pr-2 flex-grow-1">{message.createdAtTime}{message.updatedAt ? ' edited' : ''}</span>
                 {!message.isFromOther && <>
                     {message.isError && <BugFill className="fore-2" />}
                     {message.isPending && <Hourglass className="fore-2" />}

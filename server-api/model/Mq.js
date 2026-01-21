@@ -18,7 +18,7 @@ exports.mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername
     }
 })
 
-exports.mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUsername, updatedAt }) => ({
+exports.mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUsername, createdAt, updatedAt }) => ({
     type: messageTypes.MESSAGE_UPDATE,
     chat: chat,
     message: {
@@ -28,6 +28,7 @@ exports.mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUsername
         chatName,
         senderUsername,
         content,
+        createdAt,
         updatedAt
     }
 })
