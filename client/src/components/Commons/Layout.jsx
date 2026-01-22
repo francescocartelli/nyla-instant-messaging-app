@@ -56,12 +56,12 @@ function PagesControl({ page, nPages, onChangePage = () => { }, disabled = false
 function ShowMoreLayout({ children }) {
     const [isExpanded, setExpanded] = useState(false)
 
-    return <>
+    return <div className='d-flex flex-row align-items-center gap-1'>
         {isExpanded ? <>
             {children}
             <ChevronRight onClick={() => setExpanded(false)} className="fore-2-btn" />
         </> : <ThreeDots onClick={() => setExpanded(true)} className="fore-2-btn" />}
-    </>
+    </div>
 }
 
 function MoreOptions({ buttons }) {

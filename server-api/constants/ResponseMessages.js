@@ -17,6 +17,8 @@ exports.SENDER_REQUIRED = "Only the message sender can perform this operation"
 exports.ADMIN_REQUIRED = "Only chat administrators can perform this operation"
 exports.USER_IN_CHAT_REQUIRED = "Only chat users can perform this operation"
 
+exports.TOO_LATE = "This operation can no longer be executed"
+
 exports.IDENTITY_NO_EMAIL = "Identity is not associated to any email"
 
 exports.SERVER_ERROR = "Internal Server Error"

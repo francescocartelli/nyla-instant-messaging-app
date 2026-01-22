@@ -8,6 +8,8 @@ import MessageEditor from '@/components/chats/MessageEditor'
 
 import { Button } from '@/components/Commons/Buttons'
 
+const fiveMinutesMillis = 5 * 60 * 1000
+
 function DateLabel({ date }) {
     return <div className="d-flex align-items-center card-2 text-center align-self-center">
         <span className="fs-80 fore-2 pr-2 pl-2">{date}</span>
@@ -25,6 +27,12 @@ function NewMessagesBadge({ onClick, count }) {
     </Button>
 }
 
+function TimedPortal({ threshold, children }) {
+    const isVisible = useMemo(() => (new Date()).getTime() < threshold, [threshold])
+
+    return isVisible ? children : <></>
+}
+
 function MessageCard({ message, isGroup, prev, onUpdate, onDelete }) {
     const [isEdit, setEdit] = useState(false)
 
@@ -39,6 +47,8 @@ function MessageCard({ message, isGroup, prev, onUpdate, onDelete }) {
             .catch(() => setEdit(false))
     }, [message])
 
+    const maxTimeThreshold = useMemo(() => (new Date(message.createdAt).getTime()) + fiveMinutesMillis, [message.createdAt])
+
     return <>
         {isDateVisible && <DateLabel date={message.createdAtDate} />}
         <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${isSenderChanged ? "mt-2" : ""}`}
@@ -52,13 +62,18 @@ function MessageCard({ message, isGroup, prev, onUpdate, onDelete }) {
                         <RTViewer key={message.updatedAt || ''} value={message.content} /> :
                         <p className="m-0 text-wrap">{message.content}</p>}
                 </>}
-            <div className="d-flex flex-row gap-1 align-items-center">
-                <span className="fore-2 fs-70 pr-2 flex-grow-1">{message.createdAtTime}{message.updatedAt ? ' edited' : ''}</span>
+            <div className="d-flex flex-row gap-2 align-items-center">
+                <span className="d-flex flex-row gap-1 align-items-center fs-70 pr-2 flex-grow-1">
+                    <span className="fore-2 flex-grow-1">{message.createdAtTime}</span>
+                    {message.updatedAt && <span className="fore-2-neg message-card-tag">edited</span>}
+                </span>
                 {!message.isFromOther && <>
                     {message.isError && <BugFill className="fore-2" />}
                     {message.isPending && <Hourglass className="fore-2" />}
                     {!message.isPending && !message.isError && !isEdit && <ShowMoreLayout>
-                        <PencilFill className="fore-2-btn" onClick={() => setEdit(true)} />
+                        <TimedPortal threshold={maxTimeThreshold}>
+                            <PencilFill className="fore-2-btn" onClick={() => setEdit(true)} />
+                        </TimedPortal>
                         <TrashFill className="fore-2-btn" onClick={onDelete} />
                     </ShowMoreLayout>}
                 </>}
