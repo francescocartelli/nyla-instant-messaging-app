@@ -210,6 +210,13 @@
     }
 }
 
+.message-card-tag {
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
+    margin-top: -0.1rem;
+    margin-bottom: -0.1rem;
+}
+
 .min-w-100 {
     min-width: 100px;
 }

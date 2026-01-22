@@ -29,3 +29,8 @@
 .fore-2-btn:hover {
     color: #aab1ba;
 }
+
+.fore-2-neg {
+    background-color: #717A85 !important;
+    color: #212529;
+}

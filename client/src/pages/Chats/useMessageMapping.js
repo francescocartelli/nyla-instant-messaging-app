@@ -21,6 +21,7 @@ const createMessage = ({ id, idChat, content, idSender, senderUsername, isFromOt
         idSender,
         senderUsername,
         isFromOther,
+        createdAt,
         createdAtDate: date,
         createdAtTime: time,
         updatedAt,

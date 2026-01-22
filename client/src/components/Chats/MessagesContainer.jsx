@@ -66,7 +66,7 @@ function useMessagesContainer(
     }, [deleteMessage, messagesActions])
 
     const onSendMessage = useCallback(content => {
-        const message = messageMapping({ content, idSender: userId, isPending: true })
+        const message = messageMapping({ content, idSender: userId, createdAt: new Date(), isPending: true })
         isScrollRequired.current = true
         messagesActions.append(message)
         sendMessage(message)
@@ -75,7 +75,7 @@ function useMessagesContainer(
     }, [sendMessage, userId, messageMapping, messagesActions])
 
     const onUpdateMessage = useCallback(message => new Promise((resolve, reject) => {
-        messagesActions.set(message.id, { ...message, isPending: true, isError: false })
+        messagesActions.set(message.id, { ...message, updatedAt: new Date(), isPending: true, isError: false })
         updateMessage(message)
             .then(res => {
                 messagesActions.set(message.id, { ...message, isPending: false, isError: false })
