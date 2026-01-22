@@ -14,6 +14,8 @@ const messageProj = {
     updatedAt: 1
 }
 
+const fiveMinutesMillis = 5 * 60 * 1000
+
 exports.getMessage = (idChat, idMessage) => {
     return messagesCollection.findOne({
         _id: oid(idMessage),
@@ -31,7 +33,7 @@ exports.createMessage = ({ chat, sender, content }) => {
 }
 
 exports.updateMessage = (idChat, idMessage, { content }) => {
-    return messagesCollection.updateOne({
+    return messagesCollection.findOneAndUpdate({
         _id: oid(idMessage),
         chat: oid(idChat)
     }, {
@@ -39,6 +41,10 @@ exports.updateMessage = (idChat, idMessage, { content }) => {
             content,
             updatedAt: new Date()
         }
+    }, {
+        projection: messageProj,
+        returnDocument: 'after',
+        includeResultMetadata: true
     })
 }
 
@@ -68,4 +74,11 @@ exports.deleteMessages = (idChat) => {
 exports.countMessagesPages = async (idChat) => {
     const count = await messagesCollection.countDocuments({ chat: oid(idChat) })
     return Math.ceil(count / dbConfigs.MESSAGES_PER_PAGE)
+}
+
+exports.canUpdateMessage = ({ createdAt }, delay=fiveMinutesMillis) => {
+    const maxDt = (new Date(createdAt)).getTime() + delay
+    const nowDt = (new Date()).getTime()
+
+    return nowDt < maxDt
 }

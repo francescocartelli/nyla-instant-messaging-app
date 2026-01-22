@@ -1,4 +1,4 @@
-const { SENDER_REQUIRED, notFoundId, notCreated, notDeleted } = require("../constants/ResponseMessages")
+const { SENDER_REQUIRED, notFoundId, notCreated, notDeleted, TOO_LATE } = require("../constants/ResponseMessages")
 
 const messageServices = require("../services/Message")
 const chatServices = require("../services/Chat")
@@ -55,13 +55,15 @@ exports.createMessage = async (req, res) => {
 }
 
 exports.updateMessage = async (req, res) => {
-    const { user, params: { id: idChat, idm: idMessage }, body: message } = req
+    const { user, params: { id: idChat, idm: idMessage }, body: messageUpdate } = req
 
-    const { modifiedCount } = await messageServices.updateMessage(idChat, idMessage, message)
-    if (modifiedCount < 1) return res.status(304).json({ message: notModified() })
+    let message = await messageServices.getMessage(idChat, idMessage)
+    if (!message) return req.status(404).json({ message: notFoundId("message") })
 
-    const updatedMessage = await messageServices.getMessage(idChat, idMessage)
-    if (!updatedMessage) return req.status(404).json({ message: notFoundId("message") })
+    if (!messageServices.canUpdateMessage(message)) return res.status(410).json({ message: TOO_LATE })
+
+    const { value: updatedMessage, ok: isModified } = await messageServices.updateMessage(idChat, idMessage, messageUpdate)
+    if (!isModified) return res.status(304).json({ message: notModified() })
 
     mqServices.updateMessage(res.locals.chatUsers, {
         ...updatedMessage,
