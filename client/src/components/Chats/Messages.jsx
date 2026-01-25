@@ -1,12 +1,10 @@
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowDown, BugFill, Hourglass, PencilFill, TrashFill } from 'react-bootstrap-icons'
 
+import MessageEditor from '@/components/chats/MessageEditor'
+import { Button } from '@/components/Commons/Buttons'
 import { ShowMoreLayout } from '@/components/Commons/Layout'
 import { RTViewer } from '@/components/SEditor'
-
-import MessageEditor from '@/components/chats/MessageEditor'
-
-import { Button } from '@/components/Commons/Buttons'
 
 const fiveMinutesMillis = 5 * 60 * 1000
 
@@ -33,13 +31,8 @@ function TimedPortal({ threshold, children }) {
     return isVisible ? children : <></>
 }
 
-function MessageCard({ message, isGroup, prev, onUpdate, onDelete }) {
+function MessageCard({ message, onUpdate, onDelete }) {
     const [isEdit, setEdit] = useState(false)
-
-    const isDateVisible = useMemo(() => prev?.createdAtDate !== message.createdAtDate, [prev, message.createdAtDate])
-    const isSenderChanged = useMemo(() => !prev || (message.idSender?.toString() !== prev?.idSender.toString()), [message, prev])
-    const isSenderVisible = useMemo(() => isGroup && message.isFromOther && isSenderChanged, [isGroup, message, isSenderChanged])
-    const isRichText = useMemo(() => (typeof message.content) !== "string", [message])
 
     const onUpdateContent = useCallback(content => {
         onUpdate({ ...message, content })
@@ -49,20 +42,24 @@ function MessageCard({ message, isGroup, prev, onUpdate, onDelete }) {
 
     const maxTimeThreshold = useMemo(() => (new Date(message.createdAt).getTime()) + fiveMinutesMillis, [message.createdAt])
 
+    const isDeleted = useMemo(() => Boolean(message.deletedAt), [message.deletedAt])
+
     return <>
-        {isDateVisible && <DateLabel date={message.createdAtDate} />}
-        <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${isSenderChanged ? "mt-2" : ""}`}
+        {message.isDateVisible && <DateLabel date={message.createdAtDate} />}
+        <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${message.isSenderChanged ? "mt-2" : ""}`}
             style={{ width: isEdit ? '100%' : 'auto' }}>
-            {isSenderVisible && <span className="fore-2 fs-80 fw-600">{message.senderUsername}</span>}
-            {isEdit ?
-                <div className="d-flex flex-row gap-2 align-items-center">
-                    <MessageEditor initial={message.content} onSendMessage={onUpdateContent} isDisabled={message.isPending} />
-                </div> : <>
-                    {isRichText ?
-                        <RTViewer key={message.updatedAt || ''} value={message.content} /> :
-                        <p className="m-0 text-wrap">{message.content}</p>}
-                </>}
-            <div className="d-flex flex-row gap-2 align-items-center">
+            {message.isSenderVisible && !isDeleted && <span className="fore-2 fs-80 fw-600">{message.senderUsername}</span>}
+            {message.content && <>
+                {isEdit ?
+                    <div className="d-flex flex-row gap-2 align-items-center">
+                        <MessageEditor initial={message.content} onSendMessage={onUpdateContent} isDisabled={message.isPending} />
+                    </div> : <>
+                        {message.isRichText ?
+                            <RTViewer key={message.updatedAt || ''} value={message.content} /> :
+                            <p className="m-0 text-wrap">{message.content}</p>}
+                    </>}
+            </>}
+            {isDeleted ? <i className="fore-2">message deleted...</i> : <div className="d-flex flex-row gap-2 align-items-center">
                 <span className="d-flex flex-row gap-1 align-items-center fs-70 pr-2 flex-grow-1">
                     <span className="fore-2 flex-grow-1">{message.createdAtTime}</span>
                     {message.updatedAt && <span className="fore-2-neg message-card-tag">edited</span>}
@@ -77,7 +74,7 @@ function MessageCard({ message, isGroup, prev, onUpdate, onDelete }) {
                         <TrashFill className="fore-2-btn" onClick={onDelete} />
                     </ShowMoreLayout>}
                 </>}
-            </div>
+            </div>}
         </div>
     </>
 }

@@ -33,7 +33,7 @@ exports.mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUsername
     }
 })
 
-exports.mqDeleteMessage = ({ id, sender, chat, content, chatName, senderUsername }) => ({
+exports.mqDeleteMessage = ({ id, sender, chat, content, chatName, senderUsername, deletedAt }) => ({
     type: messageTypes.MESSAGE_DELETE,
     chat: chat,
     message: {
@@ -42,7 +42,8 @@ exports.mqDeleteMessage = ({ id, sender, chat, content, chatName, senderUsername
         idChat: chat,
         chatName: chatName,
         senderUsername: senderUsername,
-        content: content
+        content,
+        deletedAt
     }
 })
 

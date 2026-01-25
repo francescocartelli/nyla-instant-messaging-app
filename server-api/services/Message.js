@@ -11,7 +11,8 @@ const messageProj = {
     idSender: "$sender",
     content: 1,
     createdAt: 1,
-    updatedAt: 1
+    updatedAt: 1,
+    deletedAt: 1
 }
 
 const fiveMinutesMillis = 5 * 60 * 1000
@@ -67,6 +68,22 @@ exports.deleteMessage = (idChat, idMessage) => {
     })
 }
 
+exports.markMessageDeleted = (idChat, idMessage) => {
+    return messagesCollection.findOneAndUpdate({
+        _id: oid(idMessage),
+        chat: oid(idChat)
+    }, {
+        $set: {
+            content: null,
+            deletedAt: new Date()
+        }
+    }, {
+        projection: messageProj,
+        returnDocument: 'after',
+        includeResultMetadata: true
+    })
+}
+
 exports.deleteMessages = (idChat) => {
     return messagesCollection.deleteMany({ chat: oid(idChat) })
 }
@@ -76,7 +93,7 @@ exports.countMessagesPages = async (idChat) => {
     return Math.ceil(count / dbConfigs.MESSAGES_PER_PAGE)
 }
 
-exports.canUpdateMessage = ({ createdAt }, delay=fiveMinutesMillis) => {
+exports.canUpdateMessage = ({ createdAt }, delay = fiveMinutesMillis) => {
     const maxDt = (new Date(createdAt)).getTime() + delay
     const nowDt = (new Date()).getTime()
 

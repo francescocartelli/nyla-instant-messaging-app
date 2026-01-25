@@ -85,11 +85,17 @@ exports.deleteMessage = async (req, res) => {
     if (!message) return res.status(404).json({ message: notFoundId("message") })
     else if (message.idSender.toString() !== user.id.toString()) return res.status(401).json({ message: SENDER_REQUIRED })
 
-    const { deletedCount } = await messageServices.deleteMessage(idChat, idMessage)
-    if (deletedCount < 1) return res.status(304).json({ message: notDeleted("message") })
+    const { value: deletedMessage, ok: isModified } = await messageServices.markMessageDeleted(idChat, idMessage)
+    if (!isModified) return res.status(304).json({ message: notDeleted("message") })
 
     // send message on mq
-    mqServices.deleteMessage(res.locals.chatUsers, { id: idMessage, chat: idChat })
+    mqServices.deleteMessage(res.locals.chatUsers, {
+        ...deletedMessage,
+        chat: idChat,
+        chatName: res.locals.chatName,
+        sender: user.id,
+        senderUsername: user.username
+    })
 
     res.end()
 }

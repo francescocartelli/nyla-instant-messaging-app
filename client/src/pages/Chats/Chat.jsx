@@ -52,7 +52,7 @@ function ChatPage({ user }) {
     useInit(initCallback)
 
     const fullChat = useChatName(user, users, chat)
-    const messageMapping = useMessageMapping(users, user)
+    const messageMapping = useMessageMapping(chat.isGroup, user, users)
 
     const getMessages = useCallback(cur => chatAPI.getMessages(id, cur).then(res => res.json()), [id])
     const sendMessage = useCallback(message => chatAPI.sendMessage(id, message).then(res => res.json()), [id])
