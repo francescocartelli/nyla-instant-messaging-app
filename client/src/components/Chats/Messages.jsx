@@ -50,7 +50,7 @@ function MessageCard({ message, onUpdate, onDelete }) {
         {message.isDateVisible && <DateLabel date={message.createdAtDate} />}
         <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${message.isSenderChanged ? "mt-2" : ""}`}
             style={{ width: isEdit ? '100%' : 'auto' }}>
-            {message.isSenderVisible && <span className="fore-2 fs-80 fw-600">{message.senderUsername}</span>}
+            {message.isSenderVisible && !isDeleted && <span className="fore-2 fs-80 fw-600">{message.senderUsername}</span>}
             {message.content && <>
                 {isEdit ?
                     <div className="d-flex flex-row gap-2 align-items-center">
