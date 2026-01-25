@@ -11,32 +11,51 @@ const getDateAndTime = datetime => {
     return [date, time]
 }
 
-const createMessage = ({ id, idChat, content, idSender, senderUsername, isFromOther, createdAt, updatedAt, isPending = false, isError = false }) => {
-    const [date, time] = getDateAndTime(createdAt)
+const createMessageMapping = (isGroup, user, usersMap) => ({
+    id,
+    idChat,
+    content,
+    idSender,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    isPending = false,
+    isError = false
+} = {}, prev) => {
+    const [createdAtDate, createdAtTime] = getDateAndTime(createdAt)
+    const _idSender = idSender?.toString()
+    const isFromOther = user.id !== idSender
+    const isDateVisible = !prev || prev.createdAtDate !== createdAtDate
+    const isSenderChanged = !prev || (_idSender !== prev?.idSender)
 
     return {
         id: id || uuidv4(),
         idChat,
         content,
-        idSender,
-        senderUsername,
+        isGroup,
+        idSender: _idSender,
+        senderUsername: usersMap[_idSender] || "<deleted>",
+        isRichText: typeof content !== 'string',
         isFromOther,
+        isDateVisible,
+        isSenderVisible: isGroup && isFromOther && isSenderChanged,
         createdAt,
-        createdAtDate: date,
-        createdAtTime: time,
+        createdAtDate,
+        createdAtTime,
         updatedAt,
+        deletedAt,
         isPending,
         isError
     }
 }
 
-function useMessageMapping(users, user) {
-    const usernamesTranslation = useMemo(() => Object.fromEntries(users.map(({ id, username }) => [id.toString(), username])), [users])
-    const messageMapping = useMemo(() => Object.keys(usernamesTranslation).length > 0 ? message => createMessage({
-        ...message,
-        senderUsername: (usernamesTranslation[message.idSender.toString()] || "<deleted>"),
-        isFromOther: user.id !== message.idSender
-    }) : null, [user, usernamesTranslation])
+function useMessageMapping(isGroup, user, users) {
+    const messageMapping = useMemo(() => {
+        const usersMap = Object.fromEntries(users.map(({ id, username }) => [id.toString(), username]))
+        const hasAny = Object.keys(usersMap).length > 0
+
+        return hasAny ? createMessageMapping(isGroup, user, usersMap) : null
+    }, [isGroup, user, users])
 
     return messageMapping
 }

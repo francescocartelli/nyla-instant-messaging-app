@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 
-import { useArray, useCounter, useInit, useStatus, useVieport } from '@/hooks'
+import { useCounter, useInit, useStatus, useVieport } from '@/hooks'
 
 import { MessageCard, SkeletonMessages } from '@/components/Chats/Messages'
 import { Button } from '@/components/Commons/Buttons'
@@ -9,14 +9,18 @@ import { InformationBox, SomethingWentWrong } from '@/components/Commons/misc'
 
 import MessageEditor from '@/components/Chats/MessageEditor'
 
+import { useMessages } from '../../pages/Chats/useMessages'
 import { NewMessagesBadge } from './Messages'
 
-function Messages({ messages, isGroup, onUpdateMessage, onDeleteMessage }) {
+function Messages({ messages, onUpdateMessage, onDeleteMessage }) {
     return <>
         {messages.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
-        {messages.map((message, i, arr) => <MessageCard key={message.id} message={message} isGroup={isGroup} prev={arr[i - 1]}
+        {messages.map(message => <MessageCard
+            key={message.id}
+            message={message}
             onUpdate={onUpdateMessage}
-            onDelete={() => onDeleteMessage(message)} />)}
+            onDelete={() => onDeleteMessage(message)}
+        />)}
     </>
 }
 
@@ -31,8 +35,7 @@ function useMessagesContainer(
     updateMessage,
     deleteMessage
 ) {
-    const lookupMessages = useCallback(({ id }) => id, [])
-    const [messages, messagesActions] = useArray([], lookupMessages)
+    const [messages, messagesActions] = useMessages(messageMapping)
     const [messagesStatus, messagesStatusActions] = useStatus()
     const [messagesRefetchStatus, messagesRefetchStatusActions] = useStatus({ isReady: true })
     const messagesCursor = useRef(null)
@@ -51,18 +54,18 @@ function useMessagesContainer(
             .then(res => {
                 if (res.messages.length > 0 && res.nextCursor === messagesCursor.current) return
                 res.messages.reverse()
-                messagesActions.prextend(res.messages.map(messageMapping))
+                messagesActions.prextend(res.messages)
                 messagesCursor.current = res.nextCursor
                 setReady()
             })
             .catch(err => setError())
-    }, [getMessages, messageMapping, messagesActions])
+    }, [getMessages, messagesActions])
 
     const onDeleteMessage = useCallback(message => {
-        messagesActions.set(message.id, { ...message, isPending: true, isError: false })
+        messagesActions.update(message.id, { ...message, isPending: true, isError: false })
         deleteMessage(message)
-            .then(() => messagesActions.delete(message.id))
-            .catch(() => messagesActions.set(message.id, { ...message, isPending: false, isError: true }))
+            .then(() => messagesActions.update(message.id, { ...message, content: null, deletedAt: new Date() }))
+            .catch(() => messagesActions.update(message.id, { ...message, isPending: false, isError: true }))
     }, [deleteMessage, messagesActions])
 
     const onSendMessage = useCallback(content => {
@@ -70,19 +73,19 @@ function useMessagesContainer(
         isScrollRequired.current = true
         messagesActions.append(message)
         sendMessage(message)
-            .then(res => messagesActions.set(message.id, { ...message, id: res.id.toString(), isPending: false, isError: false }))
-            .catch(err => messagesActions.set(message.id, { ...message, isPending: false, isError: true }))
-    }, [sendMessage, userId, messageMapping, messagesActions])
+            .then(res => messagesActions.update(message.id, { ...message, id: res.id.toString(), isPending: false, isError: false }))
+            .catch(err => messagesActions.update(message.id, { ...message, isPending: false, isError: true }))
+    }, [sendMessage, userId, messagesActions])
 
     const onUpdateMessage = useCallback(message => new Promise((resolve, reject) => {
-        messagesActions.set(message.id, { ...message, updatedAt: new Date(), isPending: true, isError: false })
+        messagesActions.update(message.id, { ...message, updatedAt: new Date(), isPending: true, isError: false })
         updateMessage(message)
             .then(res => {
-                messagesActions.set(message.id, { ...message, isPending: false, isError: false })
+                messagesActions.update(message.id, { ...message, isPending: false, isError: false })
                 resolve(res)
             })
             .catch(err => {
-                messagesActions.set(message.id, { ...message, isPending: false, isError: true })
+                messagesActions.update(message.id, { ...message, isPending: false, isError: true })
                 reject(err)
             })
     }))
@@ -93,16 +96,16 @@ function useMessagesContainer(
     // callbacks
     const messageReceived = useCallback(message => {
         if (userId === message.idSender) return
-        messagesActions.append(messageMapping(message))
+        messagesActions.append(message)
         isMessageReceived.current = true
-    }, [userId, messageMapping, messagesActions])
+    }, [userId, messagesActions])
 
     const messageUpdated = useCallback(message => {
         if (userId === message.idSender) return
-        messagesActions.set(message.id, messageMapping(message))
-    }, [userId, messageMapping, messagesActions])
+        messagesActions.update(message.id, message)
+    }, [userId, messagesActions])
 
-    const messageDeleted = useCallback(message => (userId !== message.idSender) && messagesActions.delete(message.id), [userId, messagesActions])
+    const messageDeleted = useCallback(message => (userId !== message.idSender) && messagesActions.update(message.id, { content: null, deletedAt: new Date() }), [userId, messagesActions])
 
     // init
     const initCallback = useCallback(done => {
@@ -145,7 +148,6 @@ function useMessagesContainer(
 
 function MessagesContainer({
     userId,
-    isGroup,
     messageMapping,
     onCreateMessageSubscription,
     onUpdateMessageSubscription,
@@ -180,7 +182,7 @@ function MessagesContainer({
                 /></Button>}
             <StatusLayout status={messagesStatus}
                 loading={<SkeletonMessages />}
-                ready={<Messages messages={messages} isGroup={isGroup} onUpdateMessage={onUpdateMessage} onDeleteMessage={onDeleteMessage} />}
+                ready={<Messages messages={messages} onUpdateMessage={onUpdateMessage} onDeleteMessage={onDeleteMessage} />}
                 error={<SomethingWentWrong explanation="It is not possible to load any message!" />}
             />
             <div ref={lastRef} style={{ color: "transparent" }}>_</div>
