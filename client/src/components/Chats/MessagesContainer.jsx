@@ -9,7 +9,8 @@ import { InformationBox, SomethingWentWrong } from '@/components/Commons/misc'
 
 import MessageEditor from '@/components/Chats/MessageEditor'
 
-import { useMessages } from '../../pages/Chats/useMessages'
+import { useMessages } from './useMessages'
+
 import { NewMessagesBadge } from './Messages'
 
 function Messages({ messages, onUpdateMessage, onDeleteMessage }) {

@@ -1,12 +1,10 @@
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowDown, BugFill, Hourglass, PencilFill, TrashFill } from 'react-bootstrap-icons'
 
+import MessageEditor from '@/components/chats/MessageEditor'
+import { Button } from '@/components/Commons/Buttons'
 import { ShowMoreLayout } from '@/components/Commons/Layout'
 import { RTViewer } from '@/components/SEditor'
-
-import MessageEditor from '@/components/chats/MessageEditor'
-
-import { Button } from '@/components/Commons/Buttons'
 
 const fiveMinutesMillis = 5 * 60 * 1000
 
