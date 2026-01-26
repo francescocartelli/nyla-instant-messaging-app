@@ -58,6 +58,7 @@ const boot = async () => {
   const chatMiddleware = require('./middleware/Chat')
   const userMiddleware = require('./middleware/User')
   const accountMiddlewares = require('./middleware/Account')
+  const messageMiddlewares = require('./middleware/Message')
 
   // activate the server
   app.listen(process.env.SERVER_PORT, () => { console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`) })
@@ -82,8 +83,8 @@ const boot = async () => {
   app.get('/api/chats/:id/messages', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.getMessages))
   app.post('/api/chats/:id/messages', authenticate, validateId('id'), validateBody(schemas.messageCreateSchema), chatMiddleware.isUserInChat('id'), safeController(messageControllers.createMessage))
   app.get('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.getMessage))
-  app.put('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), validateBody(schemas.messageCreateSchema), chatMiddleware.isUserInChat('id'), safeController(messageControllers.updateMessage))
-  app.delete('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.deleteMessage))
+  app.put('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), validateBody(schemas.messageCreateSchema), chatMiddleware.isUserInChat('id'), messageMiddlewares.isMessageAuthor('id', 'idm'), safeController(messageControllers.updateMessage))
+  app.delete('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), messageMiddlewares.isMessageAuthor('id', 'idm'), safeController(messageControllers.deleteMessage))
 
   /* ----- */
   /* USERS */

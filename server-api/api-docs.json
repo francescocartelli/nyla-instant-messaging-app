@@ -686,6 +686,28 @@
             "cookieAuth": []
           }
         ],
+        "requestBody": {
+          "description": "Message to be created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/message_create_schema.json"
+              },
+              "example": {
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "children": [
+                      {
+                        "text": "Hello team!"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
         "summary": "Send a message in a chat",
         "description": "Send a message in a chat using chat id. <br> Only users in chat are allowed to perform this operation.",
         "parameters": [
@@ -735,6 +757,28 @@
       }
     },
     "/api/chats/{id}/messages/{idm}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Chat identifier of the chat that contains the message to be retrieved.<br> Only users in chat are allowed to perform this operation.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "12-byte ObjectId"
+          }
+        },
+        {
+          "name": "idm",
+          "in": "path",
+          "description": "Message identifier of message to be retrieved",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "12-byte ObjectId"
+          }
+        }
+      ],
       "get": {
         "tags": [
           "messages"
@@ -742,28 +786,6 @@
         "security": [
           {
             "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Chat identifier of the chat that contains the message to be retrieved.<br> Only users in chat are allowed to perform this operation.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "12-byte ObjectId"
-            }
-          },
-          {
-            "name": "idm",
-            "in": "path",
-            "description": "Message identifier of message to be retrieved",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "12-byte ObjectId"
-            }
           }
         ],
         "summary": "Retrieve a single messages from a chat",
@@ -802,7 +824,7 @@
           }
         }
       },
-      "delete": {
+      "put": {
         "tags": [
           "messages"
         ],
@@ -811,26 +833,68 @@
             "cookieAuth": []
           }
         ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Chat identifier of the chat that contains the message to be deleted",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "12-byte ObjectId"
+        "requestBody": {
+          "description": "Message properties to be updated",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/message_create_schema.json"
+              },
+              "example": {
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "children": [
+                      {
+                        "text": "Hello team!"
+                      }
+                    ]
+                  }
+                ]
+              }
             }
+          }
+        },
+        "summary": "Update a single message from a chat",
+        "description": "Update a single message from a chat using chat id and message id. <br> Only users in chat are allowed to perform this operation.",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {}
           },
+          "304": {
+            "description": "Not modified - Failed update operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized - Missing token or user not in chat or user not message author",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          },
+          "410": {
+            "description": "Too late - This operation can no longer be executed",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "messages"
+        ],
+        "security": [
           {
-            "name": "idm",
-            "in": "path",
-            "description": "Message identifier of message to be deleted",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "12-byte ObjectId"
-            }
+            "cookieAuth": []
           }
         ],
         "summary": "Delete a single message from a chat",
@@ -849,7 +913,7 @@
             "content": {}
           },
           "401": {
-            "description": "Unauthorized - Missing token or user not in chat",
+            "description": "Unauthorized - Missing token or user not in chat or user not message author",
             "content": {}
           },
           "404": {

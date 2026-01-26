@@ -93,9 +93,17 @@ exports.countMessagesPages = async (idChat) => {
     return Math.ceil(count / dbConfigs.MESSAGES_PER_PAGE)
 }
 
-exports.canUpdateMessage = ({ createdAt }, delay = fiveMinutesMillis) => {
+const isUpdateExpired = ({ createdAt }, delay = fiveMinutesMillis) => {
     const maxDt = (new Date(createdAt)).getTime() + delay
     const nowDt = (new Date()).getTime()
 
     return nowDt < maxDt
+}
+
+const isMessageDeleted = ({ deletedAt }) => {
+    return Boolean(deletedAt)
+}
+
+exports.canUpdateMessage = message => {
+    return !isUpdateExpired(message) && !isMessageDeleted(message)
 }

@@ -12,7 +12,7 @@ exports.getMessage = async (req, res) => {
     const { id: idChat, idm: idMessage } = req.params
 
     const message = await messageServices.getMessage(idChat, idMessage)
-    if (!message) return req.status(404).json({ message: notFoundId("message") })
+    if (!message) return res.status(404).json({ message: notFoundId("message") })
 
     res.json(message)
 }
@@ -56,9 +56,7 @@ exports.createMessage = async (req, res) => {
 
 exports.updateMessage = async (req, res) => {
     const { user, params: { id: idChat, idm: idMessage }, body: messageUpdate } = req
-
-    let message = await messageServices.getMessage(idChat, idMessage)
-    if (!message) return req.status(404).json({ message: notFoundId("message") })
+    const { message } = res.locals
 
     if (!messageServices.canUpdateMessage(message)) return res.status(410).json({ message: TOO_LATE })
 
@@ -79,11 +77,7 @@ exports.updateMessage = async (req, res) => {
 }
 
 exports.deleteMessage = async (req, res) => {
-    const [idChat, idMessage, user] = [req.params.id, req.params.idm, req.user]
-
-    const message = await messageServices.getMessage(idChat, idMessage)
-    if (!message) return res.status(404).json({ message: notFoundId("message") })
-    else if (message.idSender.toString() !== user.id.toString()) return res.status(401).json({ message: SENDER_REQUIRED })
+    const { params: { id: idChat, idm: idMessage }, user } = req
 
     const { value: deletedMessage, ok: isModified } = await messageServices.markMessageDeleted(idChat, idMessage)
     if (!isModified) return res.status(304).json({ message: notDeleted("message") })
