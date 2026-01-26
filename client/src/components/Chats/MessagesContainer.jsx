@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef } from 'react'
 
 import { useCounter, useInit, useStatus, useVieport } from '@/hooks'
 
-import { MessageCard, SkeletonMessages } from '@/components/Chats/Messages'
 import { Button } from '@/components/Commons/Buttons'
 import { StatusLayout } from '@/components/Commons/Layout'
 import { InformationBox, SomethingWentWrong } from '@/components/Commons/misc'
 
-import MessageEditor from '@/components/Chats/MessageEditor'
-
 import { useMessages } from './useMessages'
 
-import { NewMessagesBadge } from './Messages'
+import MessageCard from './MessageCard'
+import MessageEditor from './MessageEditor'
+import NewMessagesBadge from './NewMessagesBadge'
+import SkeletonMessages from './SkeletonMessages'
 
-function Messages({ messages, onUpdateMessage, onDeleteMessage }) {
+function Messages({ messages, onUpdateMessage, onDeleteMessage }) {    
     return <>
         {messages.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
         {messages.map(message => <MessageCard
@@ -24,6 +24,8 @@ function Messages({ messages, onUpdateMessage, onDeleteMessage }) {
         />)}
     </>
 }
+
+const MessagesMemo = memo(Messages)
 
 function useMessagesContainer(
     userId,
@@ -89,7 +91,7 @@ function useMessagesContainer(
                 messagesActions.update(message.id, { ...message, isPending: false, isError: true })
                 reject(err)
             })
-    }))
+    }), [messagesActions])
 
     const onNewMessagesBadgeClick = useCallback(() => { resetNewMessagesNumber(); scrollToLastMessage() }, [scrollToLastMessage, resetNewMessagesNumber])
     const onGetPreviousMessagesClick = useCallback(() => onGetMessages(messagesCursor.current, messagesRefetchStatusActions), [onGetMessages, messagesRefetchStatusActions])
@@ -183,7 +185,7 @@ function MessagesContainer({
                 /></Button>}
             <StatusLayout status={messagesStatus}
                 loading={<SkeletonMessages />}
-                ready={<Messages messages={messages} onUpdateMessage={onUpdateMessage} onDeleteMessage={onDeleteMessage} />}
+                ready={<MessagesMemo messages={messages} onUpdateMessage={onUpdateMessage} onDeleteMessage={onDeleteMessage} />}
                 error={<SomethingWentWrong explanation="It is not possible to load any message!" />}
             />
             <div ref={lastRef} style={{ color: "transparent" }}>_</div>

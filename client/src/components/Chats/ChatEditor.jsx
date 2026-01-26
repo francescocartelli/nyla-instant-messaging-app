@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Check, ChevronDown, ChevronUp, TrashFill, X } from 'react-bootstrap-icons'
 
 import { Crown } from '@/components/Icons'

@@ -5,7 +5,7 @@ import { useInit, useStatus } from '@/hooks'
 
 import Chat from '@/components/Chats/Chat'
 
-import { SkeletonMessages } from '@/components/Chats/Messages'
+import SkeletonMessages from '@/components/Chats/SkeletonMessages'
 import MessagesContainer from '@/components/Chats/MessagesContainer'
 
 import { channelTypes, WebSocketContext } from '@/components/Ws/WsContext'
