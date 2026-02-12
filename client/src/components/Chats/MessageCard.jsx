@@ -6,7 +6,7 @@ import { RTViewer } from '@/components/SEditor'
 
 import MessageEditor from './MessageEditor'
 
-const fiveMinutesMillis = 5 * 60 * 1000
+const tenMinutesMillis = 10 * 60 * 1000
 
 function DateLabel({ date }) {
     return <div className="d-flex align-items-center card-2 text-center align-self-center">
@@ -29,7 +29,7 @@ export default function MessageCard({ message, onUpdate, onDelete }) {
             .catch(() => setEdit(false))
     }, [message])
 
-    const maxTimeThreshold = useMemo(() => (new Date(message.createdAt).getTime()) + fiveMinutesMillis, [message.createdAt])
+    const maxTimeThreshold = useMemo(() => (new Date(message.createdAt).getTime()) + tenMinutesMillis, [message.createdAt])
 
     const isDeleted = useMemo(() => Boolean(message.deletedAt), [message.deletedAt])
 

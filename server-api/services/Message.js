@@ -15,7 +15,7 @@ const messageProj = {
     deletedAt: 1
 }
 
-const fiveMinutesMillis = 5 * 60 * 1000
+const tenMinutesMillis = 10 * 60 * 1000
 
 exports.getMessage = (idChat, idMessage) => {
     return messagesCollection.findOne({
@@ -93,11 +93,11 @@ exports.countMessagesPages = async (idChat) => {
     return Math.ceil(count / dbConfigs.MESSAGES_PER_PAGE)
 }
 
-const isUpdateExpired = ({ createdAt }, delay = fiveMinutesMillis) => {
+const isUpdateExpired = ({ createdAt }, delay = tenMinutesMillis) => {
     const maxDt = (new Date(createdAt)).getTime() + delay
     const nowDt = (new Date()).getTime()
 
-    return nowDt < maxDt
+    return nowDt > maxDt
 }
 
 const isMessageDeleted = ({ deletedAt }) => {
