@@ -11,11 +11,25 @@ const getDateAndTime = datetime => {
     return [date, time]
 }
 
+const mapRepliedTo = (repliedTo, usersMap) => {
+    const [createdAtDate, createdAtTime] = getDateAndTime(repliedTo.createdAt)
+
+    return {
+        id: repliedTo.id,
+        content: repliedTo.content,
+        idSender: repliedTo.idSender,
+        senderUsername: usersMap[repliedTo.idSender] || "<deleted>",
+        isRichText: typeof repliedTo.content !== 'string',
+        createdAtTime
+    }
+}
+
 const createMessageMapping = (isGroup, user, usersMap) => ({
     id,
     idChat,
     content,
     idSender,
+    repliedTo,
     createdAt,
     updatedAt,
     deletedAt,
@@ -39,6 +53,7 @@ const createMessageMapping = (isGroup, user, usersMap) => ({
         isFromOther,
         isDateVisible,
         isSenderVisible: isGroup && isFromOther && isSenderChanged,
+        ...(repliedTo ? { repliedTo: mapRepliedTo(repliedTo, usersMap) } : {}),
         createdAt,
         createdAtDate,
         createdAtTime,

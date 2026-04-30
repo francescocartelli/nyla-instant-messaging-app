@@ -32,14 +32,20 @@ exports.getMessages = async (req, res) => {
 }
 
 exports.createMessage = async (req, res) => {
-    const { user, body: message, params: { id: idChat } } = req
+    const { user: { id: sender, username }, body: { repliedToId: repliedToId, ...message }, params: { id: chat } } = req
+
+    let repliedTo = null
+    if (repliedToId) {
+        repliedTo = await messageServices.getMessage(chat, repliedToId)
+    }
 
     let newMessage = {
-        chat: idChat,
-        sender: user.id,
+        chat,
+        sender,
         ...message,
         chatName: res.locals.chatName,
-        senderUsername: user.username
+        senderUsername: username,
+        repliedTo
     }
 
     // write message on database
@@ -49,7 +55,7 @@ exports.createMessage = async (req, res) => {
     // send message on mq
     mqServices.createMessage(res.locals.chatUsers, { id: insertedId, ...newMessage })
 
-    chatServices.updateChatLog(idChat)
+    chatServices.updateChatLog(chat)
 
     res.json({ id: insertedId })
 }

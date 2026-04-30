@@ -5,7 +5,7 @@ const messageTypes = {
     CHAT_DELETE: 'CHAT_DELETE'
 }
 
-exports.mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername }) => ({
+exports.mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername, repliedTo }) => ({
     type: messageTypes.MESSAGE_CREATE,
     chat: chat,
     message: {
@@ -14,7 +14,15 @@ exports.mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername
         idChat: chat,
         chatName: chatName,
         senderUsername: senderUsername,
-        content: content
+        content: content,
+        ...(repliedTo !== null ? {
+            repliedTo: {
+                id: repliedTo.id.toString(),
+                idSender: repliedTo.idSender.toString(),
+                content: repliedTo.content,
+                createdAt: repliedTo.createdAt
+            }
+        } : {})
     }
 })
 

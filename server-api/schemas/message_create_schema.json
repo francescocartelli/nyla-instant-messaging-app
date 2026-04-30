@@ -91,6 +91,10 @@
                     }
                 ]
             }
+        },
+        "repliedToId": {
+            "type": "string",
+            "description": "Identifier of the message replied to"
         }
     },
     "required": [

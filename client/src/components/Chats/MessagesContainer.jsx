@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
 import { useCounter, useInit, useStatus, useVieport } from '@/hooks'
 
@@ -11,9 +11,10 @@ import { useMessages } from './useMessages'
 import MessageCard from './MessageCard'
 import MessageEditor from './MessageEditor'
 import NewMessagesBadge from './NewMessagesBadge'
+import ReplyToEditor from './ReplyToEditor'
 import SkeletonMessages from './SkeletonMessages'
 
-function Messages({ messages, onUpdateMessage, onDeleteMessage }) {    
+function Messages({ messages, onUpdateMessage, onDeleteMessage, onReplyTo }) {
     return <>
         {messages.length === 0 && <InformationBox title="Wow, such an empty!" subtitle="All the exchanged messages will be shown here!" />}
         {messages.map(message => <MessageCard
@@ -21,6 +22,7 @@ function Messages({ messages, onUpdateMessage, onDeleteMessage }) {
             message={message}
             onUpdate={onUpdateMessage}
             onDelete={() => onDeleteMessage(message)}
+            onReplyTo={onReplyTo}
         />)}
     </>
 }
@@ -50,6 +52,8 @@ function useMessagesContainer(
     const isScrollRequired = useRef(false)
     const isMessageReceived = useRef(false)
 
+    const [replyTo, setReplyTo] = useState()
+
     // actions
     const onGetMessages = useCallback((cur, { setReady, setLoading, setError }) => {
         setLoading()
@@ -71,11 +75,11 @@ function useMessagesContainer(
             .catch(() => messagesActions.update(message.id, { ...message, isPending: false, isError: true }))
     }, [deleteMessage, messagesActions])
 
-    const onSendMessage = useCallback(content => {
-        const message = messageMapping({ content, idSender: userId, createdAt: new Date(), isPending: true })
+    const onSendMessage = useCallback((content, replyTo) => {
+        const message = messageMapping({ content, idSender: userId, createdAt: new Date(), isPending: true, repliedTo: replyTo })
         isScrollRequired.current = true
         messagesActions.append(message)
-        sendMessage(message)
+        sendMessage({ ...message, repliedToId: replyTo?.id })
             .then(res => messagesActions.update(message.id, { ...message, id: res.id.toString(), isPending: false, isError: false }))
             .catch(err => messagesActions.update(message.id, { ...message, isPending: false, isError: true }))
     }, [sendMessage, userId, messagesActions])
@@ -92,6 +96,9 @@ function useMessagesContainer(
                 reject(err)
             })
     }), [messagesActions])
+
+    const onReplyTo = useCallback(message => setReplyTo(message), [])
+    const clearReplyTo = useCallback(() => setReplyTo(null), [])
 
     const onNewMessagesBadgeClick = useCallback(() => { resetNewMessagesNumber(); scrollToLastMessage() }, [scrollToLastMessage, resetNewMessagesNumber])
     const onGetPreviousMessagesClick = useCallback(() => onGetMessages(messagesCursor.current, messagesRefetchStatusActions), [onGetMessages, messagesRefetchStatusActions])
@@ -145,7 +152,8 @@ function useMessagesContainer(
     return {
         messagesCursor, messages, messagesStatus, messagesRefetchStatus,
         newMessagesNumber, onNewMessagesBadgeClick, lastRef,
-        onSendMessage, onUpdateMessage, onDeleteMessage, onGetPreviousMessagesClick
+        onSendMessage, onUpdateMessage, onDeleteMessage, onGetPreviousMessagesClick,
+        replyTo, onReplyTo, clearReplyTo
     }
 }
 
@@ -163,7 +171,8 @@ function MessagesContainer({
     const { messagesCursor, messages, messagesStatus, messagesRefetchStatus,
         newMessagesNumber, onNewMessagesBadgeClick, lastRef,
         onSendMessage, onDeleteMessage, onUpdateMessage,
-        onGetPreviousMessagesClick } = useMessagesContainer(
+        onGetPreviousMessagesClick,
+        replyTo, onReplyTo, clearReplyTo } = useMessagesContainer(
             userId,
             messageMapping,
             onCreateMessageSubscription,
@@ -185,15 +194,16 @@ function MessagesContainer({
                 /></Button>}
             <StatusLayout status={messagesStatus}
                 loading={<SkeletonMessages />}
-                ready={<MessagesMemo messages={messages} onUpdateMessage={onUpdateMessage} onDeleteMessage={onDeleteMessage} />}
+                ready={<MessagesMemo messages={messages} onUpdateMessage={onUpdateMessage} onDeleteMessage={onDeleteMessage} onReplyTo={onReplyTo} />}
                 error={<SomethingWentWrong explanation="It is not possible to load any message!" />}
             />
             <div ref={lastRef} style={{ color: "transparent" }}>_</div>
         </div>
         <div className="position-relative">
             {newMessagesNumber > 0 && <NewMessagesBadge onClick={onNewMessagesBadgeClick} count={newMessagesNumber} />}
+            {replyTo && <ReplyToEditor replyTo={replyTo} clearReplyTo={clearReplyTo} />}
             <div className="d-flex flex-row gap-2 align-items-center card-1">
-                <MessageEditor onSendMessage={onSendMessage} isDisabled={!messagesStatus.isReady} />
+                <MessageEditor replyTo={replyTo} clearReplyTo={clearReplyTo} onSendMessage={onSendMessage} isDisabled={!messagesStatus.isReady} />
             </div>
         </div>
     </>

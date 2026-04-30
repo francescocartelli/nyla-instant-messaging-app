@@ -6,7 +6,7 @@ import { RTEditor, Toolbar } from '@/components/SEditor'
 
 const initialContent = [{ type: 'paragraph', children: [{ text: '' }] }]
 
-function MessageEditor({ initial, onSendMessage, isDisabled }) {
+function MessageEditor({ initial, replyTo, clearReplyTo, onSendMessage, isDisabled }) {
     const [content, setContent] = useState(initial || initialContent)
     const editorRef = useRef()
 
@@ -17,8 +17,9 @@ function MessageEditor({ initial, onSendMessage, isDisabled }) {
 
     const onSubmitMessage = ev => {
         ev.preventDefault()
-        onSendMessage(content)
+        onSendMessage(content, replyTo)
         resetEditor()
+        clearReplyTo?.()
     }
 
     return <>

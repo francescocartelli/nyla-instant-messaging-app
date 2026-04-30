@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react'
-import { BugFill, Hourglass, PencilFill, TrashFill } from 'react-bootstrap-icons'
+import { BugFill, Hourglass, PencilFill, Reply, TrashFill } from 'react-bootstrap-icons'
 
 import { ShowMoreLayout } from '@/components/Commons/Layout'
 import { RTViewer } from '@/components/SEditor'
@@ -20,7 +20,17 @@ function TimedPortal({ threshold, children }) {
     return isVisible ? children : <></>
 }
 
-export default function MessageCard({ message, onUpdate, onDelete }) {
+function RepliedToCard({ id, senderUsername, content, createdAtTime }) {
+    return <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word align-self-start`}>
+        <span className="fore-2 fs-80 fw-600" >{senderUsername}</span>
+        <RTViewer key={id} value={content} />
+        <span className="d-flex flex-row gap-1 align-items-center fs-70 pr-2 flex-grow-1">
+            <span className="fore-2 flex-grow-1">{createdAtTime}</span>
+        </span>
+    </div>
+}
+
+export default function MessageCard({ message, onUpdate, onDelete, onReplyTo }) {
     const [isEdit, setEdit] = useState(false)
 
     const onUpdateContent = useCallback(content => {
@@ -37,6 +47,10 @@ export default function MessageCard({ message, onUpdate, onDelete }) {
         {message.isDateVisible && <DateLabel date={message.createdAtDate} />}
         <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word ${message.isFromOther ? "align-self-start" : "align-self-end"} ${message.isSenderChanged ? "mt-2" : ""}`}
             style={{ width: isEdit ? '100%' : 'auto' }}>
+            {message.repliedTo && <>
+                <i className="fore-2 fs-80">replied to</i>
+                <RepliedToCard {...message.repliedTo} />
+            </>}
             {message.isSenderVisible && !isDeleted && <span className="fore-2 fs-80 fw-600">{message.senderUsername}</span>}
             {message.content && <>
                 {isEdit ?
@@ -53,7 +67,7 @@ export default function MessageCard({ message, onUpdate, onDelete }) {
                     <span className="fore-2 flex-grow-1">{message.createdAtTime}</span>
                     {message.updatedAt && <span className="fore-2-neg message-card-tag">edited</span>}
                 </span>
-                {!message.isFromOther && <>
+                {!message.isFromOther ? <>
                     {message.isError && <BugFill className="fore-2" />}
                     {message.isPending && <Hourglass className="fore-2" />}
                     {!message.isPending && !message.isError && !isEdit && <ShowMoreLayout>
@@ -61,8 +75,11 @@ export default function MessageCard({ message, onUpdate, onDelete }) {
                             <PencilFill className="fore-2-btn" onClick={() => setEdit(true)} />
                         </TimedPortal>
                         <TrashFill className="fore-2-btn" onClick={onDelete} />
+                        <Reply className="fore-2" onClick={() => onReplyTo(message)} />
                     </ShowMoreLayout>}
-                </>}
+                </> : <ShowMoreLayout>
+                    <Reply className="fore-2" onClick={() => onReplyTo(message)} />
+                </ShowMoreLayout>}
             </div>}
         </div>
     </>

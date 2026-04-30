@@ -10,6 +10,7 @@ const messageProj = {
     sender: { $concat: ["/api/users/", { $toString: "$sender" }] },
     idSender: "$sender",
     content: 1,
+    repliedTo: 1,
     createdAt: 1,
     updatedAt: 1,
     deletedAt: 1
@@ -24,11 +25,19 @@ exports.getMessage = (idChat, idMessage) => {
     }, { projection: messageProj })
 }
 
-exports.createMessage = ({ chat, sender, content }) => {
+exports.createMessage = ({ chat, sender, content, repliedTo }) => {
     return messagesCollection.insertOne({
         chat: oid(chat),
         sender: oid(sender),
-        content: content,
+        content,
+        ...(repliedTo !== null ? {
+            repliedTo: {
+                id: oid(repliedTo.id),
+                idSender: oid(repliedTo.idSender),
+                content: repliedTo.content,
+                createdAt: repliedTo.createdAt
+            }
+        } : {}),
         createdAt: new Date()
     })
 }
