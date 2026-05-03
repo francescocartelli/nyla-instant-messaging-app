@@ -135,22 +135,34 @@ The API documentation is generated using Swagger, and it provides a comprehensiv
 
 # Main Features (Images)
 ### Create and track your personal chats
-Create and track your personal chats and find new users.<br>
+Create and track your personal chats and find new users.
+
 <img src="images/chats.png" width="200px">
 <img src="images/users_search.png" width="200px">
 
 ### Instant messaging with group and direct chats
-Instant messaging with group and direct chats with intuitive settings.<br>
+Instant messaging with group and direct chats with intuitive settings.
+
   <img src="images/chat.png" width="200px">
   <img src="images/chat_setting.png" width="200px">
 
+Current chat features include:
+
+- **Edit** miswritten messages after sending.
+- **Delete** awkward messages after sending.
+- **Reply** to specific messages to keep conversations organized and on topic.
+- **Manage** *users* and *admins* in chat groups.
+
+
 ### Rich text messaging for expressive conversations
-Emphasize your messages using Rich Text mode with ease: <b>bold</b>, <b>italic</b>, <b>headings</b>, <b>bullet lists</b> and more available with one click.<br>
+Emphasize your messages using Rich Text mode with ease: <b>bold</b>, <b>italic</b>, <b>headings</b>, <b>bullet lists</b> and more available with one click.
+
   <img src="images/rich_text_message_editor.png" width="200px">
   <img src="images/rich_text_chat.png" width="200px">
 
 ### Google OAuth2 or password-based registration/authentication
-Registration/authentication using Google Auth2 or standard username and password.<br>
+Registration/authentication using Google Auth2 or standard username and password.
+
   <img src="images/login.png" width="200px">
   <img src="images/registration.png" width="200px">
 

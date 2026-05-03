@@ -31,33 +31,39 @@ exports.getMessages = async (req, res) => {
     }))
 }
 
-exports.createMessage = async (req, res) => {
-    const { user: { id: sender, username }, body: { repliedToId: repliedToId, ...message }, params: { id: chat } } = req
+exports.createMessage = async (req, res, next) => {
+    const {
+        user: { id: sender, username },
+        body: { repliedToId: repliedToId, content },
+        params: { id: chat }
+    } = req
 
+    // evalutate reply
     let repliedTo = null
     if (repliedToId) {
         repliedTo = await messageServices.getMessage(chat, repliedToId)
+        if (!repliedTo) return res.status(404).json({ message: notFoundId("referenced message") })
     }
 
-    let newMessage = {
+    const newMessage = {
         chat,
         sender,
-        ...message,
+        content,
         chatName: res.locals.chatName,
         senderUsername: username,
         repliedTo
     }
 
-    // write message on database
-    const { insertedId } = await messageServices.createMessage(newMessage)
-    if (!insertedId) return res.status(304).json({ message: notCreated("message") })
-
-    // send message on mq
-    mqServices.createMessage(res.locals.chatUsers, { id: insertedId, ...newMessage })
+    // write on db
+    const { insertedId: id } = await messageServices.createMessage(newMessage)
+    if (!id) return res.status(304).json({ message: notCreated("message") })
 
     chatServices.updateChatLog(chat)
 
-    res.json({ id: insertedId })
+    // write on mq
+    mqServices.createMessage(res.locals.chatUsers, { id, ...newMessage })
+
+    return res.json({ id })
 }
 
 exports.updateMessage = async (req, res) => {

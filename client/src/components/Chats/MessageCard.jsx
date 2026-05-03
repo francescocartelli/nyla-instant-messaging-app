@@ -20,10 +20,12 @@ function TimedPortal({ threshold, children }) {
     return isVisible ? children : <></>
 }
 
-function RepliedToCard({ id, senderUsername, content, createdAtTime }) {
+function RepliedToCard({ id, senderUsername, content, createdAtTime, isRichText }) {
     return <div className={`d-flex flex-column card-1 min-w-100 message-card-width break-word align-self-start`}>
         <span className="fore-2 fs-80 fw-600" >{senderUsername}</span>
-        <RTViewer key={id} value={content} />
+        {isRichText ?
+            <RTViewer key={id} value={content} /> :
+            <p className="m-0 text-wrap">{content}</p>}
         <span className="d-flex flex-row gap-1 align-items-center fs-70 pr-2 flex-grow-1">
             <span className="fore-2 flex-grow-1">{createdAtTime}</span>
         </span>

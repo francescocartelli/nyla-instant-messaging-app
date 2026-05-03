@@ -25,19 +25,19 @@ exports.getMessage = (idChat, idMessage) => {
     }, { projection: messageProj })
 }
 
+const createRepliedTo = ({ id, idSender, content, createdAt }) => ({
+    id: oid(id),
+    idSender: oid(idSender),
+    content,
+    createdAt
+})
+
 exports.createMessage = ({ chat, sender, content, repliedTo }) => {
     return messagesCollection.insertOne({
         chat: oid(chat),
         sender: oid(sender),
         content,
-        ...(repliedTo !== null ? {
-            repliedTo: {
-                id: oid(repliedTo.id),
-                idSender: oid(repliedTo.idSender),
-                content: repliedTo.content,
-                createdAt: repliedTo.createdAt
-            }
-        } : {}),
+        ...(repliedTo ? { repliedTo: createRepliedTo(repliedTo) } : {}),
         createdAt: new Date()
     })
 }

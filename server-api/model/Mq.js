@@ -5,24 +5,24 @@ const messageTypes = {
     CHAT_DELETE: 'CHAT_DELETE'
 }
 
+const createRepliedTo = ({ id, idSender, content, createdAt }) => ({
+    id: id.toString(),
+    idSender: idSender.toString(),
+    content,
+    createdAt
+})
+
 exports.mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername, repliedTo }) => ({
     type: messageTypes.MESSAGE_CREATE,
     chat: chat,
     message: {
-        id: id,
-        idSender: sender,
+        id,
         idChat: chat,
-        chatName: chatName,
-        senderUsername: senderUsername,
-        content: content,
-        ...(repliedTo !== null ? {
-            repliedTo: {
-                id: repliedTo.id.toString(),
-                idSender: repliedTo.idSender.toString(),
-                content: repliedTo.content,
-                createdAt: repliedTo.createdAt
-            }
-        } : {})
+        chatName,
+        idSender: sender,
+        senderUsername,
+        content,
+        ...(repliedTo ? { repliedTo: createRepliedTo(repliedTo) } : {})
     }
 })
 
