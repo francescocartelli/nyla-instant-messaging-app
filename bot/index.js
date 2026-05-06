@@ -1,6 +1,6 @@
 const dotenv = require('dotenv')
 
-const { createGeminiEndpoint } = require('./services/llms')
+const { providerEndpoints } = require('./services/llms')
 const { sendMessage } = require('./services/messages')
 const { signBot } = require('./services/authenticate')
 
@@ -43,9 +43,17 @@ const boot = async () => {
         const { user, jwt } = await signBot(bot)
         if (!jwt) return
 
-        const fetchGeminiFlash = createGeminiEndpoint({
+        const createLLMEndpoint = providerEndpoints[process.env.LLM_PROVIDER]
+        if (!createLLMEndpoint) {
+            logger.error(`llm api provider "${process.env.LLM_PROVIDER}" not recognized`)
+            logger.info(`supported providers: ${Object.keys(providerEndpoints).join(', ')}`)
+            return
+        }
+
+        const fetchLLM = createLLMEndpoint({
             secret: process.env.LLM_API_KEY,
-            endpoint: process.env.LLM_ENDPOINT
+            endpoint: process.env.LLM_ENDPOINT,
+            model: process.env.LLM_MODEL
         }, invokeFetch)
 
         logger.info(`Bot signed`)
@@ -61,7 +69,7 @@ const boot = async () => {
             onMessage: createOnMessage({
                 user,
                 jwt,
-                fetchLLM: fetchGeminiFlash,
+                fetchLLM,
                 promptTemplate: assistancePrompt
             })
         })

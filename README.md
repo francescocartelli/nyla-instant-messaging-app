@@ -126,6 +126,69 @@ At first, the app will start with an empty database, generated with the first wr
 
 		  client % npm install
 		  client % npm start
+
+<br><br>
+
+# Bot Support
+The [bot](https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/bot) folder contains a Node client for running a chatbot providing in-app support.
+
+The bot behaves like a regular user by registering and/or logging into the system and interacting through the standard messaging flow. By configuring an external LLM API provider, the bot can automatically respond to user messages whenever contacted.
+
+This makes it possible to integrate *AI-powered customer support* directly into the messaging platform with minimal setup.
+
+1. In <b>bot</b>, <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/bot/.env.example">.env.example</a> file provides an overall list of the main configuration properties. Use it for generating a <b>.env</b> file:
+   - Providing the url for api-server:
+   
+		  API_SERVER_URL=http://localhost:3001
+
+   - Providing the url for ws-server:
+   
+		  WSS_URL=ws:<ws_server_host:ws_server_port>
+
+	- Providing the provider name for the LLM API (related to a specific API client):
+   
+		  LLM_PROVIDER=gemini or openai or anthropic
+
+   - Providing the endpoint for the LLM API:
+   
+		  LLM_ENDPOINT=<your-llm-endpoint>
+
+   - Providing the secret key for the LLM API:
+   
+		  LLM_API_KEY=<your-llm-api-key>
+
+	- Providing the model of the LLM (not available for all the providers):
+   
+		  LLM_MODEL=<llm-model-of-the-provider>
+
+   - Providing a username of the chatbot (used during login/registration):
+   
+		  BOT_USERNAME=<bot-username>
+
+   - Providing a password of the chatbot (used during login/registration):
+   
+		  BOT_PASSWORD=<bot-password>
+
+   - Providing an email of the chatbot (used during registration):
+   
+		  BOT_EMAIL=<bot-email>
+	
+
+2. From the <b>bot</b> root folder, install the packages, then run the script:
+
+		  bot % npm install
+		  bot % npm start
+
+In the folder, the **chat-guide.md** file contains a brief guide to the app functionalities, which is injected into the LLM prompt.
+
+The **llms** file provides provider-specific API fetch factory functions for the following services:
+
+- Gemini
+- OpenAI
+- Anthropic
+
+You can extend this module to support additional API providers based on your integration needs.
+
 <br><br>
 
 # Open-API Swagger Documentation
