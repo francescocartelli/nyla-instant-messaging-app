@@ -55,6 +55,7 @@ module.exports.deleteUser = async (req, res) => {
         user: 0
     })
 
+    res.clearCookie('jwt')
     res.json({
         chats: results,
         user: 1
