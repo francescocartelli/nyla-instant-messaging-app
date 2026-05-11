@@ -93,7 +93,7 @@ const boot = async () => {
   app.get('/api/users/current', authenticate, safeController(userControllers.getCurrentUser))
   app.get('/api/users/:id', validateId('id'), safeController(userControllers.getUser))
   app.put('/api/users/:id', authenticate, validateId('id'), userMiddleware.isUserCurrent('id'), validateBody(schemas.userUpdateSchema), safeController(userControllers.updateUser))
-  app.delete('/api/users/:id', validateId('id'), userControllers.deleteUser)
+  app.delete('/api/users/current', authenticate, safeController(userControllers.deleteUser))
 
   /* ------------ */
   /* AUTHENTICATE */

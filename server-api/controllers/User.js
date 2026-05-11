@@ -1,6 +1,9 @@
 const { notFoundId, USERNAME_TAKEN, notModified } = require("../constants/ResponseMessages")
 
+const chatServices = require("../services/Chat")
 const usersServices = require("../services/User")
+
+const { evaluateModifiedResults } = require("../utility/Evaluate")
 
 module.exports.getUsers = async (req, res) => {
     const { username, searchType } = req.query
@@ -38,5 +41,22 @@ module.exports.updateUser = async (req, res) => {
 }
 
 module.exports.deleteUser = async (req, res) => {
-    res.json({ message: `${req} not yet implemented` })
+    const { id } = req.user
+
+    const results = await chatServices.deleteUserChats(id)
+    if (results.failed > 0) return res.json({
+        chats: results,
+        user: 0
+    })
+
+    const { deletedCount } = await usersServices.deleteUser(id)
+    if (deletedCount < 1) return res.json({
+        chats: results,
+        user: 0
+    })
+
+    res.json({
+        chats: results,
+        user: 1
+    })
 }

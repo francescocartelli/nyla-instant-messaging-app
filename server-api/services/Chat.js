@@ -3,6 +3,8 @@ const { newChat } = require('../model/Chat')
 
 const { oid, getChatCollection, configs: dbConfigs } = require('../config/Db')
 
+const { evaluateModifiedResults } = require("../utility/Evaluate")
+
 const chatCollection = getChatCollection()
 
 const chatProj = {
@@ -38,17 +40,17 @@ const getChat = (idChat, project = true) => {
     )
 }
 
-const getChatsPersonal = (idUser, { page = 1, asc = false, isGroup = null }) => {
+const getChatsPersonal = (idUser, { page = 1, asc = false, isGroup = null, pageSize = dbConfigs.CHATS_PER_PAGE }) => {
     return chatCollection
         .find(personalChatsQuery(idUser, { isGroup }), { projection: { ...chatProj, usersFull: '$users' } })
-        .sort({ updatedAt: asc ? 1 : -1 }).limit(dbConfigs.CHATS_PER_PAGE)
-        .skip(dbConfigs.CHATS_PER_PAGE * (page - 1)).toArray()
+        .sort({ updatedAt: asc ? 1 : -1 }).limit(pageSize)
+        .skip(pageSize * (page - 1)).toArray()
 }
 
-const countChatsPages = async (idUser, { isGroup = null }) => {
+const countChatsPages = async (idUser, { isGroup = null, pageSize = dbConfigs.CHATS_PER_PAGE }) => {
     const count = await chatCollection.countDocuments(personalChatsQuery(idUser, { isGroup }))
 
-    return Math.ceil(count / dbConfigs.CHATS_PER_PAGE)
+    return Math.ceil(count / pageSize)
 }
 
 const getChatsAndCountPersonal = async (id, params) => {
@@ -135,6 +137,17 @@ const lookupChatnames = (chats, id, lookupUserUsername) => {
     return Promise.all(chats.map(lookup))
 }
 
+const deleteUserChats = async idUser => {
+    const chats = await getChatsPersonal(idUser, { pageSize: Infinity })
+
+    const results = await Promise.all(chats.map(({ id: idChat, nUsers, isGroup }) => (!isGroup || nUsers < 2) ?
+        deleteChat(idChat) :
+        removeUser(idChat, idUser)
+    ))
+
+    return evaluateModifiedResults(results)
+}
+
 module.exports = {
     createChat,
     getChat,
@@ -148,5 +161,6 @@ module.exports = {
     addUser,
     updateUser,
     removeUser,
-    lookupChatnames
+    lookupChatnames,
+    deleteUserChats
 }
