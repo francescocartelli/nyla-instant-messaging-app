@@ -19,7 +19,7 @@ const jwtCookie = jwt => `jwt=${jwt};`
 const signupRequests = [
 	{ username: 'TestUser001', email: 'testuser001@test.com', password: '000000Ab!' },
 	{ username: 'TestUser002', email: 'testuser002@test.com', password: '000000Ab!' },
-	{ username: 'TestUser002', email: 'testuser003@test.com', password: '000000Ab!' }
+	{ username: 'TestUser003', email: 'testuser003@test.com', password: '000000Ab!' }
 ]
 
 const signUser = async ({ username, email, password }) => {
@@ -83,6 +83,10 @@ describe('API server chats', () => {
 			send: () => ({ name: null, users: [{ id: users[0].id, isAdmin: true }, { id: "1a036147bc84329498844272" }], isGroup: false }),
 			expected: 400
 		}, {
+			title: 'cannot create chat for others',
+			send: () => ({ name: null, users: [{ id: users[1].id, isAdmin: true }, { id: users[2].id }], isGroup: false }),
+			expected: 401
+		}, {
 			title: 'ok',
 			send: () => ({ name: null, users: [{ id: users[0].id, isAdmin: true }, { id: users[1].id }], isGroup: false }),
 			expected: 200
@@ -93,6 +97,8 @@ describe('API server chats', () => {
 			.set('Cookie', jwtCookie(users[0].jwt))
 			.send(send())
 			.expect(expected)
+
+		if (res.ok) chats.push(res.body)
 	})
 
 	test.each([
@@ -117,6 +123,10 @@ describe('API server chats', () => {
 			send: () => ({ name: 'Group Chat', users: [{ id: users[0].id, isAdmin: true }, { id: "1a036147bc84329498844272" }], isGroup: true }),
 			expected: 400
 		}, {
+			title: 'cannot create chat for others',
+			send: () => ({ name: 'Group Chat', users: [{ id: users[1].id, isAdmin: true }, { id: users[2].id }], isGroup: true }),
+			expected: 401
+		}, {
 			title: 'admin required',
 			send: () => ({ name: 'Group Chat', users: [{ id: users[0].id }, { id: "1a036147bc84329498844272" }], isGroup: true }),
 			expected: 400
@@ -131,5 +141,111 @@ describe('API server chats', () => {
 			.set('Cookie', jwtCookie(users[0].jwt))
 			.send(send())
 			.expect(expected)
+
+		if (res.ok) chats.push(res.body)
+	})
+
+	const getChatRequests = [
+		{
+			title: 'bad id',
+			id: () => 'invalid',
+			jwt: () => users[0].jwt,
+			expected: 400
+		},
+		{
+			title: 'not found',
+			id: () => '1a036147bc84329498844272',
+			jwt: () => users[0].jwt,
+			expected: 404
+		},
+		{
+			title: 'user not in chat',
+			id: () => chats[0].id,
+			jwt: () => users[2].jwt,
+			expected: 401
+		},
+		{
+			title: 'ok',
+			id: () => chats[0].id,
+			jwt: () => users[0].jwt,
+			expected: 200
+		}
+	]
+
+	test.each(getChatRequests)('Get chat: $title [$expected]', async ({ id, jwt, expected }) => {
+		const res = await request(app)
+			.get(`/api/chats/${id()}`)
+			.set('Cookie', jwtCookie(jwt()))
+			.expect(expected)
+	})
+
+	test.each(getChatRequests)('Get chat users: $title [$expected]', async ({ id, jwt, expected }) => {
+		const res = await request(app)
+			.get(`/api/chats/${id()}/users`)
+			.set('Cookie', jwtCookie(jwt()))
+			.expect(expected)
+	})
+
+	const newName = 'New name'
+	const updateChatRequests = [
+		{
+			title: 'bad id',
+			id: () => 'invalid',
+			send: { name: newName },
+			jwt: () => users[0].jwt,
+			expected: 400
+		},
+		{
+			title: 'not found',
+			id: () => '1a036147bc84329498844272',
+			send: { name: newName },
+			jwt: () => users[0].jwt,
+			expected: 404
+		},
+		{
+			title: 'only group chat',
+			id: () => chats[0].id,
+			send: { name: newName },
+			jwt: () => users[2].jwt,
+			expected: 400
+		},
+		{
+			title: 'user not in chat',
+			id: () => chats[1].id,
+			send: { name: newName },
+			jwt: () => users[2].jwt,
+			expected: 401
+		},
+		{
+			title: 'user not admin',
+			id: () => chats[1].id,
+			send: { name: newName },
+			jwt: () => users[1].jwt,
+			expected: 401
+		},
+		{
+			title: 'ok',
+			id: () => chats[1].id,
+			send: { name: newName },
+			jwt: () => users[0].jwt,
+			expected: 200
+		}
+	]
+
+	test.each(updateChatRequests)('Update chat: $title [$expected]', async ({ id, jwt, send, expected }) => {
+		const res = await request(app)
+			.put(`/api/chats/${id()}`)
+			.set('Cookie', jwtCookie(jwt()))
+			.send(send)
+			.expect(expected)
+	})
+
+	test('Get chat: check new name', async () => {
+		const res = await request(app)
+			.get(`/api/chats/${chats[1].id}`)
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(200)
+
+		expect(res.body.name).toBe(newName)
 	})
 })
