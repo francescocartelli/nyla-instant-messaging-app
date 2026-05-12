@@ -39,7 +39,6 @@ const signUser = async ({ username, email, password }) => {
 describe('API server chats', () => {
 	let users = []
 	let chats = []
-	let nChats = null
 
 	beforeAll(async () => {
 		await connectDb(process.env.DATABASE_URL, process.env.DATABASE_NAME)
@@ -187,7 +186,8 @@ describe('API server chats', () => {
 	})
 
 	const newName = 'New name'
-	const updateChatRequests = [
+
+	test.each([
 		{
 			title: 'bad id',
 			id: () => 'invalid',
@@ -230,9 +230,7 @@ describe('API server chats', () => {
 			jwt: () => users[0].jwt,
 			expected: 200
 		}
-	]
-
-	test.each(updateChatRequests)('Update chat: $title [$expected]', async ({ id, jwt, send, expected }) => {
+	])('Update chat: $title [$expected]', async ({ id, jwt, send, expected }) => {
 		const res = await request(app)
 			.put(`/api/chats/${id()}`)
 			.set('Cookie', jwtCookie(jwt()))
@@ -247,5 +245,51 @@ describe('API server chats', () => {
 			.expect(200)
 
 		expect(res.body.name).toBe(newName)
+	})
+
+	test.each([
+		{
+			title: 'bad id',
+			id: () => 'invalid',
+			jwt: () => users[0].jwt,
+			expected: 400
+		},
+		{
+			title: 'not found',
+			id: () => '1a036147bc84329498844272',
+			jwt: () => users[0].jwt,
+			expected: 404
+		},
+		{
+			title: 'user not in chat',
+			id: () => chats[1].id,
+			jwt: () => users[2].jwt,
+			expected: 401
+		},
+		{
+			title: 'user not admin',
+			id: () => chats[1].id,
+			jwt: () => users[1].jwt,
+			expected: 401
+		},
+		{
+			title: 'ok',
+			id: () => chats[1].id,
+			jwt: () => users[0].jwt,
+			expected: 200
+		}
+	])('Delete chat: $title [$expected]', async ({ id, jwt, send, expected }) => {
+		const res = await request(app)
+			.delete(`/api/chats/${id()}`)
+			.set('Cookie', jwtCookie(jwt()))
+			.send(send)
+			.expect(expected)
+	})
+
+	test('Get chat: check deleted chat', async () => {
+		const res = await request(app)
+			.get(`/api/chats/${chats[1].id}`)
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(404)
 	})
 })
