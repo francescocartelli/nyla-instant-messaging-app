@@ -144,6 +144,15 @@ describe('API server chats', () => {
 		if (res.ok) chats.push(res.body)
 	})
 
+	test('Get personal chats: ok [200]', async () => {
+		const res = await request(app)
+			.get('/api/chats/personal')
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(200)
+
+		expect(res.body.chats.length).toBe(2)
+	})
+
 	const getChatRequests = [
 		{
 			title: 'bad id',
@@ -238,13 +247,258 @@ describe('API server chats', () => {
 			.expect(expected)
 	})
 
-	test('Get chat: check new name', async () => {
+	test('Get chat: check new name [200]', async () => {
 		const res = await request(app)
 			.get(`/api/chats/${chats[1].id}`)
 			.set('Cookie', jwtCookie(users[0].jwt))
 			.expect(200)
 
 		expect(res.body.name).toBe(newName)
+	})
+
+	test('Get chats users: 2 expected [200]', async () => {
+		const res = await request(app)
+			.get(`/api/chats/${chats[1].id}/users`)
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(200)
+
+		expect(res.body.length).toBe(2)
+	})
+
+	test.each([
+		{
+			title: 'bad chat id',
+			chatId: () => 'invalid',
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			expected: 400
+		},
+		{
+			title: 'bad user id',
+			chatId: () => 'invalid',
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			expected: 400
+		},
+		{
+			title: 'not found chat',
+			chatId: () => '1a036147bc84329498844272',
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			expected: 404
+		},
+		{
+			title: 'not found user',
+			chatId: () => chats[1].id,
+			userId: () => '1a036147bc84329498844272',
+			jwt: () => users[0].jwt,
+			expected: 404
+		},
+		{
+			title: 'you are not in chat',
+			chatId: () => chats[1].id,
+			userId: () => users[2].id,
+			jwt: () => users[2].jwt,
+			expected: 401
+		},
+		{
+			title: 'you are not admin',
+			chatId: () => chats[1].id,
+			userId: () => users[2].id,
+			jwt: () => users[1].jwt,
+			expected: 401
+		},
+		{
+			title: 'group chat required',
+			chatId: () => chats[0].id,
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			expected: 400
+		},
+		{
+			title: 'ok',
+			chatId: () => chats[1].id,
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			expected: 200
+		}
+	])('Add chats user: $title [$expected]', async ({ chatId, userId, jwt, expected }) => {
+		const res = await request(app)
+			.post(`/api/chats/${chatId()}/users/${userId()}`)
+			.set('Cookie', jwtCookie(jwt()))
+			.expect(expected)
+	})
+
+	test('Get chats users: 3 expected [200]', async () => {
+		const res = await request(app)
+			.get(`/api/chats/${chats[1].id}/users`)
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(200)
+
+		expect(res.body.length).toBe(3)
+	})
+
+	test.each([
+		{
+			title: 'bad chat id',
+			chatId: () => 'invalid',
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			expected: 400
+		},
+		{
+			title: 'bad user id',
+			chatId: () => 'invalid',
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			expected: 400
+		},
+		{
+			title: 'not found chat',
+			chatId: () => '1a036147bc84329498844272',
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			expected: 404
+		},
+		{
+			title: 'not found user',
+			chatId: () => chats[1].id,
+			userId: () => '1a036147bc84329498844272',
+			jwt: () => users[0].jwt,
+			expected: 304
+		},
+		{
+			title: 'you are not admin',
+			chatId: () => chats[1].id,
+			userId: () => users[2].id,
+			jwt: () => users[1].jwt,
+			expected: 401
+		},
+		{
+			title: 'group chat required',
+			chatId: () => chats[0].id,
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			expected: 400
+		},
+		{
+			title: 'ok',
+			chatId: () => chats[1].id,
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			expected: 200
+		}
+	])('Delete chats user: $title [$expected]', async ({ chatId, userId, jwt, expected }) => {
+		const res = await request(app)
+			.delete(`/api/chats/${chatId()}/users/${userId()}`)
+			.set('Cookie', jwtCookie(jwt()))
+			.expect(expected)
+	})
+
+	test('Get chats users: 2 expected [200]', async () => {
+		const res = await request(app)
+			.get(`/api/chats/${chats[1].id}/users`)
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(200)
+
+		expect(res.body.length).toBe(2)
+	})
+
+	test.each([
+		{
+			title: 'bad chat id',
+			chatId: () => 'invalid',
+			userId: () => users[1].id,
+			jwt: () => users[0].jwt,
+			send: { isAdmin: true },
+			expected: 400
+		},
+		{
+			title: 'bad user id',
+			chatId: () => 'invalid',
+			userId: () => users[1].id,
+			jwt: () => users[0].jwt,
+			send: { isAdmin: true },
+			expected: 400
+		},
+		{
+			title: 'not found chat',
+			chatId: () => '1a036147bc84329498844272',
+			userId: () => users[1].id,
+			jwt: () => users[0].jwt,
+			send: { isAdmin: true },
+			expected: 404
+		},
+		{
+			title: 'not found user',
+			chatId: () => chats[1].id,
+			userId: () => '1a036147bc84329498844272',
+			jwt: () => users[0].jwt,
+			send: { isAdmin: true },
+			expected: 304
+		},
+		{
+			title: 'user not in chat',
+			chatId: () => chats[1].id,
+			userId: () => users[2].id,
+			jwt: () => users[0].jwt,
+			send: { isAdmin: true },
+			expected: 304
+		},
+		{
+			title: 'you are not in chat',
+			chatId: () => chats[1].id,
+			userId: () => users[1].id,
+			jwt: () => users[2].jwt,
+			send: { isAdmin: true },
+			expected: 401
+		},
+		{
+			title: 'you are not admin',
+			chatId: () => chats[1].id,
+			userId: () => users[1].id,
+			jwt: () => users[1].jwt,
+			send: { isAdmin: true },
+			expected: 401
+		},
+		{
+			title: 'group chat required',
+			chatId: () => chats[0].id,
+			userId: () => users[1].id,
+			jwt: () => users[0].jwt,
+			send: { isAdmin: true },
+			expected: 400
+		},
+		{
+			title: 'ok',
+			chatId: () => chats[1].id,
+			userId: () => users[1].id,
+			jwt: () => users[0].jwt,
+			send: { isAdmin: true },
+			expected: 200
+		},
+		{
+			title: 'ok (self remove admin role)',
+			chatId: () => chats[1].id,
+			userId: () => users[1].id,
+			jwt: () => users[1].jwt,
+			send: { isAdmin: false },
+			expected: 200
+		},
+		{
+			title: 'you are not admin',
+			chatId: () => chats[1].id,
+			userId: () => users[1].id,
+			jwt: () => users[1].jwt,
+			send: { isAdmin: true },
+			expected: 401
+		}
+	])('Update chats user: $title [$expected]', async ({ chatId, userId, jwt, send, expected }) => {
+		const res = await request(app)
+			.put(`/api/chats/${chatId()}/users/${userId()}`)
+			.set('Cookie', jwtCookie(jwt()))
+			.send(send)
+			.expect(expected)
 	})
 
 	test.each([
@@ -286,10 +540,19 @@ describe('API server chats', () => {
 			.expect(expected)
 	})
 
-	test('Get chat: check deleted chat', async () => {
+	test('Get chat: check deleted chat [404]', async () => {
 		const res = await request(app)
 			.get(`/api/chats/${chats[1].id}`)
 			.set('Cookie', jwtCookie(users[0].jwt))
 			.expect(404)
+	})
+
+	test('Get personal chats: ok after delete [200]', async () => {
+		const res = await request(app)
+			.get('/api/chats/personal')
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(200)
+
+		expect(res.body.chats.length).toBe(1)
 	})
 })
