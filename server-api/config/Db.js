@@ -34,3 +34,5 @@ exports.getUserCollection = () => _db.collection(collections.user)
 
 exports.oid = id => ObjectId.createFromHexString(id.toString())
 exports.isOidValid = ObjectId.isValid
+
+exports.close = (...args) => _db.client.close(...args)

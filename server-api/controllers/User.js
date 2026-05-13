@@ -3,8 +3,6 @@ const { notFoundId, USERNAME_TAKEN, notModified } = require("../constants/Respon
 const chatServices = require("../services/Chat")
 const usersServices = require("../services/User")
 
-const { evaluateModifiedResults } = require("../utility/Evaluate")
-
 module.exports.getUsers = async (req, res) => {
     const { username, searchType } = req.query
 
