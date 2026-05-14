@@ -14,7 +14,7 @@
         "password": {
             "description": "Password of the user",
             "type": "string",
-            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{8,}$"
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&-_])[A-Za-z0-9@$!%*?&-_]{8,}$"
         },
         "email": {
             "description": "Email of the user",

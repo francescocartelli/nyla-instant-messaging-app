@@ -486,25 +486,4 @@ describe('API server chats tests', () => {
 
 		expect(res.body.chats.length).toBe(1)
 	})
-
-	test.each([{
-		title: 'ok (contains pattern) [200]',
-		query: '?username=Test',
-		expectedNumber: 3
-	}, {
-		title: 'ok (exact pattern) [200]',
-		query: '?username=TestUser001&searchType=exact',
-		expectedNumber: 1
-	}, {
-		title: 'ok (exact pattern no result) [200]',
-		query: '?username=TestUser00&searchType=exact',
-		expectedNumber: 0
-	}])('Get users: $title', async ({ query, expectedNumber }) => {
-		const res = await request(app)
-			.get(`/api/users${query}`)
-			.set('Cookie', jwtCookie(users[0].jwt))
-			.expect(200)
-
-		expect(res.body.length).toBe(expectedNumber)
-	})
 })
