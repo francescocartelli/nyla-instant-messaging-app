@@ -23,3 +23,5 @@ exports.connect = async url => {
 }
 
 exports.publish = (...args) => _redisClient.publish(...args)
+
+exports.close = (...args) => _redisClient.quit(...args)

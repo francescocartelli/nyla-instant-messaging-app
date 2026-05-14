@@ -2,8 +2,6 @@ const { oid, isOidValid, getUserCollection, configs: dbConfigs } = require('../c
 
 const { newUser } = require('../model/User')
 
-const userCollection = getUserCollection()
-
 const userProjection = {
     _id: 0,
     id: '$_id',
@@ -20,7 +18,7 @@ const searchQueries = {
 const formatTypes = Object.keys(searchQueries).map(i => `"${i}"`).join(", ")
 
 const getUserId = (id) => {
-    return userCollection.findOne({ _id: oid(id) }, { projection: { _id: 1 } })
+    return getUserCollection().findOne({ _id: oid(id) }, { projection: { _id: 1 } })
 }
 
 const getUsers = (username = "", searchType = "contains") => {
@@ -28,20 +26,20 @@ const getUsers = (username = "", searchType = "contains") => {
     if (!query) throw new TypeError(`"${searchType}" is not a valid search type.\nAvailable ones are: ${formatTypes}`)
 
     return username === "" ?
-        Promise.resolve([]) : userCollection
+        Promise.resolve([]) : getUserCollection()
             .find(query(username), { projection: userProjection })
             .limit(dbConfigs.USERS_PER_PAGE).toArray()
 }
 
 const getUser = ({ id, ...user }) => {
-    return userCollection.findOne({
+    return getUserCollection().findOne({
         ...user,
         ...(id && { _id: oid(id) })
     }, { projection: userProjection })
 }
 
 const getUserHash = (userIdentifier) => {
-    return userCollection.findOne({
+    return getUserCollection().findOne({
         $or: [
             { username: userIdentifier },
             { email: userIdentifier }
@@ -50,20 +48,20 @@ const getUserHash = (userIdentifier) => {
 }
 
 const createUser = (user) => {
-    return userCollection.insertOne(newUser(user))
+    return getUserCollection().insertOne(newUser(user))
 }
 
 const updateUser = (id, user) => {
-    return userCollection.updateOne({ _id: oid(id) }, { $set: user })
+    return getUserCollection().updateOne({ _id: oid(id) }, { $set: user })
 }
 
 /* semicit: user cannot be deleted, they simply result missing */
 const deleteUser = (id) => {
-    return userCollection.deleteOne({ _id: oid(id) })
+    return getUserCollection().deleteOne({ _id: oid(id) })
 }
 
 const getFullUsers = (ids) => {
-    return userCollection.find({ _id: { $in: ids.map(i => oid(i.toString())) } }, { projection: userProjection }).toArray()
+    return getUserCollection().find({ _id: { $in: ids.map(i => oid(i.toString())) } }, { projection: userProjection }).toArray()
 }
 
 const getChatUsers = async (chatUsersMap) => {
