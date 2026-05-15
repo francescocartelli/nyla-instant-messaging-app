@@ -3,4 +3,4 @@ matches_ignore:
     match: fake-test-password
 
 paths_ignore:
-  - test/**  
+  - server-api/test/**  
