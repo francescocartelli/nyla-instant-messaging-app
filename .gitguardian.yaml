@@ -1,6 +1,0 @@
-matches_ignore:
-  - name: Ignore test passwords
-    match: fake-test-password
-
-paths_ignore:
-  - server-api/test/**  
