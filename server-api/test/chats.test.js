@@ -440,6 +440,47 @@ describe('API server chats tests', () => {
 
 	test.each([{
 		title: 'bad id',
+		chatId: () => 'invalid',
+		jwt: () => users[1].jwt,
+		expected: 400
+	}, {
+		title: 'not found',
+		chatId: () => '1a036147bc84329498844272',
+		jwt: () => users[1].jwt,
+		expected: 404
+	}, {
+		title: 'you are not in chat',
+		chatId: () => chats[1].id,
+		jwt: () => users[2].jwt,
+		expected: 401
+	}, {
+		title: 'group chat required',
+		chatId: () => chats[0].id,
+		jwt: () => users[1].jwt,
+		expected: 400
+	}, {
+		title: 'ok',
+		chatId: () => chats[1].id,
+		userId: () => users[1].id,
+		jwt: () => users[1].jwt,
+		send: { isAdmin: true },
+		expected: 200
+	}])('Leave chat: $title [$expected]', async ({ chatId, jwt, expected }) => {
+		const res = await request(app)
+			.delete(`/api/chats/${chatId()}/users/current`)
+			.set('Cookie', jwtCookie(jwt()))
+			.expect(expected)
+	})
+	
+	test('Add chats user: ok get back user leaving [200]', async () => {
+		const res = await request(app)
+			.post(`/api/chats/${chats[1].id}/users/${users[1].id}`)
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(200)
+	})
+
+	test.each([{
+		title: 'bad id',
 		id: () => 'invalid',
 		jwt: () => users[0].jwt,
 		expected: 400
