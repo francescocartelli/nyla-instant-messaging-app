@@ -1,0 +1,74 @@
+[
+  {
+    "title": "too short username",
+    "send": {
+      "username": "Pixel",
+      "email": "pixelsamurai@test.com",
+      "password": "Xy-012345"
+    },
+    "expected": 400
+  },
+  {
+    "title": "invalid email",
+    "send": {
+      "username": "EchoNomad",
+      "email": "echonomad",
+      "password": "Xy-012345"
+    },
+    "expected": 400
+  },
+  {
+    "title": "too simple password",
+    "send": {
+      "username": "SilentPanda",
+      "email": "silentpanda@test.com",
+      "password": "too-simple"
+    },
+    "expected": 400
+  },
+  {
+    "title": "ok user 1",
+    "send": {
+      "username": "SilentFox",
+      "email": "silentfox@test.com",
+      "password": "Xy-012345"
+    },
+    "expected": 200
+  },
+  {
+    "title": "ok user 2",
+    "send": {
+      "username": "Silent000",
+      "email": "silent001@test.com",
+      "password": "Xy-012345"
+    },
+    "expected": 200
+  },
+  {
+    "title": "ok user 3",
+    "send": {
+      "username": "EchoBus1",
+      "email": "ecobus1@test.com",
+      "password": "Xy-012345"
+    },
+    "expected": 200
+  },
+  {
+    "title": "username already taken",
+    "send": {
+      "username": "EchoBus1",
+      "email": "eco-bus@test.com",
+      "password": "Xy-012345"
+    },
+    "expected": 400
+  },
+  {
+    "title": "email already taken",
+    "send": {
+      "username": "EchoBus10",
+      "email": "ecobus1@test.com",
+      "password": "Xy-012345"
+    },
+    "expected": 400
+  }
+]
