@@ -11,6 +11,9 @@ const { connect: connectMq, close: closeMq } = require('../config/Mq')
 const createDeleteUser = require('./setup/deleteUser')
 const { jwtCookie, extractResponseCookie } = require('./setup/utils')
 
+const moreUsersSignupRequests = require('./data/more-users-signup.json')
+const moreUsersSigninRequests = require('./data/more-users-signin.json')
+
 describe('API server users tests', () => {
 	let users = []
 
@@ -30,71 +33,7 @@ describe('API server users tests', () => {
 		await closeMq()
 	})
 
-	test.each([{
-		title: "too short username",
-		send: {
-			username: "Pixel",
-			email: "pixelsamurai@test.com",
-			password: "Xy-012345"
-		},
-		expected: 400
-	}, {
-		title: "invalid email",
-		send: {
-			username: "EchoNomad",
-			email: "echonomad",
-			password: "Xy-012345"
-		},
-		expected: 400
-	}, {
-		title: "too simple password",
-		send: {
-			username: "SilentPanda",
-			email: "silentpanda@test.com",
-			password: "too-simple"
-		},
-		expected: 400
-	}, {
-		title: "ok user 1",
-		send: {
-			username: "SilentFox",
-			email: "silentfox@test.com",
-			password: "Xy-012345"
-		},
-		expected: 200
-	}, {
-		title: "ok user 2",
-		send: {
-			username: "Silent000",
-			email: "silent001@test.com",
-			password: "Xy-012345"
-		},
-		expected: 200
-	}, {
-		title: "ok user 3",
-		send: {
-			username: "EchoBus1",
-			email: "ecobus1@test.com",
-			password: "Xy-012345"
-		},
-		expected: 200
-	}, {
-		title: "username already taken",
-		send: {
-			username: "EchoBus1",
-			email: "eco-bus@test.com",
-			password: "Xy-012345"
-		},
-		expected: 400
-	}, {
-		title: "email already taken",
-		send: {
-			username: "EchoBus10",
-			email: "ecobus1@test.com",
-			password: "Xy-012345"
-		},
-		expected: 400
-	}])('Signup: $title [$expected]', async ({ send, expected }) => {
+	test.each(moreUsersSignupRequests)('Signup: $title [$expected]', async ({ send, expected }) => {
 		const res = await request(app)
 			.post(`/api/authenticate/signup`)
 			.send(send)
@@ -107,42 +46,7 @@ describe('API server users tests', () => {
 		})
 	})
 
-	test.each([{
-		title: "wrong user identifier",
-		send: {
-			userIdentifier: "EchoBus",
-			password: "Xy-012345"
-		},
-		expected: 401
-	}, {
-		title: "wrong password",
-		send: {
-			userIdentifier: "EchoBus1",
-			password: "000000Ab"
-		},
-		expected: 401
-	}, {
-		title: "wrong both",
-		send: {
-			userIdentifier: "Echous1",
-			password: "00000Ab!"
-		},
-		expected: 401
-	}, {
-		title: "ok (using username)",
-		send: {
-			userIdentifier: "EchoBus1",
-			password: "Xy-012345"
-		},
-		expected: 200
-	}, {
-		title: "ok (using email)",
-		send: {
-			userIdentifier: "ecobus1@test.com",
-			password: "Xy-012345"
-		},
-		expected: 200
-	}])('Signin: $title [$expected]', async ({ send, expected }) => {
+	test.each(moreUsersSigninRequests)('Signin: $title [$expected]', async ({ send, expected }) => {
 		const res = await request(app)
 			.post(`/api/authenticate/signin`)
 			.send(send)

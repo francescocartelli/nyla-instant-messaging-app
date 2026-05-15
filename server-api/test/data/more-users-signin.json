@@ -1,0 +1,42 @@
+[
+  {
+    "title": "wrong user identifier",
+    "send": {
+      "userIdentifier": "EchoBus",
+      "password": "Xy-012345"
+    },
+    "expected": 401
+  },
+  {
+    "title": "wrong password",
+    "send": {
+      "userIdentifier": "EchoBus1",
+      "password": "000000Ab"
+    },
+    "expected": 401
+  },
+  {
+    "title": "wrong both",
+    "send": {
+      "userIdentifier": "Echous1",
+      "password": "00000Ab!"
+    },
+    "expected": 401
+  },
+  {
+    "title": "ok (using username)",
+    "send": {
+      "userIdentifier": "EchoBus1",
+      "password": "Xy-012345"
+    },
+    "expected": 200
+  },
+  {
+    "title": "ok (using email)",
+    "send": {
+      "userIdentifier": "ecobus1@test.com",
+      "password": "Xy-012345"
+    },
+    "expected": 200
+  }
+]
