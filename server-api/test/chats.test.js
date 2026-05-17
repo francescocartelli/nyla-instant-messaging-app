@@ -131,6 +131,63 @@ describe('API server chats tests', () => {
 		expect(res.body.chats.length).toBe(2)
 	})
 
+	test('Get personal chats: check sorting order [200]', async () => {
+		const resAsc = await request(app)
+			.get('/api/chats/personal?asc=true')
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(200)
+
+		const resDesc = await request(app)
+			.get('/api/chats/personal')
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(200)
+
+		expect(resAsc.body.nPages).toBe(1)
+		expect(resDesc.body.nPages).toBe(1)
+
+		const idsAsc = resAsc.body.chats.map(chat => chat.id)
+		const idsDesc = resDesc.body.chats.map(chat => chat.id)
+
+		for (let i = 0; i < idsAsc.length; i++) {
+			expect(idsAsc[i]).toBe(idsDesc[idsDesc.length - 1 - i])
+		}
+	})
+
+	test.each([{
+		title: 'check filter direct',
+		isGroup: true
+	}, {
+		title: 'check filter group',
+		isGroup: false
+	}])('Get personal chats: $title [200]', async ({ isGroup }) => {
+		const res = await request(app)
+			.get(`/api/chats/personal?isGroup=${isGroup}`)
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.expect(200)
+
+		for (let chat of res.body.chats) {
+			expect(chat.isGroup).toBe(isGroup)
+		}
+	})
+
+	test('Get personal chats: check paging max 10 [200]', async () => {
+		let ids = new Set([])
+
+		for (let i = 0; i < 10; i++) {
+			const res = await request(app)
+				.get(`/api/chats/personal?page=${i + 1}`)
+				.set('Cookie', jwtCookie(users[0].jwt))
+				.expect(200)
+
+			for (let chat of res.body.chats) {
+				expect(ids.has(chat.id)).toBe(false)
+				ids.add(chat.id)
+			}
+
+			if (!res.next) return
+		}
+	})
+
 	const getChatRequests = [{
 		title: 'bad id',
 		id: () => 'invalid',
@@ -471,7 +528,7 @@ describe('API server chats tests', () => {
 			.set('Cookie', jwtCookie(jwt()))
 			.expect(expected)
 	})
-	
+
 	test('Add chats user: ok get back user leaving [200]', async () => {
 		const res = await request(app)
 			.post(`/api/chats/${chats[1].id}/users/${users[1].id}`)

@@ -9,17 +9,21 @@ const cookieParser = require('cookie-parser')
 const { validate, isDev, isTest } = require('./utility/modes')
 const { delayedPassThrough } = require('./middleware/constants')
 
+/* LOG */
+const { createLogger } = require('./utility/logger')
+const log = createLogger(process.env.LOG_LEVEL, isTest(process.env.NODE_ENV))
+
 /* ENVIRONMENT */
 const mode = validate(process.env.NODE_ENV)
-console.log(`Boot ${mode} mode`)
+log.info(`Boot ${mode} mode`)
 
 /* DEVELOPMENT */
 if (isDev(process.env.NODE_ENV) && process.env.DELAY_PENALTY) {
-	console.log(`A delay penalty of ${process.env.DELAY_PENALTY}ms has been added to all routes`)
+	log.info(`A delay penalty of ${process.env.DELAY_PENALTY}ms has been added to all routes`)
 	app.use(delayedPassThrough(process.env.DELAY_PENALTY))
 }
 
-/* LOGGING */
+/* LOG MIDDLEWARE */
 if (!isTest(process.env.NODE_ENV)) {
 	const { logger } = require('./middleware/logger')
 	app.use(logger(mode))
@@ -31,7 +35,7 @@ app.use(express.json())
 
 /* CORS */
 if (process.env.FRONT_END_URL) {
-	console.log(`CORS enabled from origin: ${process.env.FRONT_END_URL}`)
+	log.info(`CORS enabled from origin: ${process.env.FRONT_END_URL}`)
 	app.use(cors({
 		credentials: true,
 		origin: process.env.FRONT_END_URL
@@ -127,7 +131,7 @@ if (process.env.GOOGLE_CLIENT_ID) {
 }
 
 app.use(errorMiddleware({
-	onError: console.error,
+	onError: log.error,
 	message: SERVER_ERROR
 }))
 

@@ -1,7 +1,7 @@
 const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, NO_CHAT_DELETED, NO_MESSAGES_DELETED, notFoundId, notCreated, notModified } = require("../constants/ResponseMessages")
 
 const { createPage, parsePageNumber } = require("../utility/Paging")
-const { parseBool } = require("../utility/Parsing")
+const { parseBool } = require("../utility/parsing")
 const { getChatNavigation } = require("../utility/Navigation")
 
 const chatServices = require("../services/Chat")

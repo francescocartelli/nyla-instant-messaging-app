@@ -4,15 +4,18 @@ const defaultOptions = { useNewUrlParser: true, useUnifiedTopology: true, connec
 
 let _db
 
+const { getLogger } = require('../utility/logger')
+const logger = getLogger()
+
 exports.connect = async (url, name, options = defaultOptions) => {
     try {
         const client = await MongoClient.connect(url, options)
         _db = client.db(name)
 
-        console.log("Connected to Mongodb!")
+        logger.info("Connected to Mongodb!")
     } catch (err) {
-        console.log(err)
-        console.log("Error in Mongodb connection!")
+        logger.debug(err)
+        logger.error("Error in Mongodb connection!")
     }
 }
 
