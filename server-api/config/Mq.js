@@ -2,6 +2,9 @@ const redis = require('redis')
 
 let _redisClient
 
+const { getLogger } = require('../utility/logger')
+const logger = getLogger()
+
 exports.connect = async url => {
     try {
         const [host, port] = url.split(':')
@@ -12,13 +15,13 @@ exports.connect = async url => {
                 port: port
             }
         })
-    
+
         await _redisClient.connect()
 
-        console.log("Connected to Redis!")
+        logger.info("Connected to Redis!")
     } catch (err) {
-        console.log("Error in Redis connection!")
-        console.log("Check your Redis server: it's probably not open")
+        logger.debug(err)
+        logger.error("Error in Redis connection!")
     }
 }
 

@@ -178,6 +178,50 @@ describe('API server users tests', () => {
 		}
 	})
 
+	const nMessages = 25
+	test(`Create new messages: add ${nMessages} messages [200]`, async () => {
+		for (let i = 0; i < nMessages; i++) {
+			const res = await request(app)
+				.post(`/api/chats/${chat.id}/messages`)
+				.set('Cookie', jwtCookie(users[i % 2].jwt))
+				.send(newMessageContent(`New message of ${i} index`))
+				.expect(200)
+		}
+	})
+
+	cursor = null
+	test(`Get messages: check paging max 10 page [200]`, async () => {
+		const ids = new Set([])
+		let lastCreatedAt = new Date(8640000000000000)
+		let lastPageSize = Infinity
+
+		for (let i = 0; i < 10; i++) {
+			const res = await request(app)
+				.get(`/api/chats/${chat.id}/messages?cursor=${cursor}`)
+				.set('Cookie', jwtCookie(users[0].jwt))
+				.expect(200)
+
+			// test page size
+			expect(lastPageSize >= res.body.messages.length).toBe(true)
+			lastPageSize = res.body.messages.length
+
+			for (let message of res.body.messages) {
+				// test the absence of duplicates
+				expect(ids.has(message.id)).toBe(false)
+				ids.add(message.id)
+
+				// test the message creation order
+				const dt = new Date(message.createdAt)
+				expect(lastCreatedAt > dt).toBe(true)
+				lastCreatedAt = dt
+			}
+
+			if (!res.body.nextCursor) return
+
+			cursor = res.body.nextCursor
+		}
+	})
+
 	test.each([{
 		title: 'bad id chat',
 		chat: () => 'invalid',

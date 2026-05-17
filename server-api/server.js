@@ -6,8 +6,11 @@ const { connect: connectDb } = require('./config/Db')
 const { connect: connectMq } = require('./config/Mq')
 
 const { isProd } = require('./utility/modes')
+const { createLogger } = require('./utility/logger')
 
 require('dotenv').config()
+
+const log = createLogger(process.env.LOG_LEVEL)
 
 const boot = async () => {
   /* Initialize connections */
@@ -23,7 +26,7 @@ const boot = async () => {
     app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(bundledSpec))
   }
 
-  app.listen(process.env.SERVER_PORT, () => { console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`) })
+  app.listen(process.env.SERVER_PORT, () => { log.info(`Server listening at http://localhost:${process.env.SERVER_PORT}`) })
 }
 
 boot()
