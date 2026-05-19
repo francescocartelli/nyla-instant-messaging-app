@@ -1,11 +1,11 @@
 const dotenv = require('dotenv')
 
 const { providerEndpoints } = require('./services/llms')
-const { sendMessage } = require('./services/messages')
+const { sendMessage, getMessages } = require('./services/messages')
 const { signBot } = require('./services/authenticate')
 
 const createLogger = require('./utilities/Logger')
-const { assistancePrompt } = require('./utilities/prompts')
+const { assistancePrompt, assistanceWithHistoryPrompt, messageToPrompt } = require('./utilities/prompts')
 const { jwtTCookieHeader } = require('./utilities/CookieJWT')
 const { flatRTNodes } = require('./utilities/RichText')
 const { invokeFetch } = require('./utilities/network')
@@ -15,32 +15,65 @@ dotenv.config()
 
 const logger = createLogger(process.env.LOGGING_LEVEL)
 
-const bot = {
-    username: process.env.BOT_USERNAME,
-    password: process.env.BOT_PASSWORD,
-    email: process.env.BOT_EMAIL
+const serviceUnavailableResponse = `I apologize, but I'm unable to assist you with this right now. Please feel free to reach out again later.`
+
+const mapMessage = ({ idSender, content, createdAt, deletedAt }, id) => ({
+    sender: idSender === id ? 'you' : 'user',
+    content: content ? flatRTNodes(content) : null,
+    createdAt,
+    deletedAt
+})
+
+const flatMessageHistory = (messages, idUser) => {
+    const mappedMessages = [...messages].reverse().map(message => mapMessage(message, idUser))
+    const messagesPrompt = mappedMessages.map(messageToPrompt)
+
+    return messagesPrompt.join('\n')
 }
 
-const createOnMessage = ({ user, jwt, fetchLLM, promptTemplate }) => async payload => {
-    const { type, chat, message } = JSON.parse(payload.data)
-    if (type !== 'MESSAGE_CREATE' || message.idSender === user.id) return
+const createWSCRouter = (url, options, user, routes) => createWSC(url, options, {
+    onOpen: () => {
+        logger.debug('WS open')
+    },
+    onClose: () => {
+        logger.debug('WS close')
+    },
+    onMessage: async payload => {
+        try {
+            const { type, chat, message } = JSON.parse(payload.data)
+            if (message.idSender === user.id) return
 
-    const flat = flatRTNodes(message.content)
-    logger.debug(`received message: ${flat}`)
+            const behavior = routes[type]
+            if (!behavior) return
 
-    const text = await fetchLLM(promptTemplate(flat))
-    if (!text) return
+            await behavior({ chat, message })
+        } catch (err) {
+            logger.error(err)
+        }
+    }
+})
 
-    logger.debug(`sending response: ${text}`)
+const getPrompt = async (message, chat, jwt, user) => {
+    if (!process.env.HAS_HISTORY) {
+        const flat = flatRTNodes(message.content)
+        return assistancePrompt(flat)
+    }
 
-    sendMessage(chat, jwt, text)
+    const res = await getMessages(chat, jwt)
+    const history = flatMessageHistory(res.messages, user.id)
+
+    return assistanceWithHistoryPrompt(history)
 }
 
 const boot = async () => {
     let wsc = null
 
     try {
-        const { user, jwt } = await signBot(bot)
+        const { user, jwt } = await signBot({
+            username: process.env.BOT_USERNAME,
+            password: process.env.BOT_PASSWORD,
+            email: process.env.BOT_EMAIL
+        })
         if (!jwt) return
 
         const createLLMEndpoint = providerEndpoints[process.env.LLM_PROVIDER]
@@ -59,19 +92,18 @@ const boot = async () => {
         logger.info(`Bot signed`)
         logger.debug(JSON.stringify(user))
 
-        wsc = createWSC(process.env.WSS_URL, { headers: jwtTCookieHeader(jwt) }, {
-            onOpen: () => {
-                logger.debug('WS open')
-            },
-            onClose: () => {
-                logger.debug('WS close')
-            },
-            onMessage: createOnMessage({
-                user,
-                jwt,
-                fetchLLM,
-                promptTemplate: assistancePrompt
-            })
+        wsc = createWSCRouter(process.env.WSS_URL, { headers: jwtTCookieHeader(jwt) }, user, {
+            'MESSAGE_CREATE': async ({ chat, message }) => {
+                const prompt = await getPrompt(message, chat, jwt, user)
+                logger.debug('request prompt:', prompt)
+
+                let llmResponse = await fetchLLM(prompt)
+                llmResponse = llmResponse || serviceUnavailableResponse
+
+                logger.debug(`prompt response: ${llmResponse}`)
+
+                sendMessage(chat, jwt, llmResponse)
+            }
         })
     } catch (err) {
         wsc?.close()
