@@ -31,14 +31,20 @@ chat type.
 
 Group settings can be modified later if needed.
 
-------------------------------------------------------------------------
-
 ## Manage Chat Settings
 
 Only **group chat admins** can manage chat settings, including editing
 group details, managing members, and deleting chats.
 
 Available admin actions: - Edit group name - Manage users - Delete chat
+
+### Admin Rules
+
+-   In the **Users** settings of the chat, admins have a **Crown** icon
+    near their names.
+-   A group chat will always have at least one admin.
+-   Only admins can make other users admins.
+-   If a chat has no users, the chat is automatically deleted.
 
 ### Edit Group Name
 
