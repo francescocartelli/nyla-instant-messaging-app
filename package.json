@@ -1,0 +1,29 @@
+{
+  "name": "nyla-instant-messaging-app",
+  "version": "1.0.0",
+  "description": "<div align=\"center\"> <img src='./images/icon_sm.png'>",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run start -w client\" \"npm run start -w server-ws\" \"npm run start -w server-api\""
+  },
+  "workspaces": [
+    "client",
+    "server-api",
+    "server-ws"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/francescocartelli/nyla-instant-messaging-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/francescocartelli/nyla-instant-messaging-app/issues"
+  },
+  "homepage": "https://github.com/francescocartelli/nyla-instant-messaging-app#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
