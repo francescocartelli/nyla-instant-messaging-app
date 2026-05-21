@@ -3,7 +3,7 @@ import { memo } from 'react'
 
 import { Button } from '@/components/Commons/Buttons'
 import { StatusLayout } from '@/components/Commons/Layout'
-import { InformationBox, SomethingWentWrong } from '@/components/Commons/misc'
+import { InformationBox, SomethingWentWrong } from '@/components/Commons/Misc'
 
 
 import MessageCard from './MessageCard'
