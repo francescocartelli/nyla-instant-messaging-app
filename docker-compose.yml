@@ -16,6 +16,8 @@ services:
     build:
       context: ./server-api
     environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
       - DATABASE_URL=mongodb://mongo:27017
       - DATABASE_NAME=messages_db
       - MQ_SERVER_URL=redis:6379

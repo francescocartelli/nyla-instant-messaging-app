@@ -35,7 +35,7 @@ Nyla is a centralized instant messaging application built with React.js front-en
 <div align="center"><img width="80%" src='./images/architecture.png'/></div>
 <br>
 
-This repository contains the implementation of the web server (client folder), REST api server (<b>server-api</b> folder) and ws server (<b>server-ws</b> folder). MongoDB and Redis can be used simply by installing the relevant software; no other configuration (other than that provided in the folders listed above) is required.
+This repository contains the implementation of the SPA (client folder), REST api server (<b>server-api</b> folder) and ws server (<b>server-ws</b> folder). MongoDB and Redis can be used simply by installing the relevant software; no other configuration (other than that provided in the folders listed above) is required.
 
 <br>
 
@@ -56,7 +56,7 @@ Wait for container creations, once client development server is ready, connect t
 
 ## Manual Setup
 Setup <b>back-end</b> (<i>MongoDB</i>, <i>Redis</i>, <i>REST-API server</i> and <i>WS server</i>) and <b>front-end </b>(<i>React Client App</i>) of the app by following the list below.<br><br>
-<b>Configurations files are already set for local development build.</b>
+<b>Reuse example configuration files for setting up local development build.</b>
 
 ### MongoDB
 At first, the app will start with an empty database, generated with the first write (probably a user registration). For this reason database configuration only consist in starting the MongoDB process or service.
@@ -92,7 +92,7 @@ At first, the app will start with an empty database, generated with the first wr
 			GOOGLE_CALLBACK_URL=http://localhost:3001/api/authenticate/google/callback
 			GOOGLE_SUCCESS_REDIRECT_URL=http://localhost:3000
 
-3. From the <b>server-api</b> root folder, install all required modules, then run the server:
+3. [**OPTIONAL**: For independent deploy] From the <b>server-api</b> root folder, install all required modules, then run the server:
    
 			server % npm install
 			server % npm start
@@ -107,12 +107,12 @@ At first, the app will start with an empty database, generated with the first wr
 
 			API_SERVER_URL=<api_server_host:api_server_port>
 
-2. From the <b>server-ws</b> root folder, install all required modules, then run the server:
+2. [**OPTIONAL**: For independent deploy] From the <b>server-ws</b> root folder, install all required modules, then run the server:
  
    		  server % npm install
 		  server % npm start
 
-### Static Web Server (React.js)
+### SPA (React.js)
 1. In <b>client</b>, <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/client/.env.example">.env.example</a> file provides the basic configurations. Use it for generating a <b>.env</b> file:
    - Providing url for react-proxy server (to <b>server-api</b>):
    
@@ -122,15 +122,22 @@ At first, the app will start with an empty database, generated with the first wr
    
 		  VITE_WSS_URL=ws://<ws_server_host:ws_server_port>
 
-2. From the <b>client</b> root folder, install the packages, then run the client:
+2. [**OPTIONAL**: For independent deploy] From the <b>client</b> root folder, install the packages, then run the client:
 
 		  client % npm install
 		  client % npm start
 
 <br><br>
 
+### Deploy all the workspaces
+1. From the **repository** root folder, install the packages, then concurrently run all the servers and client:
+
+		  client % npm install
+		  client % npm start
+<br><br>
+
 # Bot Support
-The [bot](https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/bot) folder contains a Node client for running a chatbot providing in-app support.
+The [bot](https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/bot) folder contains a Node WebSocket client for running a chatbot providing in-app support.
 
 The bot behaves like a regular user by registering and/or logging into the system and interacting through the standard messaging flow. By configuring an external LLM API provider, the bot can automatically respond to user messages whenever contacted.
 
