@@ -272,18 +272,6 @@
             "cookieAuth": []
           }
         ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Chat identifier of the chat.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "12-byte ObjectId"
-            }
-          }
-        ],
         "requestBody": {
           "description": "Chat to be created",
           "content": {
@@ -1071,7 +1059,7 @@
         "operationId": "getSingleUser",
         "parameters": [
           {
-            "name": "userId",
+            "name": "id",
             "in": "path",
             "description": "ID of the user to get",
             "required": true,
@@ -1099,44 +1087,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {}
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {}
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "users"
-        ],
-        "security": [
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "Delete me",
-        "description": "Delete the user who owns the token passed in the request.",
-        "operationId": "getSingleUser",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "User identifier of the user to delete",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {}
           },
           "401": {
             "description": "Unauthorized",
@@ -1186,6 +1136,52 @@
           },
           "500": {
             "description": "Internal server error",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Delete me",
+        "description": "Delete the user who owns the token passed in the request.",
+        "operationId": "deleteSingleUser",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chats": {
+                      "type": "number",
+                      "description": "Number of deleted chats"
+                    },
+                    "user": {
+                      "type": "number",
+                      "description": "Number of deleted users (1 or 0)"
+                    }
+                  }
+                },
+                "example": {
+                  "chats": 25,
+                  "user": 1
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not Found",
             "content": {}
           }
         }
@@ -1329,6 +1325,62 @@
           "404": {
             "description": "Not found - Wrong username",
             "content": {}
+          }
+        }
+      }
+    },
+    "/api/authenticate/google": {
+      "get": {
+        "summary": "Initiate Google OAuth authentication",
+        "description": "Redirects the user to Google OAuth consent screen requesting profile and email scopes.",
+        "operationId": "authenticateWithGoogle",
+        "tags": [
+          "authenticate"
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirects to Google OAuth consent page"
+          }
+        }
+      }
+    },
+    "/api/authenticate/google/callback": {
+      "get": {
+        "summary": "Google OAuth callback",
+        "description": "Handles Google OAuth callback after user authentication. On success, forwards user to success redirect URL. On failure, redirects to home page.",
+        "operationId": "googleOAuthCallback",
+        "tags": [
+          "authenticate"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Authorization code returned by Google"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "State parameter for CSRF protection"
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect after successful authentication to success URL or failure redirect (/)"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "500": {
+            "description": "Internal server error during authentication processing"
           }
         }
       }

@@ -1,27 +1,16 @@
-'use strict'
+const app = require('./app')
 
-const express = require('express')
-const morgan = require('morgan')
-const cookieParser = require('cookie-parser')
-
-require('dotenv').config()
-
-/* Validator middleware */
-const schemas = require('./schemas')
-const { validateBody, validateId } = require("./middleware/Validation")
-const { errorHandler, safeController } = require("./middleware/Errors")
-
-/* Init Express */
-const app = new express()
-
-app.locals.basedir = ''
-
-app.use(morgan('dev'))
-app.use(express.json())
-app.use(cookieParser())
+const swaggerUI = require('swagger-ui-express')
 
 const { connect: connectDb } = require('./config/Db')
 const { connect: connectMq } = require('./config/Mq')
+
+const { isProd } = require('./utility/modes')
+const { createLogger } = require('./utility/logger')
+
+require('dotenv').config()
+
+const log = createLogger(process.env.LOG_LEVEL)
 
 const boot = async () => {
   /* Initialize connections */
@@ -29,92 +18,15 @@ const boot = async () => {
   await connectMq(process.env.MQ_SERVER_URL)
 
   /* Swagger */
-  const swaggerUI = require('swagger-ui-express')
-  const swaggerDocument = require('./api-docs.json')
+  if (!isProd(process.env.NODE_ENV)) {
+    const SwaggerParserModule = await import('@apidevtools/swagger-parser')
+    const SwaggerParser = SwaggerParserModule.default || SwaggerParserModule
+    const bundledSpec = await SwaggerParser.bundle('./api-docs.json')
 
-  app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
-
-  /* Initialize passport */
-  const passport = require('passport')
-  app.use(passport.initialize())
-  const authenticate = passport.authenticate('jwt', { session: false })
-
-  const { useJWTtrategy, useGoogleStrategy } = require('./middleware/PStrategies')
-  passport.use("jwt", useJWTtrategy({ secretOrKey: process.env.SECRET_OR_KEY }))
-
-  if (process.env.GOOGLE_CLIENT_ID) passport.use(useGoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL
-  }))
-
-  /* Controllers */
-  const initAccountControllers = require('./controllers/Account')
-  const chatControllers = require('./controllers/Chat')
-  const messageControllers = require('./controllers/Message')
-  const userControllers = require('./controllers/User')
-
-  /* Middlewares */
-  const chatMiddleware = require('./middleware/Chat')
-  const userMiddleware = require('./middleware/User')
-  const accountMiddlewares = require('./middleware/Account')
-  const messageMiddlewares = require('./middleware/Message')
-
-  // activate the server
-  app.listen(process.env.SERVER_PORT, () => { console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`) })
-
-  /* ----- */
-  /* CHATS */
-  /* ----- */
-  app.get('/api/chats/personal', authenticate, safeController(chatControllers.getChatsPersonal))
-  app.get('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(chatControllers.getChat))
-  app.post('/api/chats', authenticate, validateBody(schemas.chatCreateSchema), safeController(chatControllers.createChat))
-  app.put('/api/chats/:id', authenticate, validateId('id'), validateBody(schemas.chatUpdateSchema), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.updateChat))
-  app.delete('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id', { isAdminRequired: true }), safeController(chatControllers.deleteChat))
-  app.post('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.addUser))
-  app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), validateBody(schemas.chatUserUpdateSchema), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.updateUser))
-  app.delete('/api/chats/:id/users/current', authenticate, validateId('id'), chatMiddleware.isUserInChat('id', { isGroupRequired: true }), safeController(chatControllers.removeCurrentUser))
-  app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.removeUser))
-  app.get('/api/chats/:id/users', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(chatControllers.getUsers))
-
-  /* -------- */
-  /* MESSAGES */
-  /* -------- */
-  app.get('/api/chats/:id/messages', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.getMessages))
-  app.post('/api/chats/:id/messages', authenticate, validateId('id'), validateBody(schemas.messageCreateSchema), chatMiddleware.isUserInChat('id'), safeController(messageControllers.createMessage))
-  app.get('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.getMessage))
-  app.put('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), validateBody(schemas.messageCreateSchema), chatMiddleware.isUserInChat('id'), messageMiddlewares.isMessageAuthor('id', 'idm'), safeController(messageControllers.updateMessage))
-  app.delete('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), messageMiddlewares.isMessageAuthor('id', 'idm'), safeController(messageControllers.deleteMessage))
-
-  /* ----- */
-  /* USERS */
-  /* ----- */
-  app.get('/api/users', safeController(userControllers.getUsers))
-  app.get('/api/users/current', authenticate, safeController(userControllers.getCurrentUser))
-  app.get('/api/users/:id', validateId('id'), safeController(userControllers.getUser))
-  app.put('/api/users/:id', authenticate, validateId('id'), userMiddleware.isUserCurrent('id'), validateBody(schemas.userUpdateSchema), safeController(userControllers.updateUser))
-  app.delete('/api/users/:id', validateId('id'), userControllers.deleteUser)
-
-  /* ------------ */
-  /* AUTHENTICATE */
-  /* ------------ */
-  const accountControllers = initAccountControllers(process.env.SECRET_OR_KEY, {
-    httpOnly: true,
-    secure: false, // when using https set it to true,
-    sameSite: 'strict',
-    maxAge: 1000 * 60 * 60 * 24
-  })
-
-  app.post('/api/authenticate/signup', validateBody(schemas.userSignUpSchema), accountMiddlewares.validateSingUp, safeController(accountControllers.signUp))
-  app.post('/api/authenticate/signin', validateBody(schemas.userSignInSchema), safeController(accountControllers.signIn))
-  app.post('/api/authenticate/logout', authenticate, safeController(accountControllers.logOut))
-
-  if (process.env.GOOGLE_CLIENT_ID) {
-    app.get('/api/authenticate/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
-    app.get('/api/authenticate/google/callback', passport.authenticate('google', { failureRedirect: '/', session: false }), safeController(accountControllers.providerCallback(process.env.GOOGLE_SUCCESS_REDIRECT_URL)))
+    app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(bundledSpec))
   }
 
-  app.use(errorHandler)
+  app.listen(process.env.SERVER_PORT, () => { log.info(`Server listening at http://localhost:${process.env.SERVER_PORT}`) })
 }
 
 boot()

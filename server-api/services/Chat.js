@@ -3,7 +3,7 @@ const { newChat } = require('../model/Chat')
 
 const { oid, getChatCollection, configs: dbConfigs } = require('../config/Db')
 
-const chatCollection = getChatCollection()
+const { evaluateModifiedResults } = require("../utility/Evaluate")
 
 const chatProj = {
     _id: 0,
@@ -28,27 +28,27 @@ const personalChatsQuery = (idUser, { isGroup }) => ({
  * @returns 
  */
 const createChat = (chat) => {
-    return chatCollection.insertOne(newChat(chat))
+    return getChatCollection().insertOne(newChat(chat))
 }
 
 const getChat = (idChat, project = true) => {
-    return chatCollection.findOne(
+    return getChatCollection().findOne(
         { _id: oid(idChat) },
         project ? { projection: chatProj } : {}
     )
 }
 
-const getChatsPersonal = (idUser, { page = 1, asc = false, isGroup = null }) => {
-    return chatCollection
+const getChatsPersonal = (idUser, { page = 1, asc = false, isGroup = null, pageSize = dbConfigs.CHATS_PER_PAGE }) => {
+    return getChatCollection()
         .find(personalChatsQuery(idUser, { isGroup }), { projection: { ...chatProj, usersFull: '$users' } })
-        .sort({ updatedAt: asc ? 1 : -1 }).limit(dbConfigs.CHATS_PER_PAGE)
-        .skip(dbConfigs.CHATS_PER_PAGE * (page - 1)).toArray()
+        .sort({ updatedAt: asc ? 1 : -1 }).limit(pageSize)
+        .skip(pageSize * (page - 1)).toArray()
 }
 
-const countChatsPages = async (idUser, { isGroup = null }) => {
-    const count = await chatCollection.countDocuments(personalChatsQuery(idUser, { isGroup }))
+const countChatsPages = async (idUser, { isGroup = null, pageSize = dbConfigs.CHATS_PER_PAGE }) => {
+    const count = await getChatCollection().countDocuments(personalChatsQuery(idUser, { isGroup }))
 
-    return Math.ceil(count / dbConfigs.CHATS_PER_PAGE)
+    return Math.ceil(count / pageSize)
 }
 
 const getChatsAndCountPersonal = async (id, params) => {
@@ -62,7 +62,7 @@ const getChatsAndCountPersonal = async (id, params) => {
 
 const checkChatExistence = (users) => {
     if (users.length !== 2) throw new Error("Users must be two in a direct messages chat")
-    return chatCollection.findOne({
+    return getChatCollection().findOne({
         isGroup: false,
         $and: [
             { users: { $in: [oid(users[0])] } },
@@ -72,25 +72,25 @@ const checkChatExistence = (users) => {
 }
 
 const updateChat = (idChat, chat) => {
-    return chatCollection.updateOne(
+    return getChatCollection().updateOne(
         { _id: oid(idChat) },
         { $set: chat }
     )
 }
 
 const updateChatLog = (idChat) => {
-    return chatCollection.updateOne(
+    return getChatCollection().updateOne(
         { _id: oid(idChat) },
         { $set: { updatedAt: new Date() } }
     )
 }
 
 const deleteChat = (idChat) => {
-    return chatCollection.deleteOne({ _id: oid(idChat) })
+    return getChatCollection().deleteOne({ _id: oid(idChat) })
 }
 
 const getChatUsers = async (idChat) => {
-    const chat = await chatCollection.findOne({ _id: oid(idChat) })
+    const chat = await getChatCollection().findOne({ _id: oid(idChat) })
     return chat && chat.users
 }
 
@@ -100,14 +100,14 @@ const getChatUsersMap = async (idChat) => {
 }
 
 const addUser = (idChat, user) => {
-    return chatCollection.updateOne(
+    return getChatCollection().updateOne(
         { _id: oid(idChat) },
         { $push: { users: userInChat(user) } }
     )
 }
 
 const updateUser = (idChat, idUser, user) => {
-    return chatCollection.updateOne(
+    return getChatCollection().updateOne(
         { _id: oid(idChat) },
         { $set: userInChatPrefix(user) },
         { arrayFilters: [{ 'u.id': oid(idUser) }] }
@@ -115,7 +115,7 @@ const updateUser = (idChat, idUser, user) => {
 }
 
 const removeUser = (idChat, idUser) => {
-    return chatCollection.updateOne(
+    return getChatCollection().updateOne(
         { _id: oid(idChat) },
         { $pull: { users: { id: oid(idUser) } } }
     )
@@ -135,6 +135,17 @@ const lookupChatnames = (chats, id, lookupUserUsername) => {
     return Promise.all(chats.map(lookup))
 }
 
+const deleteUserChats = async idUser => {
+    const chats = await getChatsPersonal(idUser, { pageSize: Infinity })
+
+    const results = await Promise.all(chats.map(({ id: idChat, nUsers, isGroup }) => (!isGroup || nUsers < 2) ?
+        deleteChat(idChat) :
+        removeUser(idChat, idUser)
+    ))
+
+    return evaluateModifiedResults(results)
+}
+
 module.exports = {
     createChat,
     getChat,
@@ -148,5 +159,6 @@ module.exports = {
     addUser,
     updateUser,
     removeUser,
-    lookupChatnames
+    lookupChatnames,
+    deleteUserChats
 }

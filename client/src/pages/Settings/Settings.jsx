@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { useRemoteValidation, useValidation } from '@/hooks'
 
@@ -8,9 +9,13 @@ import userAPI from '@/api/userAPI'
 
 import { Text } from '@/components/Commons/Inputs'
 
+import { DeleteAccountContainer } from '@/components/Settings/DeleteAccountContainer'
 import { SettingSection, SettingSubmitWrapper, Title } from '@/components/Settings/Settings'
 
 import { EmailRegistration, PasswordRegistration, RepeatPassword, UsernameRegistration } from '@/components/Account/Account'
+
+const accountDeletionTime = 5000
+const redirectTime = 4000
 
 function SettingsPage({ user, setUser }) {
     const onCheckUsername = useCallback((u, setInvalid) => userAPI.getUsers(u, 'exact')
@@ -19,6 +24,12 @@ function SettingsPage({ user, setUser }) {
 
     const bioValidation = useValidation(user.bio)
     const usernameValidation = useRemoteValidation(user.username, value => usernameReg.test(value), onCheckUsername, 2000)
+
+    const navigate = useNavigate()
+    const onDeleteSuccessful = () => setTimeout(() => {
+        setUser(null)
+        navigate('/')
+    }, redirectTime)
 
     return <div className="d-flex flex-column flex-grow-1 align-self-stretch gap-3 mt-3 scroll-y h-0">
         <Title>Profile Details</Title>
@@ -55,6 +66,9 @@ function SettingsPage({ user, setUser }) {
                     <PasswordRegistration {...props} />
                     <RepeatPassword {...props} />
                 </>} />
+        </SettingSection>
+        <SettingSection title='Delete Account' footer='This action cannot be undone.'>
+            <DeleteAccountContainer onDelete={userAPI.deleteUser} onDeleteSuccessful={onDeleteSuccessful} accountDeletionTime={accountDeletionTime} />
         </SettingSection>
     </div>
 }

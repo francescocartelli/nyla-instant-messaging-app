@@ -6,7 +6,7 @@ const mqServices = require("../services/Mq")
 
 const { createPageCursor } = require("../utility/Paging")
 const { getMessageNavigation } = require("../utility/Navigation")
-const { parseNull } = require("../utility/Parsing")
+const { parseNull } = require("../utility/parsing")
 
 exports.getMessage = async (req, res) => {
     const { id: idChat, idm: idMessage } = req.params

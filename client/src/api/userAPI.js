@@ -1,5 +1,5 @@
 import { currentUserEndpoint, googleAuthenticateEndpoint, logoutEndpoint, searchUsersEndpoint, signinEndpoint, signupEndpoint, userEndpoint } from './endpoints'
-import { postConfigJSON, putConfigJSON, safeFetch } from './utils'
+import { deleteConfig, postConfigJSON, putConfigJSON, safeFetch } from './utils'
 
 const getUsers = (username = "", searchType = "contains", options = {}) => safeFetch(searchUsersEndpoint(username, searchType), options)
 
@@ -14,9 +14,10 @@ const updateUser = (id, { bio = null, username = null }) => safeFetch(userEndpoi
     ...(bio !== null ? { bio } : {}),
     ...(username !== null ? { username } : {})
 }))
+const deleteUser = () => safeFetch(currentUserEndpoint(), deleteConfig())
 
 const authGoogle = () => safeFetch(googleAuthenticateEndpoint())
 
-const userAPI = { getUsers, signin, signup, getCurrentUser, logout, updateUser, authGoogle }
+const userAPI = { getUsers, signin, signup, getCurrentUser, logout, updateUser, deleteUser, authGoogle }
 
 export default userAPI
