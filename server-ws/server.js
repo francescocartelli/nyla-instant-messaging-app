@@ -13,7 +13,7 @@ require('dotenv').config()
 
 const logger = createLogger(process.env.LOGGING_LEVEL)
 
-const getCurrentUser = createUserStore(async jwt => fetch(`http://${process.env.API_SERVER_URL}/api/users/current`, {
+const getCurrentUser = createUserStore(async jwt => fetch(`${process.env.API_SERVER_URL}/api/users/current`, {
     method: 'GET',
     headers: jwtTCookieHeader(jwt)
 }).then(res => res.json()))

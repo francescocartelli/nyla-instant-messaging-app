@@ -40,21 +40,12 @@ This repository contains the implementation of the SPA (client folder), REST api
 <br>
 
 
-# Getting started (local development build)
+# Getting started (development and staging environments)
 To start with the local development build (each server in single instance), <b>docker-compose</b> can be used ( manual configuration is also described below).
 
 <br>
 
-## Using docker-compose (recommended)
-1. Start <b>Docker</b> application
-1. Navigate to the project root folder (where docker-compose.yaml file is located) and just run all the services using docker-compose:
-   
-			docker-compose up
-Wait for container creations, once client development server is ready, connect to the app using your browser.
-
-<br>
-
-## Manual Setup
+## Manual Setup of development environemnt
 Setup <b>back-end</b> (<i>MongoDB</i>, <i>Redis</i>, <i>REST-API server</i> and <i>WS server</i>) and <b>front-end </b>(<i>React Client App</i>) of the app by following the list below.<br><br>
 <b>Reuse example configuration files for setting up local development build.</b>
 
@@ -132,6 +123,21 @@ At first, the app will start with an empty database, generated with the first wr
 
 		  client % npm install
 		  client % npm start
+
+<br>
+
+## Using docker-compose (staging environment)
+
+1. Following the previous setup, update the <a href='https://github.com/francescocartelli/nyla-instant-messaging-app/blob/master/docker-compose.yml'>docker-compose.yml</a> environment variables accordingly for all the services described in the configuration.
+2. Start <b>Docker</b> application
+3. Navigate to the project root folder (where docker-compose.yaml file is located) and just run all the services using docker-compose:
+   
+			docker-compose up
+
+This setup is intended to simulate the **acceptance/staging environment** rather than the standard development setup.
+Unlike the dev environment, the **server-api** and **server-ws** services are replicated into multiple instances and routed through an *Nginx* load balancer to better reflect a **production** architecture.
+
+Wait for all containers to be created and initialized. Once the environment is ready, access the application through your browser.
 
 <br><br>
 
