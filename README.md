@@ -144,11 +144,11 @@ The bot behaves like a regular user by registering and/or logging into the syste
 This makes it possible to integrate *AI-powered customer support* directly into the messaging platform with minimal setup.
 
 1. In <b>bot</b>, <a href="https://github.com/francescocartelli/nyla-instant-messaging-app/tree/master/bot/.env.example">.env.example</a> file provides an overall list of the main configuration properties. Use it for generating a <b>.env</b> file:
-   - Providing the url for api-server:
+	- Providing the url for api-server:
    
 		  API_SERVER_URL=http://localhost:3001
-
-   - Providing the url for ws-server:
+		  
+	- Providing the url for ws-server:
    
 		  WSS_URL=ws:<ws_server_host:ws_server_port>
 
@@ -156,11 +156,11 @@ This makes it possible to integrate *AI-powered customer support* directly into 
    
 		  LLM_PROVIDER=gemini or openai or anthropic
 
-   - Providing the endpoint for the LLM API:
+	- Providing the endpoint for the LLM API:
    
 		  LLM_ENDPOINT=<your-llm-endpoint>
 
-   - Providing the secret key for the LLM API:
+	- Providing the secret key for the LLM API:
    
 		  LLM_API_KEY=<your-llm-api-key>
 
@@ -168,7 +168,11 @@ This makes it possible to integrate *AI-powered customer support* directly into 
    
 		  LLM_MODEL=<llm-model-of-the-provider>
 
-   - Providing a username of the chatbot (used during login/registration):
+	- Chat history can be enabled using the following setting (if not set the chatbot will only receive the latest user message):
+   
+		  HAS_HISTORY=true
+	
+	- Providing a username of the chatbot (used during login/registration):
    
 		  BOT_USERNAME=<bot-username>
 
@@ -179,7 +183,6 @@ This makes it possible to integrate *AI-powered customer support* directly into 
    - Providing an email of the chatbot (used during registration):
    
 		  BOT_EMAIL=<bot-email>
-	
 
 2. From the <b>bot</b> root folder, install the packages, then run the script:
 

@@ -9,7 +9,7 @@ const { assistancePrompt, assistanceWithHistoryPrompt, messageToPrompt } = requi
 const { jwtTCookieHeader } = require('./utilities/CookieJWT')
 const { flatRTNodes } = require('./utilities/RichText')
 const { invokeFetch } = require('./utilities/network')
-const { createWSC } = require('./utilities/wsc')
+const { createWSCRouter } = require('./utilities/wscRouter')
 
 dotenv.config()
 
@@ -30,28 +30,6 @@ const flatMessageHistory = (messages, idUser) => {
 
     return messagesPrompt.join('\n')
 }
-
-const createWSCRouter = (url, options, user, routes) => createWSC(url, options, {
-    onOpen: () => {
-        logger.debug('WS open')
-    },
-    onClose: () => {
-        logger.debug('WS close')
-    },
-    onMessage: async payload => {
-        try {
-            const { type, chat, message } = JSON.parse(payload.data)
-            if (message.idSender === user.id) return
-
-            const behavior = routes[type]
-            if (!behavior) return
-
-            await behavior({ chat, message })
-        } catch (err) {
-            logger.error(err)
-        }
-    }
-})
 
 const getPrompt = async (message, chat, jwt, user) => {
     if (!process.env.HAS_HISTORY) {
@@ -92,7 +70,7 @@ const boot = async () => {
         logger.info(`Bot signed`)
         logger.debug(JSON.stringify(user))
 
-        wsc = createWSCRouter(process.env.WSS_URL, { headers: jwtTCookieHeader(jwt) }, user, {
+        wsc = createWSCRouter(process.env.WSS_URL, { headers: jwtTCookieHeader(jwt) }, {
             'MESSAGE_CREATE': async ({ chat, message }) => {
                 const prompt = await getPrompt(message, chat, jwt, user)
                 logger.debug('request prompt:', prompt)
@@ -104,6 +82,9 @@ const boot = async () => {
 
                 sendMessage(chat, jwt, llmResponse)
             }
+        }, {
+            filterMessage: message => message.idSender === user.id,
+            logger
         })
     } catch (err) {
         wsc?.close()
