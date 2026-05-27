@@ -20,8 +20,7 @@ function useWS(user) {
             ws.current?.close()
             return
         }
-        const wsURL = new URL(import.meta.env.VITE_WSS_URL)
-        ws.current = new WebSocket(`ws://${window.location.hostname}:${wsURL.port}`)
+        ws.current = new WebSocket(import.meta.env.VITE_WSS_URL)
         ws.current.onopen = () => { console.log('WS open') }
         ws.current.onclose = () => { console.log('WS close') }
         ws.current.onmessage = (message) => {

@@ -2,7 +2,7 @@ const WebSocket = require('ws')
 
 const { connect, subscribe, unsubscribe } = require('./config/Mq')
 
-const createUserStore = require('./services/User')
+const createGetCurrentUser = require('./services/User')
 
 const createLogger = require('./utilities/Logger')
 const createConnectionManager = require('./utilities/ConnectionManager')
@@ -13,7 +13,7 @@ require('dotenv').config()
 
 const logger = createLogger(process.env.LOGGING_LEVEL)
 
-const getCurrentUser = createUserStore(async jwt => fetch(`http://${process.env.API_SERVER_URL}/api/users/current`, {
+const getCurrentUser = createGetCurrentUser(async jwt => fetch(`${process.env.API_SERVER_URL}/api/users/current`, {
     method: 'GET',
     headers: jwtTCookieHeader(jwt)
 }).then(res => res.json()))

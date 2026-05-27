@@ -12,12 +12,12 @@ const extractJWT = req => new Promise((resolve, reject) => cookieParserMiddlewar
     }
 }))
 
-const createUserStore = retrieveUser => async (req) => {
+const createGetCurrentUser = retrieveUser => async (req) => {
     const jwt = await extractJWT(req)
-    if (!jwt) reject({ status: 401, message: "Missing JWT cookie" })
+    if (!jwt) throw new Error("Missing JWT cookie")
 
     return retrieveUser(jwt)
 }
 
 
-module.exports = createUserStore
+module.exports = createGetCurrentUser

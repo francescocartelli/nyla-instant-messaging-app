@@ -26,7 +26,7 @@ const boot = async () => {
     app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(bundledSpec))
   }
 
-  app.listen(process.env.SERVER_PORT, () => { log.info(`Server listening at http://localhost:${process.env.SERVER_PORT}`) })
+  app.listen(process.env.SERVER_PORT, () => { log.info(`Server listening at port ${process.env.SERVER_PORT}`) })
 }
 
 boot()
