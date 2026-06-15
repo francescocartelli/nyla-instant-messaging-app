@@ -42,6 +42,8 @@ describe('API server chats tests', () => {
 		await closeMq()
 	})
 
+	let directChatId = null
+
 	test.each([{
 		title: 'empty',
 		send: () => ({}),
@@ -77,7 +79,21 @@ describe('API server chats tests', () => {
 			.send(send())
 			.expect(expected)
 
-		if (res.ok) chats.push(res.body)
+		if (res.ok) {
+			chats.push(res.body)
+			directChatId = res.body.id
+		}
+	})
+
+	test('Create direct chat: return already existing 200', async () => {
+		const res = await request(app)
+			.post('/api/chats')
+			.set('Cookie', jwtCookie(users[0].jwt))
+			.send({ name: null, users: [{ id: users[0].id, isAdmin: true }, { id: users[1].id }], isGroup: false })
+			.expect(200)
+
+		expect(Boolean(res.body.id)).toBe(true)
+		expect(res.body.id).toBe(directChatId)
 	})
 
 	test.each([{
