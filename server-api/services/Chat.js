@@ -65,8 +65,8 @@ const checkChatExistence = (users) => {
     return getChatCollection().findOne({
         isGroup: false,
         $and: [
-            { users: { $in: [oid(users[0])] } },
-            { users: { $in: [oid(users[1])] } }
+            { 'users.id': { $in: [oid(users[0])] } },
+            { 'users.id': { $in: [oid(users[1])] } }
         ]
     }, { projection: { _id: 0, id: '$_id' } })
 }
