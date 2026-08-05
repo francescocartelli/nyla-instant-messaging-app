@@ -24,6 +24,10 @@
   },
   "homepage": "https://github.com/francescocartelli/nyla-instant-messaging-app#readme",
   "devDependencies": {
-    "concurrently": "^10.0.3"
+    "concurrently": "^9.2.4"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "uuid": "^14.0.1"
   }
 }

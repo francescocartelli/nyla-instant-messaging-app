@@ -10,9 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "cookie-parser": "^1.4.6",
-    "dotenv": "^17.3.1",
     "redis": "^4.6.7",
-    "uuid": "^14.0.0",
     "winston": "^3.19.0",
     "ws": "^8.21.0"
   }

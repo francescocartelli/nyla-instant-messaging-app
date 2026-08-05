@@ -15,7 +15,6 @@
     "ajv-formats": "^3.0.1",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.6",
-    "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "mongodb": "^5.9.1",
     "morgan": "^1.10.0",

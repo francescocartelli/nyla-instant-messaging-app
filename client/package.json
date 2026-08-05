@@ -13,7 +13,6 @@
   "dependencies": {
     "bootstrap": "^5.3.8",
     "dayjs": "^1.11.19",
-    "dotenv": "^17.3.1",
     "node": "^25.6.1",
     "react": "^19.2.4",
     "react-bootstrap-icons": "^1.11.6",
@@ -24,7 +23,6 @@
     "slate-history": "^0.113.1",
     "slate-hyperscript": "^0.100.0",
     "slate-react": "^0.123.0",
-    "uuid": "^14.0.0",
     "ws": "^8.21.0"
   },
   "devDependencies": {
