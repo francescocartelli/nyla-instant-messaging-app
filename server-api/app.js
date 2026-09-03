@@ -5,6 +5,7 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 const cookieParser = require('cookie-parser')
+const rateLimit = require('express-rate-limit')
 
 const { validate, isDev, isTest } = require('./utility/modes')
 const { delayedPassThrough } = require('./middleware/constants')
@@ -121,8 +122,15 @@ const accountControllers = initAccountControllers(process.env.SECRET_OR_KEY, {
 	maxAge: 1000 * 60 * 60 * 24
 })
 
-app.post('/api/authenticate/signup', validateBody(schemas.userSignUpSchema), accountMiddlewares.validateSingUp, safeController(accountControllers.signUp))
-app.post('/api/authenticate/signin', validateBody(schemas.userSignInSchema), safeController(accountControllers.signIn))
+const authLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000,
+	limit: 10,
+	standardHeaders: true,
+	legacyHeaders: false
+})
+
+app.post('/api/authenticate/signup', authLimiter, validateBody(schemas.userSignUpSchema), accountMiddlewares.validateSingUp, safeController(accountControllers.signUp))
+app.post('/api/authenticate/signin', authLimiter, validateBody(schemas.userSignInSchema), safeController(accountControllers.signIn))
 app.post('/api/authenticate/logout', authenticate, safeController(accountControllers.logOut))
 
 if (process.env.GOOGLE_CLIENT_ID) {
