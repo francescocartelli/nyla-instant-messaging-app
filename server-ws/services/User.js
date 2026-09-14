@@ -1,4 +1,4 @@
-const cookieParser = require('cookie-parser')
+import cookieParser from 'cookie-parser'
 
 const cookieParserMiddleware = cookieParser()
 
@@ -19,5 +19,4 @@ const createGetCurrentUser = retrieveUser => async (req) => {
     return retrieveUser(jwt)
 }
 
-
-module.exports = createGetCurrentUser
+export default createGetCurrentUser

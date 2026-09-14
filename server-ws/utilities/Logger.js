@@ -1,4 +1,4 @@
-const winston = require('winston')
+import winston from 'winston'
 
 const createLogger = level => winston.createLogger({
     level,
@@ -11,4 +11,4 @@ const createLogger = level => winston.createLogger({
     ]
 })
 
-module.exports = createLogger
+export default createLogger

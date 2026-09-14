@@ -1,15 +1,16 @@
-const WebSocket = require('ws')
+import { WebSocketServer } from 'ws'
+import dotenv from 'dotenv'
 
-const { connect, subscribe, unsubscribe } = require('./config/Mq')
+dotenv.config()
 
-const createGetCurrentUser = require('./services/User')
+import { connect, subscribe, unsubscribe } from './config/Mq.js'
 
-const createLogger = require('./utilities/Logger')
-const createConnectionManager = require('./utilities/ConnectionManager')
-const { jwtTCookieHeader } = require('./utilities/CookieJWT')
-const { getChannel } = require('./utilities/Channels')
+import createGetCurrentUser from './services/User.js'
 
-require('dotenv').config()
+import createLogger from './utilities/Logger.js'
+import createConnectionManager from './utilities/ConnectionManager.js'
+import { jwtTCookieHeader } from './utilities/CookieJWT.js'
+import { getChannel } from './utilities/Channels.js'
 
 const logger = createLogger(process.env.LOGGING_LEVEL)
 
@@ -47,7 +48,7 @@ const boot = async () => {
     try {
         await connect(process.env.MQ_SERVER_URL)
 
-        const wss = new WebSocket.Server({ port: process.env.SERVER_PORT })
+        const wss = new WebSocketServer({ port: process.env.SERVER_PORT })
 
         wss.on('connection', onWsConnection)
 
@@ -60,5 +61,3 @@ const boot = async () => {
 }
 
 boot()
-
-
