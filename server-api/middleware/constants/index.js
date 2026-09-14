@@ -1,5 +1,4 @@
-const delayedPassThrough = require("./delayedPassThrough")
-const passThrough = require("./passThrough")
+import delayedPassThrough from "./delayedPassThrough.js"
+import passThrough from "./passThrough.js"
 
-exports.passThrough = passThrough
-exports.delayedPassThrough = delayedPassThrough
+export { delayedPassThrough, passThrough }

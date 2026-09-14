@@ -1,8 +1,8 @@
-const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, notFoundId, GROUP_CHATS_OPERATION } = require("../constants/ResponseMessages")
+import { ADMIN_REQUIRED, GROUP_CHATS_OPERATION, USER_IN_CHAT_REQUIRED, notFoundId } from "../constants/ResponseMessages.js"
 
-const chatServices = require("../services/Chat")
+import chatServices from "../services/Chat.js"
 
-exports.isUserInChat = (idParam, { isAdminRequired = false, isGroupRequired = false } = {}) => async (req, res, next) => {
+export const isUserInChat = (idParam, { isAdminRequired = false, isGroupRequired = false } = {}) => async (req, res, next) => {
     try {
         const user = req.user
         const idChat = req.params[idParam]

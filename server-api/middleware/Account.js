@@ -1,8 +1,8 @@
-const { USERNAME_TAKEN, EMAIL_TAKEN } = require("../constants/ResponseMessages")
+import { EMAIL_TAKEN, USERNAME_TAKEN } from "../constants/ResponseMessages.js"
 
-const usersServices = require("../services/User")
+import usersServices from "../services/User.js"
 
-module.exports.validateSingUp = async (req, res, next) => {
+export const validateSingUp = async (req, res, next) => {
     try {
         const user = req.body
 

@@ -1,8 +1,9 @@
-const request = require('supertest')
-const { jwtCookie } = require('./utils')
+import request from 'supertest'
+
+import { jwtCookie } from './utils.js'
 
 const createDeleteUser = app => ({ jwt }) => request(app)
     .delete('/api/users/current')
     .set('Cookie', jwtCookie(jwt))
 
-module.exports = createDeleteUser
+export default createDeleteUser

@@ -7,5 +7,4 @@ const extractResponseCookie = res => {
 
 const jwtCookie = jwt => `jwt=${jwt};`
 
-exports.extractResponseCookie = extractResponseCookie
-exports.jwtCookie = jwtCookie
+export { extractResponseCookie, jwtCookie }

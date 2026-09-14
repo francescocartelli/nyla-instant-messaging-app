@@ -1,14 +1,14 @@
-const { SENDER_REQUIRED, notFoundId, notCreated, notDeleted, TOO_LATE } = require("../constants/ResponseMessages")
+import { notCreated, notDeleted, notFoundId, TOO_LATE } from "../constants/ResponseMessages.js"
 
-const messageServices = require("../services/Message")
-const chatServices = require("../services/Chat")
-const mqServices = require("../services/Mq")
+import chatServices from "../services/Chat.js"
+import * as messageServices from "../services/Message.js"
+import * as mqServices from "../services/Mq.js"
 
-const { createPageCursor } = require("../utility/Paging")
-const { getMessageNavigation } = require("../utility/Navigation")
-const { parseNull } = require("../utility/parsing")
+import { getMessageNavigation } from "../utility/Navigation.js"
+import { createPageCursor } from "../utility/Paging.js"
+import { parseNull } from "../utility/parsing/index.js"
 
-exports.getMessage = async (req, res) => {
+export const getMessage = async (req, res) => {
     const { id: idChat, idm: idMessage } = req.params
 
     const message = await messageServices.getMessage(idChat, idMessage)
@@ -17,7 +17,7 @@ exports.getMessage = async (req, res) => {
     res.json(message)
 }
 
-exports.getMessages = async (req, res) => {
+export const getMessages = async (req, res) => {
     const idChat = req.params.id
     const cursor = parseNull(req.query.cursor)
 
@@ -31,7 +31,7 @@ exports.getMessages = async (req, res) => {
     }))
 }
 
-exports.createMessage = async (req, res, next) => {
+export const createMessage = async (req, res, next) => {
     const {
         user: { id: sender, username },
         body: { repliedToId: repliedToId, content },
@@ -66,7 +66,7 @@ exports.createMessage = async (req, res, next) => {
     return res.json({ id })
 }
 
-exports.updateMessage = async (req, res) => {
+export const updateMessage = async (req, res) => {
     const { user, params: { id: idChat, idm: idMessage }, body: messageUpdate } = req
     const { message } = res.locals
 
@@ -88,7 +88,7 @@ exports.updateMessage = async (req, res) => {
     res.end()
 }
 
-exports.deleteMessage = async (req, res) => {
+export const deleteMessage = async (req, res) => {
     const { params: { id: idChat, idm: idMessage }, user } = req
 
     const { value: deletedMessage, ok: isModified } = await messageServices.markMessageDeleted(idChat, idMessage)

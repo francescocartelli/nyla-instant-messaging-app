@@ -1,6 +1,6 @@
-const { USER_REQUIRED } = require("../constants/ResponseMessages")
+import { USER_REQUIRED } from "../constants/ResponseMessages.js"
 
-exports.isUserCurrent = (idParam) => (req, res, next) => {
+export const isUserCurrent = (idParam) => (req, res, next) => {
     const user = req.user
 
     if (user.id.toString() !== req.params[idParam]) return res.status(401).json({ message: USER_REQUIRED })

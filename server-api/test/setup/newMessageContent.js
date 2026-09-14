@@ -11,4 +11,4 @@ const newMessageContent = text => ({
     ]
 })
 
-module.exports = newMessageContent
+export default newMessageContent

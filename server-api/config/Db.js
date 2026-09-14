@@ -1,13 +1,13 @@
-const { MongoClient, ObjectId } = require('mongodb')
+import { MongoClient, ObjectId } from 'mongodb'
 
 const defaultOptions = { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000, serverSelectionTimeoutMS: 5000 }
 
 let _db
 
-const { getLogger } = require('../utility/logger')
+import { getLogger } from '../utility/logger.js'
 const logger = getLogger()
 
-exports.connect = async (url, name, options = defaultOptions) => {
+export const connect = async (url, name, options = defaultOptions) => {
     try {
         const client = await MongoClient.connect(url, options)
         _db = client.db(name)
@@ -19,7 +19,7 @@ exports.connect = async (url, name, options = defaultOptions) => {
     }
 }
 
-exports.configs = {
+export const configs = {
     CHATS_PER_PAGE: 10,
     MESSAGES_PER_PAGE: 10,
     USERS_PER_PAGE: 10
@@ -31,11 +31,11 @@ const collections = {
     user: "user"
 }
 
-exports.getChatCollection = () => _db.collection(collections.chat)
-exports.getMessageCollection = () => _db.collection(collections.message)
-exports.getUserCollection = () => _db.collection(collections.user)
+export const getChatCollection = () => _db.collection(collections.chat)
+export const getMessageCollection = () => _db.collection(collections.message)
+export const getUserCollection = () => _db.collection(collections.user)
 
-exports.oid = id => ObjectId.createFromHexString(id.toString())
-exports.isOidValid = ObjectId.isValid
+export const oid = id => ObjectId.createFromHexString(id.toString())
+export const isOidValid = ObjectId.isValid
 
-exports.close = (...args) => _db.client.close(...args)
+export const close = (...args) => _db.client.close(...args)

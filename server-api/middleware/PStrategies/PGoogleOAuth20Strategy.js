@@ -1,8 +1,8 @@
-const GoogleStrategy = require('passport-google-oauth20')
+import GoogleStrategy from 'passport-google-oauth20'
 
-const { USERNAME_TAKEN, IDENTITY_NO_EMAIL } = require("../../constants/ResponseMessages")
+import { IDENTITY_NO_EMAIL, USERNAME_TAKEN } from "../../constants/ResponseMessages.js"
 
-const usersServices = require("../../services/User")
+import usersServices from "../../services/User.js"
 
 const generateUsername = (name, { maxLength = 20, suffixLength = 5 } = {}) => name.replace(/[^a-zA-Z0-9]/g, '').substring(0, maxLength - suffixLength)
 const generateUsernameUUID = ({ usernameUUIDLength = 4 } = {}) => Math.random().toString(36).slice(-usernameUUIDLength)
@@ -43,7 +43,7 @@ const verify = async ({ displayName, emails, provider }) => {
     return regUser
 }
 
-exports.useGoogleStrategy = configs => new GoogleStrategy(configs,
+export const useGoogleStrategy = configs => new GoogleStrategy(configs,
     (access, refresh, profile, done) => verify(profile)
         .then(user => done(null, user))
         .catch(err => done(err, false))

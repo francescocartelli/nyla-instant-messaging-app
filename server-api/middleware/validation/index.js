@@ -1,5 +1,4 @@
-const validateBody = require("./body")
-const validateId = require("./id")
+import validateBody from "./body.js"
+import validateId from "./id.js"
 
-exports.validateBody = validateBody
-exports.validateId = validateId
+export { validateBody, validateId }

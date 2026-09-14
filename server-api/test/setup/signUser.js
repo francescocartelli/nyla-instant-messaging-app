@@ -1,6 +1,6 @@
-const request = require('supertest')
+import request from 'supertest'
 
-const { extractResponseCookie } = require("./utils")
+import { extractResponseCookie } from "./utils.js"
 
 const createSignUser = app => async ({ username, email, password }) => {
     const signupRes = await request(app)
@@ -16,4 +16,4 @@ const createSignUser = app => async ({ username, email, password }) => {
     return { ...res.body, jwt }
 }
 
-module.exports = createSignUser
+export default createSignUser

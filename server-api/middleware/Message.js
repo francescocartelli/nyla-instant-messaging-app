@@ -1,8 +1,8 @@
-const { notFoundId, SENDER_REQUIRED } = require("../constants/ResponseMessages")
+import { notFoundId, SENDER_REQUIRED } from "../constants/ResponseMessages.js"
 
-const messageServices = require("../services/Message")
+import * as messageServices from "../services/Message.js"
 
-exports.isMessageAuthor = (idChatParam, idMessageParam) => async (req, res, next) => {
+export const isMessageAuthor = (idChatParam, idMessageParam) => async (req, res, next) => {
     try {
         const user = req.user
         const idChat = req.params[idChatParam]

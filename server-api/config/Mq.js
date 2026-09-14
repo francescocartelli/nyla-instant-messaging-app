@@ -1,11 +1,11 @@
-const redis = require('redis')
+import redis from 'redis'
 
 let _redisClient
 
-const { getLogger } = require('../utility/logger')
+import { getLogger } from '../utility/logger.js'
 const logger = getLogger()
 
-exports.connect = async url => {
+export const connect = async url => {
     try {
         const [host, port] = url.split(':')
 
@@ -25,6 +25,6 @@ exports.connect = async url => {
     }
 }
 
-exports.publish = (...args) => _redisClient.publish(...args)
+export const publish = (...args) => _redisClient.publish(...args)
 
-exports.close = (...args) => _redisClient.quit(...args)
+export const close = (...args) => _redisClient.quit(...args)

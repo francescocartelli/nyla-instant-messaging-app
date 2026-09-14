@@ -1,6 +1,6 @@
-const { userInChat, userInDirectChat } = require("./User")
+import { userInChat, userInDirectChat } from "./User.js"
 
-exports.newChat = ({ name, users, isGroup }) => ({
+export const newChat = ({ name, users, isGroup }) => ({
     name: isGroup ? name : null,
     users: users.map(isGroup ? userInChat : userInDirectChat),
     isGroup,

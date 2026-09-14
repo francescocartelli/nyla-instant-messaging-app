@@ -1,4 +1,4 @@
-const { oid, getMessageCollection, configs: dbConfigs } = require('../config/Db')
+import { configs as dbConfigs, getMessageCollection, oid } from '../config/Db.js'
 
 const messageProj = {
     _id: 0,
@@ -16,7 +16,7 @@ const messageProj = {
 
 const tenMinutesMillis = 10 * 60 * 1000
 
-exports.getMessage = (idChat, idMessage) => {
+export const getMessage = (idChat, idMessage) => {
     return getMessageCollection().findOne({
         _id: oid(idMessage),
         chat: oid(idChat)
@@ -30,7 +30,7 @@ const createRepliedTo = ({ id, idSender, content, createdAt }) => ({
     createdAt
 })
 
-exports.createMessage = ({ chat, sender, content, repliedTo }) => {
+export const createMessage = ({ chat, sender, content, repliedTo }) => {
     return getMessageCollection().insertOne({
         chat: oid(chat),
         sender: oid(sender),
@@ -40,7 +40,7 @@ exports.createMessage = ({ chat, sender, content, repliedTo }) => {
     })
 }
 
-exports.updateMessage = (idChat, idMessage, { content }) => {
+export const updateMessage = (idChat, idMessage, { content }) => {
     return getMessageCollection().findOneAndUpdate({
         _id: oid(idMessage),
         chat: oid(idChat)
@@ -56,7 +56,7 @@ exports.updateMessage = (idChat, idMessage, { content }) => {
     })
 }
 
-exports.getMessages = (idChat, cursor) => {
+export const getMessages = (idChat, cursor) => {
     const query = cursor ? {
         $and: [
             { chat: oid(idChat) },
@@ -68,14 +68,14 @@ exports.getMessages = (idChat, cursor) => {
         .sort({ createdAt: -1 }).limit(dbConfigs.MESSAGES_PER_PAGE).toArray()
 }
 
-exports.deleteMessage = (idChat, idMessage) => {
+export const deleteMessage = (idChat, idMessage) => {
     return getMessageCollection().deleteOne({
         _id: oid(idMessage),
         chat: oid(idChat)
     })
 }
 
-exports.markMessageDeleted = (idChat, idMessage) => {
+export const markMessageDeleted = (idChat, idMessage) => {
     return getMessageCollection().findOneAndUpdate({
         _id: oid(idMessage),
         chat: oid(idChat)
@@ -91,11 +91,11 @@ exports.markMessageDeleted = (idChat, idMessage) => {
     })
 }
 
-exports.deleteMessages = (idChat) => {
+export const deleteMessages = (idChat) => {
     return getMessageCollection().deleteMany({ chat: oid(idChat) })
 }
 
-exports.countMessagesPages = async (idChat) => {
+export const countMessagesPages = async (idChat) => {
     const count = await getMessageCollection().countDocuments({ chat: oid(idChat) })
     return Math.ceil(count / dbConfigs.MESSAGES_PER_PAGE)
 }
@@ -111,6 +111,6 @@ const isMessageDeleted = ({ deletedAt }) => {
     return Boolean(deletedAt)
 }
 
-exports.canUpdateMessage = message => {
+export const canUpdateMessage = message => {
     return !isUpdateExpired(message) && !isMessageDeleted(message)
 }

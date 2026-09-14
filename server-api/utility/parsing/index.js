@@ -1,5 +1,4 @@
-const parseBool = require('./parseBool')
-const parseNull = require('./parseNull')
+import parseBool from './parseBool.js'
+import parseNull from './parseNull.js'
 
-exports.parseBool = parseBool
-exports.parseNull = parseNull
+export { parseBool, parseNull }

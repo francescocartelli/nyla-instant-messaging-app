@@ -1,10 +1,10 @@
-const chatCreateSchema = require("./chat_create_schema.json")
-const chatUpdateSchema = require("./chat_update_schema.json")
-const chatUserUpdateSchema = require("./chat_user_update_schema.json")
-const messageCreateSchema = require("./message_create_schema.json")
-const userSignInSchema = require("./user_signin_schema.json")
-const userSignUpSchema = require("./user_signup_schema.json")
-const userUpdateSchema = require("./user_update_schema.json")
+import chatCreateSchema from "./chat_create_schema.json" with { type: "json" }
+import chatUpdateSchema from "./chat_update_schema.json" with { type: "json" }
+import chatUserUpdateSchema from "./chat_user_update_schema.json" with { type: "json" }
+import messageCreateSchema from "./message_create_schema.json" with { type: "json" }
+import userSignInSchema from "./user_signin_schema.json" with { type: "json" }
+import userSignUpSchema from "./user_signup_schema.json" with { type: "json" }
+import userUpdateSchema from "./user_update_schema.json" with { type: "json" }
 
 const schemas = {
     chatCreateSchema,
@@ -16,4 +16,4 @@ const schemas = {
     userUpdateSchema
 }
 
-module.exports = schemas
+export default schemas

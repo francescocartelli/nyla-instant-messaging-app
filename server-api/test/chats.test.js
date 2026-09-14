@@ -1,24 +1,29 @@
-const request = require('supertest')
-const dotenv = require('dotenv')
-
-const app = require('../app')
+import dotenv from 'dotenv'
+import request from 'supertest'
 
 dotenv.config()
 
-const { connect: connectDb, close: closeDb } = require('../config/Db')
-const { connect: connectMq, close: closeMq } = require('../config/Mq')
+import { createLogger } from '../utility/logger.js'
+createLogger(process.env.LOGGING_LEVELS)
 
-const createSignUser = require('./setup/signUser')
-const createDeleteUser = require('./setup/deleteUser')
-const { jwtCookie } = require('./setup/utils')
+let app = null
 
-const signupRequests = require('./data/users.json')
+import createDeleteUser from './setup/deleteUser.js'
+import createSignUser from './setup/signUser.js'
+import { jwtCookie } from './setup/utils.js'
+
+import signupRequests from './data/users.json' with { type: 'json' }
 
 describe('API server chats tests', () => {
 	let users = []
 	let chats = []
 
 	beforeAll(async () => {
+		app = (await import('../app.js')).default
+
+		const { connect: connectDb } = await import('../config/Db.js')
+		const { connect: connectMq } = await import('../config/Mq.js')
+
 		await connectDb(process.env.DATABASE_URL, process.env.DATABASE_NAME)
 		await connectMq(process.env.MQ_SERVER_URL)
 
@@ -37,6 +42,9 @@ describe('API server chats tests', () => {
 		await Promise.all(chats.map(({ id }) => request(app)
 			.delete(`/api/chats/${id}`)
 			.set('Cookie', jwtCookie(users[0].jwt))))
+
+		const { close: closeDb } = await import('../config/Db.js')
+		const { close: closeMq } = await import('../config/Mq.js')
 
 		await closeDb()
 		await closeMq()

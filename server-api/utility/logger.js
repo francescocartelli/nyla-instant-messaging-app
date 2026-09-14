@@ -1,8 +1,8 @@
-const winston = require('winston')
+import winston from 'winston'
 
 let logger = null
 
-const createLogger = (level, silent = false) => {
+export const createLogger = (level, silent = false) => {
     logger = winston.createLogger({
         level,
         silent,
@@ -18,6 +18,4 @@ const createLogger = (level, silent = false) => {
     return logger
 }
 
-exports.createLogger = createLogger
-
-exports.getLogger = () => logger
+export const getLogger = () => logger

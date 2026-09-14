@@ -1,23 +1,28 @@
-const request = require('supertest')
-const dotenv = require('dotenv')
-
-const app = require('../app')
+import dotenv from 'dotenv'
+import request from 'supertest'
 
 dotenv.config()
 
-const { connect: connectDb, close: closeDb } = require('../config/Db')
-const { connect: connectMq, close: closeMq } = require('../config/Mq')
+import { createLogger } from '../utility/logger.js'
+createLogger(process.env.LOGGING_LEVELS)
 
-const createDeleteUser = require('./setup/deleteUser')
-const { jwtCookie, extractResponseCookie } = require('./setup/utils')
+let app = null
 
-const moreUsersSignupRequests = require('./data/more-users-signup.json')
-const moreUsersSigninRequests = require('./data/more-users-signin.json')
+import createDeleteUser from './setup/deleteUser.js'
+import { extractResponseCookie, jwtCookie } from './setup/utils.js'
+
+import moreUsersSigninRequests from './data/more-users-signin.json' with { type: 'json' }
+import moreUsersSignupRequests from './data/more-users-signup.json' with { type: 'json' }
 
 describe('API server users tests', () => {
 	let users = []
 
 	beforeAll(async () => {
+		app = (await import('../app.js')).default
+
+		const { connect: connectDb } = await import('../config/Db.js')
+		const { connect: connectMq } = await import('../config/Mq.js')
+
 		await connectDb(process.env.DATABASE_URL, process.env.DATABASE_NAME)
 		await connectMq(process.env.MQ_SERVER_URL)
 	})
@@ -28,6 +33,9 @@ describe('API server users tests', () => {
 		for (const user of users) {
 			await deleteUser(user)
 		}
+
+		const { close: closeDb } = await import('../config/Db.js')
+		const { close: closeMq } = await import('../config/Mq.js')
 
 		await closeDb()
 		await closeMq()
@@ -90,7 +98,7 @@ describe('API server users tests', () => {
 			username: 'SilentGuy'
 		},
 		expected: 400
-	},{
+	}, {
 		title: 'not found',
 		user: () => '1a036147bc84329498844272',
 		jwt: () => users[0].jwt,

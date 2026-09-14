@@ -1,22 +1,22 @@
-const { ADMIN_REQUIRED, USER_IN_CHAT_REQUIRED, NO_CHAT_DELETED, NO_MESSAGES_DELETED, notFoundId, notCreated, notModified } = require("../constants/ResponseMessages")
+import { ADMIN_REQUIRED, NO_CHAT_DELETED, NO_MESSAGES_DELETED, notCreated, notFoundId, notModified, USER_IN_CHAT_REQUIRED } from "../constants/ResponseMessages.js"
 
-const { createPage, parsePageNumber } = require("../utility/Paging")
-const { parseBool } = require("../utility/parsing")
-const { getChatNavigation } = require("../utility/Navigation")
+import { getChatNavigation } from "../utility/Navigation.js"
+import { createPage, parsePageNumber } from "../utility/Paging.js"
+import { parseBool } from "../utility/parsing/index.js"
 
-const chatServices = require("../services/Chat")
-const messagesServices = require("../services/Message")
-const usersServices = require("../services/User")
-const mqServices = require("../services/Mq")
+import chatServices from "../services/Chat.js"
+import * as messagesServices from "../services/Message.js"
+import * as mqServices from "../services/Mq.js"
+import usersServices from "../services/User.js"
 
-exports.getChat = async (req, res) => {
+export const getChat = async (req, res) => {
     const chat = await chatServices.getChat(req.params.id)
     if (!chat) return res.status(404).json({ message: notFoundId("chat") })
 
     res.json(chat)
 }
 
-exports.getChatsPersonal = async (req, res) => {
+export const getChatsPersonal = async (req, res) => {
     const { id } = req.user
     const page = parsePageNumber(req.query.page)
     const asc = parseBool(req.query.asc)
@@ -31,7 +31,7 @@ exports.getChatsPersonal = async (req, res) => {
     res.json(createPage(page, nPages, { chats: chats }, getChatNavigation({ asc: asc, isGroup: isGroup })))
 }
 
-exports.createChat = async (req, res) => {
+export const createChat = async (req, res) => {
     const user = req.user
     const chat = req.body
 
@@ -59,7 +59,7 @@ exports.createChat = async (req, res) => {
     res.json({ id: insertedId.toString() })
 }
 
-exports.updateChat = async (req, res) => {
+export const updateChat = async (req, res) => {
     const { id } = req.params
     const chatUpdate = req.body
 
@@ -69,7 +69,7 @@ exports.updateChat = async (req, res) => {
     res.end()
 }
 
-exports.deleteChat = async (req, res) => {
+export const deleteChat = async (req, res) => {
     const { id } = req.params
 
     const { acknowledged } = await messagesServices.deleteMessages(id)
@@ -83,7 +83,7 @@ exports.deleteChat = async (req, res) => {
     res.end()
 }
 
-exports.getUsers = async (req, res) => {
+export const getUsers = async (req, res) => {
     const chatUsersMap = await chatServices.getChatUsersMap(req.params.id)
     if (!chatUsersMap) return res.status(404).json({ message: notFoundId("chat user") })
 
@@ -92,7 +92,7 @@ exports.getUsers = async (req, res) => {
     res.json(users)
 }
 
-exports.addUser = async (req, res) => {
+export const addUser = async (req, res) => {
     const idChat = req.params.id
     const idUser = req.params.idu
 
@@ -105,14 +105,14 @@ exports.addUser = async (req, res) => {
     res.end()
 }
 
-exports.updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
     const { modifiedCount } = await chatServices.updateUser(req.params.id, req.params.idu, req.body)
     if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
 
     res.end()
 }
 
-exports.removeUser = async (req, res) => {
+export const removeUser = async (req, res) => {
     const idChat = req.params.id
     const idUser = req.params.idu
 
@@ -122,7 +122,7 @@ exports.removeUser = async (req, res) => {
     res.end()
 }
 
-exports.removeCurrentUser = async (req, res) => {
+export const removeCurrentUser = async (req, res) => {
     const idChat = req.params.id
     const user = req.user
 

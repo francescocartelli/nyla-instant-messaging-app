@@ -1,17 +1,18 @@
-const express = require('express')
+import express from 'express'
+
 const app = new express()
 
-const dotenv = require('dotenv')
+import dotenv from 'dotenv'
 dotenv.config()
 
-const cookieParser = require('cookie-parser')
+import cookieParser from 'cookie-parser'
 
-const { validate, isDev, isTest } = require('./utility/modes')
-const { delayedPassThrough } = require('./middleware/constants')
+import { delayedPassThrough } from './middleware/constants/index.js'
+import { isDev, isTest, validate } from './utility/modes.js'
 
 /* LOG */
-const { createLogger } = require('./utility/logger')
-const log = createLogger(process.env.LOG_LEVEL, isTest(process.env.NODE_ENV))
+import { getLogger } from './utility/logger.js'
+const log = getLogger()
 
 /* ENVIRONMENT */
 const mode = validate(process.env.NODE_ENV)
@@ -24,8 +25,8 @@ if (isDev(process.env.NODE_ENV) && process.env.DELAY_PENALTY) {
 }
 
 /* LOG MIDDLEWARE */
+import { logger } from "./middleware/logger.js"
 if (!isTest(process.env.NODE_ENV)) {
-	const { logger } = require('./middleware/logger')
 	app.use(logger(mode))
 }
 
@@ -43,19 +44,22 @@ if (process.env.FRONT_END_URL) {
 }
 
 /* VALIDATION */
-const schemas = require('./schemas')
-const { validateBody, validateId: createValidateIdMiddleware } = require("./middleware/validation")
-const { error: errorMiddleware } = require("./middleware/safety/error")
-const { safe: safeController } = require("./middleware/safety/safe")
+import { error as errorMiddleware } from "./middleware/safety/error.js"
+import { safe as safeController } from "./middleware/safety/safe.js"
+import { validateId as createValidateIdMiddleware, validateBody } from "./middleware/validation/index.js"
+import schemas from './schemas/index.js'
 
-const validateId = createValidateIdMiddleware(require('./services/DbServices').checkOid)
+import { checkOid } from './services/DbServices.js'
+
+const validateId = createValidateIdMiddleware(checkOid)
 
 /* PASSPORT */
-const passport = require('passport')
+import passport from 'passport'
+
 app.use(passport.initialize())
 const authenticate = passport.authenticate('jwt', { session: false })
 
-const { useJWTtrategy, useGoogleStrategy } = require('./middleware/PStrategies')
+import { useGoogleStrategy, useJWTtrategy } from './middleware/PStrategies/index.js'
 passport.use("jwt", useJWTtrategy({ secretOrKey: process.env.SECRET_OR_KEY }))
 
 if (process.env.GOOGLE_CLIENT_ID) passport.use(useGoogleStrategy({
@@ -65,19 +69,19 @@ if (process.env.GOOGLE_CLIENT_ID) passport.use(useGoogleStrategy({
 }))
 
 /* CONTROLLERS */
-const initAccountControllers = require('./controllers/Account')
-const chatControllers = require('./controllers/Chat')
-const messageControllers = require('./controllers/Message')
-const userControllers = require('./controllers/User')
+import initAccountControllers from './controllers/Account.js'
+import * as chatControllers from './controllers/Chat.js'
+import * as messageControllers from './controllers/Message.js'
+import * as userControllers from './controllers/User.js'
 
 /* MIDDLEWARES */
-const chatMiddleware = require('./middleware/Chat')
-const userMiddleware = require('./middleware/User')
-const accountMiddlewares = require('./middleware/Account')
-const messageMiddlewares = require('./middleware/Message')
+import * as accountMiddlewares from './middleware/Account.js'
+import * as chatMiddleware from './middleware/Chat.js'
+import * as messageMiddlewares from './middleware/Message.js'
+import * as userMiddleware from './middleware/User.js'
 
 /* CONSTANTS */
-const { SERVER_ERROR } = require('./constants/ResponseMessages')
+import { SERVER_ERROR } from './constants/ResponseMessages.js'
 
 /* ----- */
 /* CHATS */
@@ -135,4 +139,4 @@ app.use(errorMiddleware({
 	message: SERVER_ERROR
 }))
 
-module.exports = app
+export default app
