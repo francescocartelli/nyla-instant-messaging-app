@@ -1,23 +1,23 @@
-const { notFoundId, USERNAME_TAKEN, notModified } = require("../constants/ResponseMessages")
+import { notFoundId, USERNAME_TAKEN, notModified } from "../constants/ResponseMessages.js"
 
-const chatServices = require("../services/Chat")
-const usersServices = require("../services/User")
+import chatServices from "../services/Chat.js"
+import usersServices from "../services/User.js"
 
-module.exports.getUsers = async (req, res) => {
+export const getUsers = async (req, res) => {
     const { username, searchType } = req.query
 
     const users = await usersServices.getUsers(username, searchType)
     res.json(users)
 }
 
-module.exports.getUser = async (req, res) => {
+export const getUser = async (req, res) => {
     const user = await usersServices.getUser({ id: req.params.id })
     if (!user) return res.status(404).json({ message: notFoundId("user") })
 
     res.json(user)
 }
 
-module.exports.getCurrentUser = async (req, res) => {
+export const getCurrentUser = async (req, res) => {
     const { id } = req.user
 
     const user = await usersServices.getUser({ id: id })
@@ -26,7 +26,7 @@ module.exports.getCurrentUser = async (req, res) => {
     res.json(user)
 }
 
-module.exports.updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
     const { username } = req.body
 
     const user = await usersServices.getUser({ username: username })
@@ -38,7 +38,7 @@ module.exports.updateUser = async (req, res) => {
     res.end()
 }
 
-module.exports.deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
     const { id } = req.user
 
     const results = await chatServices.deleteUserChats(id)

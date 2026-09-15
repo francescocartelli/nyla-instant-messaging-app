@@ -1,3 +1,1 @@
-const getChannel = ({ id }) => `user:${id}`
-
-exports.getChannel = getChannel
+export const getChannel = ({ id }) => `user:${id}`

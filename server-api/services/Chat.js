@@ -1,9 +1,9 @@
-const { userInChatPrefix, userInChat } = require("../model/User")
-const { newChat } = require('../model/Chat')
+import { configs as dbConfigs, getChatCollection, oid } from '../config/Db.js'
 
-const { oid, getChatCollection, configs: dbConfigs } = require('../config/Db')
+import { newChat } from '../model/Chat.js'
+import { userInChat, userInChatPrefix } from "../model/User.js"
 
-const { evaluateModifiedResults } = require("../utility/Evaluate")
+import { evaluateModifiedResults } from "../utility/Evaluate.js"
 
 const chatProj = {
     _id: 0,
@@ -146,7 +146,7 @@ const deleteUserChats = async idUser => {
     return evaluateModifiedResults(results)
 }
 
-module.exports = {
+export default {
     createChat,
     getChat,
     getChatsAndCountPersonal,

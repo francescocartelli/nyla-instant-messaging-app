@@ -1,9 +1,9 @@
-const jwt = require('jsonwebtoken')
+import jwt from 'jsonwebtoken'
 
-const { SIGN_IN_FAILED, SIGN_UP_FAILED } = require('../constants/ResponseMessages')
+import { SIGN_IN_FAILED, SIGN_UP_FAILED } from '../constants/ResponseMessages.js'
 
-const usersServices = require("../services/User")
-const accountServices = require('../services/Account')
+import usersServices from '../services/User.js'
+import accountServices from '../services/Account.js'
 
 const init = (secret, cookieOptions) => {
     const cookieCode = 'jwt'
@@ -58,4 +58,4 @@ const init = (secret, cookieOptions) => {
     }
 }
 
-module.exports = init
+export default init

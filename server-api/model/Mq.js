@@ -12,7 +12,7 @@ const createRepliedTo = ({ id, idSender, content, createdAt }) => ({
     createdAt
 })
 
-exports.mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername, repliedTo }) => ({
+export const mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername, repliedTo }) => ({
     type: messageTypes.MESSAGE_CREATE,
     chat: chat,
     message: {
@@ -26,7 +26,7 @@ exports.mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername
     }
 })
 
-exports.mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUsername, createdAt, updatedAt }) => ({
+export const mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUsername, createdAt, updatedAt }) => ({
     type: messageTypes.MESSAGE_UPDATE,
     chat: chat,
     message: {
@@ -41,7 +41,7 @@ exports.mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUsername
     }
 })
 
-exports.mqDeleteMessage = ({ id, sender, chat, content, chatName, senderUsername, deletedAt }) => ({
+export const mqDeleteMessage = ({ id, sender, chat, content, chatName, senderUsername, deletedAt }) => ({
     type: messageTypes.MESSAGE_DELETE,
     chat: chat,
     message: {
@@ -55,7 +55,7 @@ exports.mqDeleteMessage = ({ id, sender, chat, content, chatName, senderUsername
     }
 })
 
-exports.mqDeleteChat = ({ chat }) => ({
+export const mqDeleteChat = ({ chat }) => ({
     type: messageTypes.CHAT_DELETE,
     chat: chat
 })

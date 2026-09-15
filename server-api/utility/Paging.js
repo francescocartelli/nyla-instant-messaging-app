@@ -1,10 +1,10 @@
-exports.parsePageNumber = (p) => {
+export const parsePageNumber = (p) => {
     const page = parseInt(p)
     if (page < 1) throw new TypeError("Page number has to be equal or higher than one")
     return isNaN(page) ? 1 : page
 }
 
-exports.createPage = (page, nPages, items, getNavigation) => ({
+export const createPage = (page, nPages, items, getNavigation) => ({
     page: page,
     nPages: nPages,
     ...items,
@@ -12,7 +12,7 @@ exports.createPage = (page, nPages, items, getNavigation) => ({
     next: page < nPages ? getNavigation(page + 1) : null
 })
 
-exports.createPageCursor = ({ items, nextCursor, next }) => ({
+export const createPageCursor = ({ items, nextCursor, next }) => ({
     ...items,
     nextCursor,
     next: next || null

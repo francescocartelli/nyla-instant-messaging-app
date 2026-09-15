@@ -1,10 +1,8 @@
-const morgan = require("morgan")
+import morgan from "morgan"
 
 const logLevels = {
     development: 'dev',
     production: 'combined'
 }
 
-const logger = mode => morgan(logLevels[mode] || 'dev')
-
-exports.logger = logger
+export const logger = mode => morgan(logLevels[mode] || 'dev')

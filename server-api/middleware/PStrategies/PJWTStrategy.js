@@ -1,17 +1,18 @@
-const JWTstrategy = require("passport-jwt").Strategy
+import { Strategy as JWTstrategy } from "passport-jwt"
 
-const { cookieExtractor, verifyPayload } = require("../../services/Account")
-const usersServices = require("../../services/User")
+import accountService from "../../services/Account.js"
+
+import usersServices from "../../services/User.js"
 
 const verify = async payload => {
     const user = await usersServices.getUser({ id: payload.sub })
 
-    if (user && verifyPayload(payload)) return user
+    if (user && accountService.verifyPayload(payload)) return user
     else return false
 }
 
-exports.useJWTtrategy = configs => new JWTstrategy({
-    jwtFromRequest: cookieExtractor,
+export const useJWTtrategy = configs => new JWTstrategy({
+    jwtFromRequest: accountService.cookieExtractor,
     ...configs
 }, (payload, done) => verify(payload)
     .then(user => done(null, user))

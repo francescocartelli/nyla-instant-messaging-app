@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid')
+import { v4 as uuidv4 } from 'uuid'
 
 const getDefault = (map, key, defaultValue = new Map()) => {
     if (!map.has(key)) map.set(key, defaultValue)
@@ -49,4 +49,4 @@ const createConnectionManager = ({ log = () => { } }) => {
     return { addConnection: add }
 }
 
-module.exports = createConnectionManager
+export default createConnectionManager

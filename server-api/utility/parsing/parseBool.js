@@ -15,4 +15,4 @@ const parseBool = (input, { strict = false } = {}) => {
     return value
 }
 
-module.exports = parseBool
+export default parseBool

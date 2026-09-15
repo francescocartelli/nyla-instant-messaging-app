@@ -10,14 +10,12 @@ const modes = [
 
 const modesSet = new Set(modes)
 
-exports.validate = mode => {
+export const validate = mode => {
     if (!modesSet.has(mode)) throw new Error(`Unrecognized env mode: ${mode}`)
 
     return mode
 }
 
-exports.isDev = mode => mode === DEVELOPMENT
-exports.isProd = mode => mode === PRODUCTION
-exports.isTest = mode => mode === TEST
-
-
+export const isDev = mode => mode === DEVELOPMENT
+export const isProd = mode => mode === PRODUCTION
+export const isTest = mode => mode === TEST

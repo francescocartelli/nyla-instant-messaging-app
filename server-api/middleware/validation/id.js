@@ -4,4 +4,4 @@ const validate = validationFunction => idParam => (req, res, next) => {
     next()
 }
 
-module.exports = validate
+export default validate

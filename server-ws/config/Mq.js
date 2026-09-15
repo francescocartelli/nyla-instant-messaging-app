@@ -1,8 +1,8 @@
-const redis = require('redis')
+import redis from 'redis'
 
 let _redisClient
 
-exports.connect = url => {
+export const connect = url => {
     const [host, port] = url.split(':')
 
     _redisClient = redis.createClient({
@@ -15,5 +15,5 @@ exports.connect = url => {
     return _redisClient.connect()
 }
 
-exports.subscribe = (...args) => _redisClient.subscribe(...args)
-exports.unsubscribe = (...args) => _redisClient.unsubscribe(...args)
+export const subscribe = (...args) => _redisClient.subscribe(...args)
+export const unsubscribe = (...args) => _redisClient.unsubscribe(...args)

@@ -1,6 +1,6 @@
-const { oid, isOidValid, getUserCollection, configs: dbConfigs } = require('../config/Db')
+import { configs as dbConfigs, getUserCollection, isOidValid, oid } from '../config/Db.js'
 
-const { newUser } = require('../model/User')
+import { newUser } from '../model/User.js'
 
 const userProjection = {
     _id: 0,
@@ -79,7 +79,7 @@ const validateUsersExistence = async (users) => {
     return existingIds.every(i => i !== null)
 }
 
-module.exports = {
+export default {
     getUsers,
     getUser,
     getUserId,

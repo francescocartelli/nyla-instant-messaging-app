@@ -1,5 +1,4 @@
-const { useJWTtrategy } = require('./PJWTStrategy')
-const { useGoogleStrategy } = require('./PGoogleOAuth20Strategy')
+import { useGoogleStrategy } from './PGoogleOAuth20Strategy.js'
+import { useJWTtrategy } from './PJWTStrategy.js'
 
-exports.useJWTtrategy = useJWTtrategy
-exports.useGoogleStrategy = useGoogleStrategy
+export { useGoogleStrategy, useJWTtrategy }

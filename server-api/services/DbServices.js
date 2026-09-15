@@ -1,3 +1,3 @@
-const { isOidValid } = require("../config/Db")
+import { isOidValid } from "../config/Db.js"
 
-exports.checkOid = isOidValid
+export { isOidValid as checkOid }
