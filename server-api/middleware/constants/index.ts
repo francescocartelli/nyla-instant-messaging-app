@@ -1,4 +1,4 @@
-import delayedPassThrough from "./delayedPassThrough.js"
-import passThrough from "./passThrough.js"
+import delayedPassThrough from "./delayedPassThrough.ts"
+import passThrough from "./passThrough.ts"
 
 export { delayedPassThrough, passThrough }

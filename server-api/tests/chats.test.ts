@@ -1,31 +1,35 @@
 import dotenv from 'dotenv'
 import request from 'supertest'
 
+import type { Express } from 'express'
+
 dotenv.config()
 
-import { createLogger } from '../utility/logger.js'
-createLogger(process.env.LOGGING_LEVELS)
+import { createLogger } from '../utility/logger.ts'
+createLogger(process.env.LOGGING_LEVELS as string)
 
-let app = null
+let app: Express
 
-import createDeleteUser from './setup/deleteUser.js'
-import createSignUser from './setup/signUser.js'
-import { jwtCookie } from './setup/utils.js'
+import createDeleteUser from './setup/deleteUser.ts'
+import createSignUser, { SignUser } from './setup/signUser.ts'
+import { jwtCookie } from './setup/utils.ts'
 
 import signupRequests from './data/users.json' with { type: 'json' }
 
+import { Identifiable } from '../model/Chat.ts'
+
 describe('API server chats tests', () => {
-	let users = []
-	let chats = []
+	let users: Array<SignUser>
+	let chats: Array<Identifiable> = []
 
 	beforeAll(async () => {
-		app = (await import('../app.js')).default
+		app = (await import('../app.ts')).default
 
-		const { connect: connectDb } = await import('../config/Db.js')
-		const { connect: connectMq } = await import('../config/Mq.js')
+		const { connect: connectDb } = await import('../config/Db.ts')
+		const { connect: connectMq } = await import('../config/Mq.ts')
 
-		await connectDb(process.env.DATABASE_URL, process.env.DATABASE_NAME)
-		await connectMq(process.env.MQ_SERVER_URL)
+		await connectDb(process.env.DATABASE_URL as string, process.env.DATABASE_NAME as string)
+		await connectMq(process.env.MQ_SERVER_URL as string)
 
 		const results = await Promise.all(signupRequests.map(createSignUser(app)))
 
@@ -43,14 +47,14 @@ describe('API server chats tests', () => {
 			.delete(`/api/chats/${id}`)
 			.set('Cookie', jwtCookie(users[0].jwt))))
 
-		const { close: closeDb } = await import('../config/Db.js')
-		const { close: closeMq } = await import('../config/Mq.js')
+		const { close: closeDb } = await import('../config/Db.ts')
+		const { close: closeMq } = await import('../config/Mq.ts')
 
 		await closeDb()
 		await closeMq()
 	})
 
-	let directChatId = null
+	let directChatId: string
 
 	test.each([{
 		title: 'empty',
@@ -169,8 +173,8 @@ describe('API server chats tests', () => {
 		expect(resAsc.body.nPages).toBe(1)
 		expect(resDesc.body.nPages).toBe(1)
 
-		const idsAsc = resAsc.body.chats.map(chat => chat.id)
-		const idsDesc = resDesc.body.chats.map(chat => chat.id)
+		const idsAsc = resAsc.body.chats.map((chat: Identifiable) => chat.id)
+		const idsDesc = resDesc.body.chats.map((chat: Identifiable) => chat.id)
 
 		for (let i = 0; i < idsAsc.length; i++) {
 			expect(idsAsc[i]).toBe(idsDesc[idsDesc.length - 1 - i])
@@ -195,7 +199,7 @@ describe('API server chats tests', () => {
 	})
 
 	test('Get personal chats: check paging max 10 [200]', async () => {
-		let ids = new Set([])
+		let ids = new Set<Identifiable>([])
 
 		for (let i = 0; i < 10; i++) {
 			const res = await request(app)
@@ -207,8 +211,6 @@ describe('API server chats tests', () => {
 				expect(ids.has(chat.id)).toBe(false)
 				ids.add(chat.id)
 			}
-
-			if (!res.next) return
 		}
 	})
 
@@ -585,11 +587,10 @@ describe('API server chats tests', () => {
 		id: () => chats[1].id,
 		jwt: () => users[0].jwt,
 		expected: 200
-	}])('Delete chat: $title [$expected]', async ({ id, jwt, send, expected }) => {
+	}])('Delete chat: $title [$expected]', async ({ id, jwt, expected }) => {
 		const res = await request(app)
 			.delete(`/api/chats/${id()}`)
 			.set('Cookie', jwtCookie(jwt()))
-			.send(send)
 			.expect(expected)
 	})
 

@@ -1,20 +1,20 @@
-import { Strategy as JWTstrategy } from "passport-jwt"
+import type { JwtPayload } from "jsonwebtoken"
+import { Strategy as JWTstrategy, StrategyOptionsWithoutRequest, VerifiedCallback } from "passport-jwt"
 
-import accountService from "../../services/Account.js"
+import accountService from "../../services/Account.ts"
+import usersServices from "../../services/User.ts"
 
-import usersServices from "../../services/User.js"
-
-const verify = async payload => {
-    const user = await usersServices.getUser({ id: payload.sub })
+const verify = async (payload: JwtPayload) => {
+    const user = await usersServices.getUser({ id: payload.sub as string })
 
     if (user && accountService.verifyPayload(payload)) return user
     else return false
 }
 
-export const useJWTtrategy = configs => new JWTstrategy({
-    jwtFromRequest: accountService.cookieExtractor,
-    ...configs
-}, (payload, done) => verify(payload)
-    .then(user => done(null, user))
+export const useJWTtrategy = (configs: StrategyOptionsWithoutRequest) => new JWTstrategy({
+    ...configs,
+    jwtFromRequest: accountService.cookieExtractor
+}, (payload: any, done: VerifiedCallback) => verify(payload)
+    .then(user => done(null, user!))
     .catch(err => done(err, false))
 )

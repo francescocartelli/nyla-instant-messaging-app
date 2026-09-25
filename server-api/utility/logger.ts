@@ -1,8 +1,8 @@
 import winston from 'winston'
 
-let logger = null
+let logger: winston.Logger | null = null
 
-export const createLogger = (level, silent = false) => {
+export const createLogger = (level: string, silent = false) => {
     logger = winston.createLogger({
         level,
         silent,
@@ -18,4 +18,4 @@ export const createLogger = (level, silent = false) => {
     return logger
 }
 
-export const getLogger = () => logger
+export const getLogger = (): winston.Logger | null => logger

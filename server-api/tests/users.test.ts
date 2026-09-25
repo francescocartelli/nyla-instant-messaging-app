@@ -1,30 +1,32 @@
 import dotenv from 'dotenv'
+import type { Express } from 'express'
 import request from 'supertest'
 
 dotenv.config()
 
-import { createLogger } from '../utility/logger.js'
-createLogger(process.env.LOGGING_LEVELS)
+import { createLogger } from '../utility/logger.ts'
+createLogger(process.env.LOGGING_LEVELS as string)
 
-let app = null
+let app: Express
 
-import createDeleteUser from './setup/deleteUser.js'
-import { extractResponseCookie, jwtCookie } from './setup/utils.js'
+import createDeleteUser from './setup/deleteUser.ts'
+import { extractResponseCookie, jwtCookie } from './setup/utils.ts'
 
 import moreUsersSigninRequests from './data/more-users-signin.json' with { type: 'json' }
 import moreUsersSignupRequests from './data/more-users-signup.json' with { type: 'json' }
+import { SignUser } from './setup/signUser.ts'
 
 describe('API server users tests', () => {
-	let users = []
+	let users: Array<SignUser> = []
 
 	beforeAll(async () => {
-		app = (await import('../app.js')).default
+		app = (await import('../app.ts')).default
 
-		const { connect: connectDb } = await import('../config/Db.js')
-		const { connect: connectMq } = await import('../config/Mq.js')
+		const { connect: connectDb } = await import('../config/Db.ts')
+		const { connect: connectMq } = await import('../config/Mq.ts')
 
-		await connectDb(process.env.DATABASE_URL, process.env.DATABASE_NAME)
-		await connectMq(process.env.MQ_SERVER_URL)
+		await connectDb(process.env.DATABASE_URL as string, process.env.DATABASE_NAME as string)
+		await connectMq(process.env.MQ_SERVER_URL as string)
 	})
 
 	afterAll(async () => {
@@ -34,8 +36,8 @@ describe('API server users tests', () => {
 			await deleteUser(user)
 		}
 
-		const { close: closeDb } = await import('../config/Db.js')
-		const { close: closeMq } = await import('../config/Mq.js')
+		const { close: closeDb } = await import('../config/Db.ts')
+		const { close: closeMq } = await import('../config/Mq.ts')
 
 		await closeDb()
 		await closeMq()

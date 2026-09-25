@@ -1,14 +1,18 @@
-import { publish } from "../config/Mq.js"
+import { publish } from "../config/Mq.ts"
 
-import { mqCreateMessage, mqDeleteChat, mqDeleteMessage, mqUpdateMessage } from "../model/Mq.js"
+import { mqCreateMessage, mqDeleteChat, mqDeleteMessage, MqMessage, MqMessageInput, mqUpdateMessage } from "../model/Mq.ts"
 
-const createMessageBroadcast = message => recipient => publish(`user:${recipient}`, message)
-const broadcastMessage = (recipients, message) => Promise.all(recipients.map(createMessageBroadcast(message)))
+type MessageModel<T> = (message: T) => MqMessage
 
-const createMqBroadcast = messageModel => (recipients, message) => broadcastMessage(recipients, JSON.stringify(messageModel(message)))
+type Recipient = string
 
-export const createMessage = createMqBroadcast(mqCreateMessage)
-export const updateMessage = createMqBroadcast(mqUpdateMessage)
-export const deleteMessage = createMqBroadcast(mqDeleteMessage)
+const createMessageBroadcast = (message: string) => (recipient: Recipient) => publish(`user:${recipient}`, message)
+const broadcastMessage = (recipients: Array<Recipient>, message: string) => Promise.all(recipients.map(createMessageBroadcast(message)))
+
+const createMqBroadcast = <T>(messageModel: MessageModel<T>) => (recipients: Array<Recipient>, message: T) => broadcastMessage(recipients, JSON.stringify(messageModel(message)))
+
+export const createMessage = createMqBroadcast<MqMessageInput>(mqCreateMessage)
+export const updateMessage = createMqBroadcast<MqMessageInput>(mqUpdateMessage)
+export const deleteMessage = createMqBroadcast<MqMessageInput>(mqDeleteMessage)
 
 export const deleteChat = createMqBroadcast(mqDeleteChat)

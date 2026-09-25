@@ -1,8 +1,10 @@
-import { EMAIL_TAKEN, USERNAME_TAKEN } from "../constants/ResponseMessages.js"
+import type { NextFunction, Request, Response } from "express"
 
-import usersServices from "../services/User.js"
+import { EMAIL_TAKEN, USERNAME_TAKEN } from "../constants/ResponseMessages.ts"
 
-export const validateSingUp = async (req, res, next) => {
+import usersServices from "../services/User.ts"
+
+export const validateSingUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.body
 

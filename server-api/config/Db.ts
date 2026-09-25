@@ -1,21 +1,26 @@
-import { MongoClient, ObjectId } from 'mongodb'
+import { Db, MongoClient, ObjectId } from 'mongodb'
 
 const defaultOptions = { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000, serverSelectionTimeoutMS: 5000 }
 
-let _db
+let _db: Db
+let _client: MongoClient
 
-import { getLogger } from '../utility/logger.js'
+import { ChatDocument } from '../model/Chat.ts'
+import { MessageDocument } from '../model/Message.ts'
+import { UserDocument } from '../model/User.ts'
+
+import { getLogger } from '../utility/logger.ts'
 const logger = getLogger()
 
-export const connect = async (url, name, options = defaultOptions) => {
+export const connect = async (url: string, name: string, options = defaultOptions) => {
     try {
-        const client = await MongoClient.connect(url, options)
-        _db = client.db(name)
+        _client = await MongoClient.connect(url, options)
+        _db = _client.db(name)
 
-        logger.info("Connected to Mongodb!")
+        logger?.info("Connected to Mongodb!")
     } catch (err) {
-        logger.debug(err)
-        logger.error("Error in Mongodb connection!")
+        logger?.debug(err)
+        logger?.error("Error in Mongodb connection!")
     }
 }
 
@@ -31,11 +36,11 @@ const collections = {
     user: "user"
 }
 
-export const getChatCollection = () => _db.collection(collections.chat)
-export const getMessageCollection = () => _db.collection(collections.message)
-export const getUserCollection = () => _db.collection(collections.user)
+export const getChatCollection = () => _db.collection<ChatDocument>(collections.chat)
+export const getMessageCollection = () => _db.collection<MessageDocument>(collections.message)
+export const getUserCollection = () => _db.collection<UserDocument>(collections.user)
 
-export const oid = id => ObjectId.createFromHexString(id.toString())
+export const oid = (id: string | ObjectId) => ObjectId.createFromHexString(id.toString())
 export const isOidValid = ObjectId.isValid
 
-export const close = (...args) => _db.client.close(...args)
+export const close = (...args: Parameters<MongoClient['close']>) => _client.close(...args)

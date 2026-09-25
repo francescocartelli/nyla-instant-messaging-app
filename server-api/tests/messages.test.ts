@@ -1,33 +1,37 @@
 import dotenv from 'dotenv'
+import { type Express } from 'express'
 import request from 'supertest'
 
 dotenv.config()
 
-import { createLogger } from '../utility/logger.js'
-createLogger(process.env.LOGGING_LEVELS)
+import { createLogger } from '../utility/logger.ts'
+createLogger(process.env.LOGGING_LEVELS as string)
 
-let app = null
+let app: Express
 
-import createDeleteUser from './setup/deleteUser.js'
-import newMessageContent from './setup/newMessageContent.js'
-import createSignUser from './setup/signUser.js'
-import { jwtCookie } from './setup/utils.js'
+import createDeleteUser from './setup/deleteUser.ts'
+import newMessageContent from './setup/newMessageContent.ts'
+import createSignUser, { SignUser } from './setup/signUser.ts'
+import { jwtCookie } from './setup/utils.ts'
+
+import { PublicChat } from '../model/Chat.ts'
+import { Identifiable } from '../model/Message.ts'
 
 import signupRequests from './data/users.json' with { type: 'json' }
 
 describe('API server users tests', () => {
-	let users = []
-	let chat = null
-	let messages = []
+	let users: Array<SignUser> = []
+	let chat: PublicChat
+	let messages: Array<Identifiable> = []
 
 	beforeAll(async () => {
-		app = (await import('../app.js')).default
+		app = (await import('../app.ts')).default
 
-		const { connect: connectDb } = await import('../config/Db.js')
-		const { connect: connectMq } = await import('../config/Mq.js')
+		const { connect: connectDb } = await import('../config/Db.ts')
+		const { connect: connectMq } = await import('../config/Mq.ts')
 
-		await connectDb(process.env.DATABASE_URL, process.env.DATABASE_NAME)
-		await connectMq(process.env.MQ_SERVER_URL)
+		await connectDb(process.env.DATABASE_URL as string, process.env.DATABASE_NAME as string)
+		await connectMq(process.env.MQ_SERVER_URL as string)
 
 		const results = await Promise.all(signupRequests.map(createSignUser(app)))
 
@@ -45,8 +49,8 @@ describe('API server users tests', () => {
 			.delete(`/api/chats/${chat.id}`)
 			.set('Cookie', jwtCookie(users[0].jwt))
 
-		const { close: closeDb } = await import('../config/Db.js')
-		const { close: closeMq } = await import('../config/Mq.js')
+		const { close: closeDb } = await import('../config/Db.ts')
+		const { close: closeMq } = await import('../config/Mq.ts')
 
 		await closeDb()
 		await closeMq()
@@ -146,7 +150,7 @@ describe('API server users tests', () => {
 		if (res.ok) messages.push(res.body)
 	})
 
-	let cursor = null
+	let cursor: string | null
 	test.each([{
 		title: 'bad id',
 		chat: () => 'invalid',
@@ -199,7 +203,7 @@ describe('API server users tests', () => {
 
 	cursor = null
 	test(`Get messages: check paging max 10 page [200]`, async () => {
-		const ids = new Set([])
+		const ids = new Set<Identifiable>([])
 		let lastCreatedAt = new Date(8640000000000000)
 		let lastPageSize = Infinity
 

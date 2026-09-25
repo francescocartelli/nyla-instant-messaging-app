@@ -1,37 +1,54 @@
-import { ADMIN_REQUIRED, NO_CHAT_DELETED, NO_MESSAGES_DELETED, notCreated, notFoundId, notModified, USER_IN_CHAT_REQUIRED } from "../constants/ResponseMessages.js"
+import type { Response } from "express"
+import type { ParamsDictionary } from "express-serve-static-core"
 
-import { getChatNavigation } from "../utility/Navigation.js"
-import { createPage, parsePageNumber } from "../utility/Paging.js"
-import { parseBool } from "../utility/parsing/index.js"
+import { ADMIN_REQUIRED, NO_CHAT_DELETED, NO_MESSAGES_DELETED, notCreated, notFoundId, notModified, USER_IN_CHAT_REQUIRED } from "../constants/ResponseMessages.ts"
 
-import chatServices from "../services/Chat.js"
-import * as messagesServices from "../services/Message.js"
-import * as mqServices from "../services/Mq.js"
-import usersServices from "../services/User.js"
+import { getChatNavigation } from "../utility/Navigation.ts"
+import { createPage, parsePageNumber } from "../utility/Paging.ts"
+import { parseBool } from "../utility/parsing/index.ts"
 
-export const getChat = async (req, res) => {
-    const chat = await chatServices.getChat(req.params.id)
+import chatServices from "../services/Chat.ts"
+import * as messagesServices from "../services/Message.ts"
+import * as mqServices from "../services/Mq.ts"
+import usersServices from "../services/User.ts"
+
+import { PublicChatFull } from "../model/Chat.ts"
+
+import { AuthRequest } from "../types/AuthRequest.ts"
+import { ChatCreate } from "../types/bodies/ChatCreate.ts"
+import { ChatUserUpdate } from "../types/bodies/ChatUserUpdate.ts"
+
+export const getChat = async (
+    req: AuthRequest,
+    res: Response
+) => {
+    const chat = await chatServices.getChat(req.params.id as string)
     if (!chat) return res.status(404).json({ message: notFoundId("chat") })
 
     res.json(chat)
 }
 
-export const getChatsPersonal = async (req, res) => {
+export const getChatsPersonal = async (
+    req: AuthRequest,
+    res: Response
+) => {
     const { id } = req.user
-    const page = parsePageNumber(req.query.page)
-    const asc = parseBool(req.query.asc)
-    const isGroup = parseBool(req.query.isGroup)
+    const page = parsePageNumber(req.query.page as string)
+    const asc = parseBool(req.query.asc as string)
+    const isGroup = parseBool(req.query.isGroup as string)
 
-    let { chats, nPages } = await chatServices.getChatsAndCountPersonal(id, { page, asc, isGroup })
+    let { chats, nPages } = await chatServices.getChatsAndCountPersonal(id.toString(), { page, asc, isGroup })
 
     // get names for non group chat
-    // consider username denormalization better performance
-    chats = await chatServices.lookupChatnames(chats, id, usersServices.getUser)
+    chats = await chatServices.lookupChatnames(chats, id.toString(), usersServices.getUser)
 
-    res.json(createPage(page, nPages, { chats: chats }, getChatNavigation({ asc: asc, isGroup: isGroup })))
+    res.json(createPage<Record<'chats', PublicChatFull[]>>(page, nPages, { chats }, getChatNavigation({ asc, isGroup })))
 }
 
-export const createChat = async (req, res) => {
+export const createChat = async (
+    req: AuthRequest<{}, {}, ChatCreate>,
+    res: Response
+) => {
     const user = req.user
     const chat = req.body
 
@@ -59,32 +76,39 @@ export const createChat = async (req, res) => {
     res.json({ id: insertedId.toString() })
 }
 
-export const updateChat = async (req, res) => {
+export const updateChat = async (req: AuthRequest, res: Response
+) => {
     const { id } = req.params
     const chatUpdate = req.body
 
-    const { modifiedCount } = await chatServices.updateChat(id, chatUpdate)
+    const { modifiedCount } = await chatServices.updateChat(id.toString(), chatUpdate)
     if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
 
     res.end()
 }
 
-export const deleteChat = async (req, res) => {
+export const deleteChat = async (
+    req: AuthRequest,
+    res: Response
+) => {
     const { id } = req.params
 
-    const { acknowledged } = await messagesServices.deleteMessages(id)
+    const { acknowledged } = await messagesServices.deleteMessages(id.toString())
     if (!acknowledged) return res.status(304).json({ message: NO_MESSAGES_DELETED })
 
-    const { deletedCount } = await chatServices.deleteChat(id)
+    const { deletedCount } = await chatServices.deleteChat(id.toString())
     if (deletedCount < 1) return res.status(304).json({ message: NO_CHAT_DELETED })
 
-    mqServices.deleteChat(res.locals.chatUsers, { chat: id })
+    mqServices.deleteChat(res.locals.chatUsers, { chat: id.toString() })
 
     res.end()
 }
 
-export const getUsers = async (req, res) => {
-    const chatUsersMap = await chatServices.getChatUsersMap(req.params.id)
+export const getUsers = async (
+    req: AuthRequest,
+    res: Response
+) => {
+    const chatUsersMap = await chatServices.getChatUsersMap(req.params.id as string)
     if (!chatUsersMap) return res.status(404).json({ message: notFoundId("chat user") })
 
     const users = await usersServices.getChatUsers(chatUsersMap)
@@ -92,29 +116,38 @@ export const getUsers = async (req, res) => {
     res.json(users)
 }
 
-export const addUser = async (req, res) => {
-    const idChat = req.params.id
-    const idUser = req.params.idu
+export const addUser = async (
+    req: AuthRequest,
+    res: Response
+) => {
+    const idChat = req.params.id.toString()
+    const idUser = req.params.idu.toString()
 
     const user = await usersServices.getUser({ id: idUser })
     if (!user) return res.status(404).json({ message: notFoundId("user") })
 
-    const { modifiedCount } = await chatServices.addUser(idChat, { id: user.id, isAdmin: false })
+    const { modifiedCount } = await chatServices.addUser(idChat, { id: user.id.toString(), isAdmin: false })
     if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
 
     res.end()
 }
 
-export const updateUser = async (req, res) => {
-    const { modifiedCount } = await chatServices.updateUser(req.params.id, req.params.idu, req.body)
+export const updateUser = async (
+    req: AuthRequest<ParamsDictionary, {}, ChatUserUpdate>,
+    res: Response
+) => {
+    const { modifiedCount } = await chatServices.updateUser(req.params.id as string, req.params.idu as string, req.body)
     if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
 
     res.end()
 }
 
-export const removeUser = async (req, res) => {
-    const idChat = req.params.id
-    const idUser = req.params.idu
+export const removeUser = async (
+    req: AuthRequest,
+    res: Response
+) => {
+    const idChat = req.params.id.toString()
+    const idUser = req.params.idu.toString()
 
     const { modifiedCount } = await chatServices.removeUser(idChat, idUser)
     if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
@@ -122,8 +155,11 @@ export const removeUser = async (req, res) => {
     res.end()
 }
 
-export const removeCurrentUser = async (req, res) => {
-    const idChat = req.params.id
+export const removeCurrentUser = async (
+    req: AuthRequest,
+    res: Response
+) => {
+    const idChat = req.params.id.toString()
     const user = req.user
 
     // no other user in chat after removal
@@ -137,7 +173,7 @@ export const removeCurrentUser = async (req, res) => {
         return res.end()
     }
 
-    const { modifiedCount } = await chatServices.removeUser(idChat, user.id)
+    const { modifiedCount } = await chatServices.removeUser(idChat, user.id.toString())
     if (modifiedCount < 1) return res.status(304).json({ message: notModified("chat") })
 
     res.end()

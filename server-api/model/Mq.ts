@@ -1,38 +1,57 @@
-const messageTypes = {
-    MESSAGE_CREATE: 'MESSAGE_CREATE',
-    MESSAGE_UPDATE: 'MESSAGE_UPDATE',
-    MESSAGE_DELETE: 'MESSAGE_DELETE',
-    CHAT_DELETE: 'CHAT_DELETE'
+import { Message } from "./Message.ts"
+
+type MessageType = 'MESSAGE_CREATE' | 'MESSAGE_UPDATE' | 'MESSAGE_DELETE' | 'CHAT_DELETE'
+
+export type MqMessageInput = Message & {
+    chatName: string
+    senderUsername: string
 }
 
-const createRepliedTo = ({ id, idSender, content, createdAt }) => ({
-    id: id.toString(),
-    idSender: idSender.toString(),
-    content,
-    createdAt
-})
+export interface MqMessage {
+    type: MessageType
+    chat: string
+    message?: Pick<Message,
+        'id' |
+        'content'
+    > & {
+        idChat: string,
+        chatName: string
+        idSender: string
+        senderUsername: string
+        createdAt?: Date | null
+        updatedAt?: Date | null
+        deletedAt?: Date | null
+    }
+}
 
-export const mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername, repliedTo }) => ({
-    type: messageTypes.MESSAGE_CREATE,
-    chat: chat,
+export const mqCreateMessage = ({ id, sender, chat, content, chatName, senderUsername, repliedTo }: MqMessageInput): MqMessage => ({
+    type: 'MESSAGE_CREATE',
+    chat: chat.toString(),
     message: {
         id,
-        idChat: chat,
+        idChat: chat.toString(),
         chatName,
-        idSender: sender,
+        idSender: sender.toString(),
         senderUsername,
         content,
-        ...(repliedTo ? { repliedTo: createRepliedTo(repliedTo) } : {})
+        ...(repliedTo ? {
+            repliedTo: {
+                id: repliedTo.id.toString(),
+                idSender: repliedTo.idSender.toString(),
+                content: repliedTo.content,
+                createdAt: repliedTo.createdAt
+            }
+        } : {})
     }
 })
 
-export const mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUsername, createdAt, updatedAt }) => ({
-    type: messageTypes.MESSAGE_UPDATE,
-    chat: chat,
+export const mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUsername, createdAt, updatedAt }: MqMessageInput): MqMessage => ({
+    type: 'MESSAGE_UPDATE',
+    chat: chat.toString(),
     message: {
         id: id,
-        idSender: sender,
-        idChat: chat,
+        idSender: sender.toString(),
+        idChat: chat.toString(),
         chatName,
         senderUsername,
         content,
@@ -41,13 +60,13 @@ export const mqUpdateMessage = ({ id, sender, chat, content, chatName, senderUse
     }
 })
 
-export const mqDeleteMessage = ({ id, sender, chat, content, chatName, senderUsername, deletedAt }) => ({
-    type: messageTypes.MESSAGE_DELETE,
-    chat: chat,
+export const mqDeleteMessage = ({ id, sender, chat, content, chatName, senderUsername, deletedAt }: MqMessageInput): MqMessage => ({
+    type: 'MESSAGE_DELETE',
+    chat: chat.toString(),
     message: {
         id: id,
-        idSender: sender,
-        idChat: chat,
+        idSender: sender.toString(),
+        idChat: chat.toString(),
         chatName: chatName,
         senderUsername: senderUsername,
         content,
@@ -55,7 +74,7 @@ export const mqDeleteMessage = ({ id, sender, chat, content, chatName, senderUse
     }
 })
 
-export const mqDeleteChat = ({ chat }) => ({
-    type: messageTypes.CHAT_DELETE,
-    chat: chat
+export const mqDeleteChat = ({ chat }: { chat: string }): MqMessage => ({
+    type: 'CHAT_DELETE',
+    chat: chat.toString()
 })

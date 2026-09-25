@@ -1,4 +1,4 @@
-import validateBody from "./body.js"
-import validateId from "./id.js"
+import validateBody from "./body.ts"
+import validateId from "./id.ts"
 
 export { validateBody, validateId }

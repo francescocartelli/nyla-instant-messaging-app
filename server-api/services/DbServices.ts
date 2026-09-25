@@ -1,3 +1,3 @@
-import { isOidValid } from "../config/Db.js"
+import { isOidValid } from "../config/Db.ts"
 
 export { isOidValid as checkOid }

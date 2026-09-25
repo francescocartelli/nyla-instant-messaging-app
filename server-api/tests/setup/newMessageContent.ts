@@ -1,4 +1,4 @@
-const newMessageContent = text => ({
+const newMessageContent = (text: string) => ({
     content: [
         {
             type: 'paragraph',

@@ -1,4 +1,5 @@
-import { configs as dbConfigs, getMessageCollection, oid } from '../config/Db.js'
+import { configs as dbConfigs, getMessageCollection, oid } from '../config/Db.ts'
+import { Message, NewMessage, PublicMessage, RepliedTo, UpdateMessage } from '../model/Message.ts'
 
 const messageProj = {
     _id: 0,
@@ -16,21 +17,21 @@ const messageProj = {
 
 const tenMinutesMillis = 10 * 60 * 1000
 
-export const getMessage = (idChat, idMessage) => {
-    return getMessageCollection().findOne({
+export const getMessage = (idChat: string, idMessage: string) => {
+    return getMessageCollection().findOne<PublicMessage>({
         _id: oid(idMessage),
         chat: oid(idChat)
     }, { projection: messageProj })
 }
 
-const createRepliedTo = ({ id, idSender, content, createdAt }) => ({
+const createRepliedTo = ({ id, idSender, content, createdAt }: RepliedTo): RepliedTo => ({
     id: oid(id),
     idSender: oid(idSender),
     content,
     createdAt
 })
 
-export const createMessage = ({ chat, sender, content, repliedTo }) => {
+export const createMessage = ({ chat, sender, content, repliedTo }: NewMessage) => {
     return getMessageCollection().insertOne({
         chat: oid(chat),
         sender: oid(sender),
@@ -40,7 +41,7 @@ export const createMessage = ({ chat, sender, content, repliedTo }) => {
     })
 }
 
-export const updateMessage = (idChat, idMessage, { content }) => {
+export const updateMessage = (idChat: string, idMessage: string, { content }: UpdateMessage) => {
     return getMessageCollection().findOneAndUpdate({
         _id: oid(idMessage),
         chat: oid(idChat)
@@ -56,7 +57,7 @@ export const updateMessage = (idChat, idMessage, { content }) => {
     })
 }
 
-export const getMessages = (idChat, cursor) => {
+export const getMessages = (idChat: string, cursor: string) => {
     const query = cursor ? {
         $and: [
             { chat: oid(idChat) },
@@ -64,18 +65,18 @@ export const getMessages = (idChat, cursor) => {
         ]
     } : { chat: oid(idChat) }
 
-    return getMessageCollection().find(query, { projection: messageProj })
+    return getMessageCollection().find<PublicMessage>(query, { projection: messageProj })
         .sort({ createdAt: -1 }).limit(dbConfigs.MESSAGES_PER_PAGE).toArray()
 }
 
-export const deleteMessage = (idChat, idMessage) => {
+export const deleteMessage = (idChat: string, idMessage: string) => {
     return getMessageCollection().deleteOne({
         _id: oid(idMessage),
         chat: oid(idChat)
     })
 }
 
-export const markMessageDeleted = (idChat, idMessage) => {
+export const markMessageDeleted = (idChat: string, idMessage: string) => {
     return getMessageCollection().findOneAndUpdate({
         _id: oid(idMessage),
         chat: oid(idChat)
@@ -91,26 +92,26 @@ export const markMessageDeleted = (idChat, idMessage) => {
     })
 }
 
-export const deleteMessages = (idChat) => {
+export const deleteMessages = (idChat: string) => {
     return getMessageCollection().deleteMany({ chat: oid(idChat) })
 }
 
-export const countMessagesPages = async (idChat) => {
+export const countMessagesPages = async (idChat: string): Promise<number> => {
     const count = await getMessageCollection().countDocuments({ chat: oid(idChat) })
     return Math.ceil(count / dbConfigs.MESSAGES_PER_PAGE)
 }
 
-const isUpdateExpired = ({ createdAt }, delay = tenMinutesMillis) => {
-    const maxDt = (new Date(createdAt)).getTime() + delay
+const isUpdateExpired = ({ createdAt }: Partial<Message>, delay: number = tenMinutesMillis): boolean => {
+    const maxDt = (new Date(createdAt!)).getTime() + delay
     const nowDt = (new Date()).getTime()
 
     return nowDt > maxDt
 }
 
-const isMessageDeleted = ({ deletedAt }) => {
+const isMessageDeleted = ({ deletedAt }: Partial<Message>): boolean => {
     return Boolean(deletedAt)
 }
 
-export const canUpdateMessage = message => {
+export const canUpdateMessage = (message: Partial<Message>): boolean => {
     return !isUpdateExpired(message) && !isMessageDeleted(message)
 }

@@ -1,4 +1,4 @@
-import parseBool from './parseBool.js'
-import parseNull from './parseNull.js'
+import parseBool from './parseBool.ts'
+import parseNull from './parseNull.ts'
 
 export { parseBool, parseNull }

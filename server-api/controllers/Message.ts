@@ -1,37 +1,43 @@
-import { notCreated, notDeleted, notFoundId, TOO_LATE } from "../constants/ResponseMessages.js"
+import type { Response } from "express"
 
-import chatServices from "../services/Chat.js"
-import * as messageServices from "../services/Message.js"
-import * as mqServices from "../services/Mq.js"
+import { notCreated, notDeleted, notFoundId, notModified, TOO_LATE } from "../constants/ResponseMessages.ts"
 
-import { getMessageNavigation } from "../utility/Navigation.js"
-import { createPageCursor } from "../utility/Paging.js"
-import { parseNull } from "../utility/parsing/index.js"
+import chatServices from "../services/Chat.ts"
+import * as messageServices from "../services/Message.ts"
+import * as mqServices from "../services/Mq.ts"
 
-export const getMessage = async (req, res) => {
+import { getMessageNavigation } from "../utility/Navigation.ts"
+import { createPageCursor } from "../utility/Paging.ts"
+import { parseNull } from "../utility/parsing/index.ts"
+
+import { Content, RepliedTo } from "../model/Message.ts"
+
+import { AuthRequest } from "../types/AuthRequest.ts"
+
+export const getMessage = async (req: AuthRequest, res: Response) => {
     const { id: idChat, idm: idMessage } = req.params
 
-    const message = await messageServices.getMessage(idChat, idMessage)
+    const message = await messageServices.getMessage(idChat as string, idMessage as string)
     if (!message) return res.status(404).json({ message: notFoundId("message") })
 
     res.json(message)
 }
 
-export const getMessages = async (req, res) => {
+export const getMessages = async (req: AuthRequest, res: Response) => {
     const idChat = req.params.id
-    const cursor = parseNull(req.query.cursor)
+    const cursor = parseNull(req.query.cursor as string)
 
-    const messages = await messageServices.getMessages(idChat, cursor)
+    const messages = await messageServices.getMessages(idChat as string, cursor)
     const next = messages[messages.length - 1]?.id.toString() || null
 
     res.json(createPageCursor({
         items: { messages: messages },
         nextCursor: next,
-        next: getMessageNavigation(idChat, next)
+        next: getMessageNavigation(idChat as string, next as string)
     }))
 }
 
-export const createMessage = async (req, res, next) => {
+export const createMessage = async (req: AuthRequest, res: Response) => {
     const {
         user: { id: sender, username },
         body: { repliedToId: repliedToId, content },
@@ -41,67 +47,71 @@ export const createMessage = async (req, res, next) => {
     // evalutate reply
     let repliedTo = null
     if (repliedToId) {
-        repliedTo = await messageServices.getMessage(chat, repliedToId)
+        repliedTo = await messageServices.getMessage(chat as string, repliedToId)
         if (!repliedTo) return res.status(404).json({ message: notFoundId("referenced message") })
     }
 
     const newMessage = {
-        chat,
-        sender,
-        content,
+        chat: chat as string,
+        sender: sender as string,
+        content: content as Content,
         chatName: res.locals.chatName,
         senderUsername: username,
-        repliedTo
+        repliedTo: repliedTo as RepliedTo
     }
 
     // write on db
     const { insertedId: id } = await messageServices.createMessage(newMessage)
     if (!id) return res.status(304).json({ message: notCreated("message") })
 
-    chatServices.updateChatLog(chat)
+    chatServices.updateChatLog(chat as string)
 
     // write on mq
-    mqServices.createMessage(res.locals.chatUsers, { id, ...newMessage })
+    mqServices.createMessage(res.locals.chatUsers, {
+        id: id.toString(),
+        ...newMessage,
+        createdAt: new Date()
+    })
 
     return res.json({ id })
 }
 
-export const updateMessage = async (req, res) => {
+export const updateMessage = async (req: AuthRequest, res: Response) => {
     const { user, params: { id: idChat, idm: idMessage }, body: messageUpdate } = req
     const { message } = res.locals
 
     if (!messageServices.canUpdateMessage(message)) return res.status(410).json({ message: TOO_LATE })
 
-    const { value: updatedMessage, ok: isModified } = await messageServices.updateMessage(idChat, idMessage, messageUpdate)
-    if (!isModified) return res.status(304).json({ message: notModified() })
+    const { value: updatedMessage, ok: isModified } = await messageServices.updateMessage(idChat as string, idMessage as string, messageUpdate)
+    if (!isModified || !updatedMessage) return res.status(304).json({ message: notModified() })
 
     mqServices.updateMessage(res.locals.chatUsers, {
         ...updatedMessage,
-        chat: idChat,
+        chat: idChat as string,
         chatName: res.locals.chatName,
-        sender: user.id,
+        sender: user.id.toString(),
         senderUsername: user.username
-    })
+    } as any)
 
-    chatServices.updateChatLog(idChat)
+    chatServices.updateChatLog(idChat as string)
 
     res.end()
 }
 
-export const deleteMessage = async (req, res) => {
+export const deleteMessage = async (req: AuthRequest, res: Response) => {
     const { params: { id: idChat, idm: idMessage }, user } = req
 
-    const { value: deletedMessage, ok: isModified } = await messageServices.markMessageDeleted(idChat, idMessage)
+    const { value: deletedMessage, ok: isModified } = await messageServices.markMessageDeleted(idChat as string, idMessage as string)
     if (!isModified) return res.status(304).json({ message: notDeleted("message") })
 
     // send message on mq
     mqServices.deleteMessage(res.locals.chatUsers, {
         ...deletedMessage,
-        chat: idChat,
+        chat: idChat as string,
         chatName: res.locals.chatName,
         sender: user.id,
         senderUsername: user.username
-    })
+    } as any)
 
     res.end()
 }

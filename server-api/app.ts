@@ -1,32 +1,33 @@
-import express from 'express'
+import express, { type Express } from 'express'
+import cors from 'cors'
 
-const app = new express()
+const app: Express = express()
 
 import dotenv from 'dotenv'
 dotenv.config()
 
 import cookieParser from 'cookie-parser'
 
-import { delayedPassThrough } from './middleware/constants/index.js'
-import { isDev, isTest, validate } from './utility/modes.js'
+import { delayedPassThrough } from './middleware/constants/index.ts'
+import { isDev, isTest, validate } from './utility/modes.ts'
 
 /* LOG */
-import { getLogger } from './utility/logger.js'
+import { getLogger } from './utility/logger.ts'
 const log = getLogger()
 
 /* ENVIRONMENT */
-const mode = validate(process.env.NODE_ENV)
-log.info(`Boot ${mode} mode`)
+const mode = validate(process.env.NODE_ENV as string)
+log?.info(`Boot ${mode} mode`)
 
 /* DEVELOPMENT */
-if (isDev(process.env.NODE_ENV) && process.env.DELAY_PENALTY) {
-	log.info(`A delay penalty of ${process.env.DELAY_PENALTY}ms has been added to all routes`)
-	app.use(delayedPassThrough(process.env.DELAY_PENALTY))
+if (isDev(process.env.NODE_ENV as string) && process.env.DELAY_PENALTY) {
+	log?.info(`A delay penalty of ${process.env.DELAY_PENALTY}ms has been added to all routes`)
+	app.use(delayedPassThrough(parseInt(process.env.DELAY_PENALTY)))
 }
 
 /* LOG MIDDLEWARE */
-import { logger } from "./middleware/logger.js"
-if (!isTest(process.env.NODE_ENV)) {
+import { logger } from "./middleware/logger.ts"
+if (!isTest(process.env.NODE_ENV as string)) {
 	app.use(logger(mode))
 }
 
@@ -36,7 +37,7 @@ app.use(express.json())
 
 /* CORS */
 if (process.env.FRONT_END_URL) {
-	log.info(`CORS enabled from origin: ${process.env.FRONT_END_URL}`)
+	log?.info(`CORS enabled from origin: ${process.env.FRONT_END_URL}`)
 	app.use(cors({
 		credentials: true,
 		origin: process.env.FRONT_END_URL
@@ -44,12 +45,12 @@ if (process.env.FRONT_END_URL) {
 }
 
 /* VALIDATION */
-import { error as errorMiddleware } from "./middleware/safety/error.js"
-import { safe as safeController } from "./middleware/safety/safe.js"
-import { validateId as createValidateIdMiddleware, validateBody } from "./middleware/validation/index.js"
-import schemas from './schemas/index.js'
+import { error as errorMiddleware } from "./middleware/safety/error.ts"
+import { safe, safe as safeController } from "./middleware/safety/safe.ts"
+import { validateId as createValidateIdMiddleware, validateBody } from "./middleware/validation/index.ts"
+import schemas from './schemas/index.ts'
 
-import { checkOid } from './services/DbServices.js'
+import { checkOid } from './services/DbServices.ts'
 
 const validateId = createValidateIdMiddleware(checkOid)
 
@@ -59,52 +60,52 @@ import passport from 'passport'
 app.use(passport.initialize())
 const authenticate = passport.authenticate('jwt', { session: false })
 
-import { useGoogleStrategy, useJWTtrategy } from './middleware/PStrategies/index.js'
-passport.use("jwt", useJWTtrategy({ secretOrKey: process.env.SECRET_OR_KEY }))
+import { useGoogleStrategy, useJWTtrategy } from './middleware/PStrategies/index.ts'
+if (process.env.SECRET_OR_KEY) passport.use("jwt", useJWTtrategy({ secretOrKey: process.env.SECRET_OR_KEY as string } as any))
 
-if (process.env.GOOGLE_CLIENT_ID) passport.use(useGoogleStrategy({
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) passport.use(useGoogleStrategy({
 	clientID: process.env.GOOGLE_CLIENT_ID,
 	clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 	callbackURL: process.env.GOOGLE_CALLBACK_URL
 }))
 
 /* CONTROLLERS */
-import initAccountControllers from './controllers/Account.js'
-import * as chatControllers from './controllers/Chat.js'
-import * as messageControllers from './controllers/Message.js'
-import * as userControllers from './controllers/User.js'
+import initAccountControllers from './controllers/Account.ts'
+import * as chatControllers from './controllers/Chat.ts'
+import * as messageControllers from './controllers/Message.ts'
+import * as userControllers from './controllers/User.ts'
 
 /* MIDDLEWARES */
-import * as accountMiddlewares from './middleware/Account.js'
-import * as chatMiddleware from './middleware/Chat.js'
-import * as messageMiddlewares from './middleware/Message.js'
-import * as userMiddleware from './middleware/User.js'
+import * as accountMiddlewares from './middleware/Account.ts'
+import * as chatMiddleware from './middleware/Chat.ts'
+import * as messageMiddlewares from './middleware/Message.ts'
+import * as userMiddleware from './middleware/User.ts'
 
 /* CONSTANTS */
-import { SERVER_ERROR } from './constants/ResponseMessages.js'
+import { SERVER_ERROR } from './constants/ResponseMessages.ts'
 
 /* ----- */
 /* CHATS */
 /* ----- */
 app.get('/api/chats/personal', authenticate, safeController(chatControllers.getChatsPersonal))
-app.get('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(chatControllers.getChat))
+app.get('/api/chats/:id', authenticate, validateId('id'), safeController(chatMiddleware.isUserInChat('id')), safeController(chatControllers.getChat))
 app.post('/api/chats', authenticate, validateBody(schemas.chatCreateSchema), safeController(chatControllers.createChat))
-app.put('/api/chats/:id', authenticate, validateId('id'), validateBody(schemas.chatUpdateSchema), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.updateChat))
-app.delete('/api/chats/:id', authenticate, validateId('id'), chatMiddleware.isUserInChat('id', { isAdminRequired: true }), safeController(chatControllers.deleteChat))
-app.post('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.addUser))
-app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), validateBody(schemas.chatUserUpdateSchema), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.updateUser))
-app.delete('/api/chats/:id/users/current', authenticate, validateId('id'), chatMiddleware.isUserInChat('id', { isGroupRequired: true }), safeController(chatControllers.removeCurrentUser))
-app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true }), safeController(chatControllers.removeUser))
-app.get('/api/chats/:id/users', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(chatControllers.getUsers))
+app.put('/api/chats/:id', authenticate, validateId('id'), validateBody(schemas.chatUpdateSchema), safeController(chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true })), safeController(chatControllers.updateChat))
+app.delete('/api/chats/:id', authenticate, validateId('id'), safeController(chatMiddleware.isUserInChat('id', { isAdminRequired: true })), safeController(chatControllers.deleteChat))
+app.post('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), safeController(chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true })), safeController(chatControllers.addUser))
+app.put('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), validateBody(schemas.chatUserUpdateSchema), safeController(chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true })), safeController(chatControllers.updateUser))
+app.delete('/api/chats/:id/users/current', authenticate, validateId('id'), safeController(chatMiddleware.isUserInChat('id', { isGroupRequired: true })), safeController(chatControllers.removeCurrentUser))
+app.delete('/api/chats/:id/users/:idu', authenticate, validateId('id'), validateId('idu'), safeController(chatMiddleware.isUserInChat('id', { isAdminRequired: true, isGroupRequired: true })), safeController(chatControllers.removeUser))
+app.get('/api/chats/:id/users', authenticate, validateId('id'), safeController(chatMiddleware.isUserInChat('id')), safeController(chatControllers.getUsers))
 
 /* -------- */
 /* MESSAGES */
 /* -------- */
-app.get('/api/chats/:id/messages', authenticate, validateId('id'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.getMessages))
-app.post('/api/chats/:id/messages', authenticate, validateId('id'), validateBody(schemas.messageCreateSchema), chatMiddleware.isUserInChat('id'), safeController(messageControllers.createMessage))
-app.get('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), safeController(messageControllers.getMessage))
-app.put('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), validateBody(schemas.messageCreateSchema), chatMiddleware.isUserInChat('id'), messageMiddlewares.isMessageAuthor('id', 'idm'), safeController(messageControllers.updateMessage))
-app.delete('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), chatMiddleware.isUserInChat('id'), messageMiddlewares.isMessageAuthor('id', 'idm'), safeController(messageControllers.deleteMessage))
+app.get('/api/chats/:id/messages', authenticate, validateId('id'), safeController(chatMiddleware.isUserInChat('id')), safeController(messageControllers.getMessages))
+app.post('/api/chats/:id/messages', authenticate, validateId('id'), validateBody(schemas.messageCreateSchema), safeController(chatMiddleware.isUserInChat('id')), safeController(messageControllers.createMessage))
+app.get('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), safeController(chatMiddleware.isUserInChat('id')), safeController(messageControllers.getMessage))
+app.put('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), validateBody(schemas.messageCreateSchema), safeController(chatMiddleware.isUserInChat('id')), safeController(messageMiddlewares.isMessageAuthor('id', 'idm')), safeController(messageControllers.updateMessage))
+app.delete('/api/chats/:id/messages/:idm', authenticate, validateId('id'), validateId('idm'), safeController(chatMiddleware.isUserInChat('id')), safeController(messageMiddlewares.isMessageAuthor('id', 'idm')), safeController(messageControllers.deleteMessage))
 
 /* ----- */
 /* USERS */
@@ -112,13 +113,13 @@ app.delete('/api/chats/:id/messages/:idm', authenticate, validateId('id'), valid
 app.get('/api/users', safeController(userControllers.getUsers))
 app.get('/api/users/current', authenticate, safeController(userControllers.getCurrentUser))
 app.get('/api/users/:id', validateId('id'), safeController(userControllers.getUser))
-app.put('/api/users/:id', authenticate, validateId('id'), userMiddleware.isUserCurrent('id'), validateBody(schemas.userUpdateSchema), safeController(userControllers.updateUser))
+app.put('/api/users/:id', authenticate, validateId('id'), safeController(userMiddleware.isUserCurrent('id')), validateBody(schemas.userUpdateSchema), safeController(userControllers.updateUser))
 app.delete('/api/users/current', authenticate, safeController(userControllers.deleteUser))
 
 /* ------------ */
 /* AUTHENTICATE */
 /* ------------ */
-const accountControllers = initAccountControllers(process.env.SECRET_OR_KEY, {
+const accountControllers = initAccountControllers(process.env.SECRET_OR_KEY as string, {
 	httpOnly: true,
 	secure: false, // when using https set it to true,
 	sameSite: 'strict',
@@ -131,11 +132,11 @@ app.post('/api/authenticate/logout', authenticate, safeController(accountControl
 
 if (process.env.GOOGLE_CLIENT_ID) {
 	app.get('/api/authenticate/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
-	app.get('/api/authenticate/google/callback', passport.authenticate('google', { failureRedirect: '/', session: false }), safeController(accountControllers.providerCallback(process.env.GOOGLE_SUCCESS_REDIRECT_URL)))
+	app.get('/api/authenticate/google/callback', passport.authenticate('google', { failureRedirect: '/', session: false }), safeController(accountControllers.providerCallback(process.env.GOOGLE_SUCCESS_REDIRECT_URL as string)))
 }
 
 app.use(errorMiddleware({
-	onError: log.error,
+	onError: log?.error,
 	message: SERVER_ERROR
 }))
 
