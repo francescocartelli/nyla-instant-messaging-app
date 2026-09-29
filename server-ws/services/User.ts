@@ -1,10 +1,16 @@
 import cookieParser from 'cookie-parser'
+import type { IncomingMessage } from 'node:http'
+import { Identifiable } from '../types/User.ts'
 
 const cookieParserMiddleware = cookieParser()
 
-const extractCookieJWT = req => req.cookies?.jwt
+type CookieRequest = IncomingMessage & {
+    cookies?: Record<string, string>
+}
 
-const extractJWT = req => new Promise((resolve, reject) => cookieParserMiddleware(req, {}, () => {
+const extractCookieJWT = (req: CookieRequest): string | undefined => req.cookies?.jwt
+
+const extractJWT = (req: CookieRequest): Promise<string | undefined> => new Promise((resolve, reject) => cookieParserMiddleware(req as any, {} as any, () => {
     try {
         resolve(extractCookieJWT(req))
     } catch (err) {
@@ -12,7 +18,9 @@ const extractJWT = req => new Promise((resolve, reject) => cookieParserMiddlewar
     }
 }))
 
-const createGetCurrentUser = retrieveUser => async (req) => {
+type RetrieveUser = (jwt: string) => Promise<Identifiable>
+
+const createGetCurrentUser = (retrieveUser: RetrieveUser) => async (req: CookieRequest) => {
     const jwt = await extractJWT(req)
     if (!jwt) throw new Error("Missing JWT cookie")
 
