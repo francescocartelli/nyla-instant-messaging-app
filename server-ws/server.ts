@@ -1,5 +1,6 @@
-import { WebSocketServer } from 'ws'
 import dotenv from 'dotenv'
+import type { IncomingMessage } from 'node:http'
+import { WebSocketServer, type WebSocket } from 'ws'
 
 dotenv.config()
 
@@ -7,12 +8,12 @@ import { connect, subscribe, unsubscribe } from './config/Mq.js'
 
 import createGetCurrentUser from './services/User.js'
 
-import createLogger from './utilities/Logger.js'
-import createConnectionManager from './utilities/ConnectionManager.js'
-import { jwtTCookieHeader } from './utilities/CookieJWT.js'
 import { getChannel } from './utilities/Channels.js'
+import createConnectionManager from './utilities/ConnectionManager_.ts'
+import { jwtTCookieHeader } from './utilities/CookieJWT.js'
+import createLogger from './utilities/Logger.js'
 
-const logger = createLogger(process.env.LOGGING_LEVEL)
+const logger = createLogger(process.env.LOGGING_LEVEL as string)
 
 const getCurrentUser = createGetCurrentUser(async jwt => fetch(`${process.env.API_SERVER_URL}/api/users/current`, {
     method: 'GET',
@@ -21,7 +22,7 @@ const getCurrentUser = createGetCurrentUser(async jwt => fetch(`${process.env.AP
 
 const { addConnection } = createConnectionManager({ log: logger.debug })
 
-const onWsConnection = async (ws, req) => {
+const onWsConnection = async (ws: WebSocket, req: IncomingMessage) => {
     try {
         const user = await getCurrentUser(req)
         const channel = getChannel(user)
@@ -46,9 +47,9 @@ const onWsConnection = async (ws, req) => {
 
 const boot = async () => {
     try {
-        await connect(process.env.MQ_SERVER_URL)
+        await connect(process.env.MQ_SERVER_URL as string)
 
-        const wss = new WebSocketServer({ port: process.env.SERVER_PORT })
+        const wss = new WebSocketServer({ port: parseInt(process.env.SERVER_PORT as string) })
 
         wss.on('connection', onWsConnection)
 

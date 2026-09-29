@@ -1,1 +1,0 @@
-export const getChannel = ({ id }) => `user:${id}`

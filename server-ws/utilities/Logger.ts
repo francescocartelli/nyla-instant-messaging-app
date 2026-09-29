@@ -1,6 +1,6 @@
 import winston from 'winston'
 
-const createLogger = level => winston.createLogger({
+const createLogger = (level: string) => winston.createLogger({
     level,
     format: winston.format.combine(
         winston.format.timestamp({format: 'YYYY-MM-DD HH:mm:ss'}),
