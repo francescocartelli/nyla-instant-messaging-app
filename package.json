@@ -4,7 +4,9 @@
   "description": "Root workspace configuration for managing shared dependencies",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"npm run start -w client\" \"npm run dev -w server-ws\" \"npm run start -w server-api\""
+    "dev": "concurrently \"npm run start -w client\" \"npm run dev -w server-ws\" \"npm run start -w server-api\"",
+    "build": "concurrently \"npm run build -w client\" \"npm run build -w server-ws\" \"npm run build -w server-api\"",
+    "start": "concurrently \"npm run start -w client\" \"npm run start -w server-ws\" \"npm run start -w server-api\""
   },
   "workspaces": [
     "client",
@@ -25,9 +27,5 @@
   "homepage": "https://github.com/francescocartelli/nyla-instant-messaging-app#readme",
   "devDependencies": {
     "concurrently": "^9.2.4"
-  },
-  "dependencies": {
-    "dotenv": "^17.4.2",
-    "uuid": "^14.0.1"
   }
 }

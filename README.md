@@ -32,7 +32,6 @@
 
 # Architecture
 Nyla is a centralized instant messaging application built with React.js front-end, Express.js back-end and MongoDB database. Real-time messaging is provided by Websockets as notification servers, coordinated using Redis message queue. The chosen architecture and overall server design allows for  horizontally scalability.
-<div align="center"><img width="80%" src='./images/architecture.png'/></div>
 <br>
 
 This repository contains the implementation of the SPA (client folder), REST api server (<b>server-api</b> folder) and ws server (<b>server-ws</b> folder). MongoDB and Redis can be used simply by installing the relevant software; no other configuration (other than that provided in the folders listed above) is required.

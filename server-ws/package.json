@@ -7,13 +7,15 @@
   "scripts": {
     "dev": "tsx watch server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "LOGGING_LEVEL=info node dist/server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cookie-parser": "^1.4.6",
+    "dotenv": "^17.4.2",
     "redis": "^4.6.7",
+    "uuid": "^14.0.2",
     "winston": "^3.19.0",
     "ws": "^8.21.0"
   },
