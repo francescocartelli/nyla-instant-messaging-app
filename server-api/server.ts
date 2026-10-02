@@ -1,8 +1,8 @@
 import dotenv from 'dotenv'
 import swaggerUI from 'swagger-ui-express'
 
-import { createLogger, getLogger } from './utility/logger.ts'
-import { isProd, isTest } from './utility/modes.ts'
+import { createLogger, getLogger } from './src/utility/logger.ts'
+import { isProd, isTest } from './src/utility/modes.ts'
 
 dotenv.config()
 
@@ -10,8 +10,8 @@ createLogger(process.env.LOG_LEVEL as string, isTest(process.env.NODE_ENV as str
 const log = getLogger()
 
 const boot = async () => {
-	const { connect: connectDb } = await import('./config/Db.ts')
-	const { connect: connectMq } = await import('./config/Mq.ts')
+	const { connect: connectDb } = await import('./src/config/db.ts')
+	const { connect: connectMq } = await import('./src/config/mq.ts')
 
 	const { default: app } = await import('./app.ts')
 

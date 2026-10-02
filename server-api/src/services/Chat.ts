@@ -1,9 +1,9 @@
-import { configs as dbConfigs, getChatCollection, oid } from '../config/Db.ts'
+import { configs as dbConfigs, getChatCollection, oid } from '../config/db.ts'
 
 import { Chat, ChatUpdate, DirectChatMember, groupChatMember, GroupChatMember, GroupChatMemberInput, newChat, NewChatInput, PublicChat, PublicChatFull, userInChatPrefix } from '../model/Chat.ts'
 import { PublicUser, User } from "../model/User.ts"
 
-import { evaluateModifiedResults } from "../utility/Evaluate.ts"
+import { evaluateModifiedResults } from "../utility/results.ts"
 
 const chatProj = {
     _id: 0,

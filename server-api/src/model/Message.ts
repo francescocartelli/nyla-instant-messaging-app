@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb"
+
 import { Block, Mark } from "../types/bodies/MessageCreate.ts"
 
 export type Content = (Block | Mark)[]

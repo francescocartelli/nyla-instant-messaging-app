@@ -1,4 +1,4 @@
-import { configs as dbConfigs, getMessageCollection, oid } from '../config/Db.ts'
+import { configs as dbConfigs, getMessageCollection, oid } from '../config/db.ts'
 import { Message, NewMessage, PublicMessage, RepliedTo, UpdateMessage } from '../model/Message.ts'
 
 const messageProj = {

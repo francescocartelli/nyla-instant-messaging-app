@@ -1,7 +1,7 @@
 import type { CookieOptions, Request, Response } from "express"
 import jwt from 'jsonwebtoken'
 
-import { notFoundId, SIGN_IN_FAILED, SIGN_UP_FAILED } from '../constants/ResponseMessages.ts'
+import { notFoundId, SIGN_IN_FAILED, SIGN_UP_FAILED } from '../constants/texts.ts'
 
 import type { UserSignup } from '../types/bodies/UserSignup.ts'
 import type { UserSignin } from '../types/bodies/UserSignin.ts'

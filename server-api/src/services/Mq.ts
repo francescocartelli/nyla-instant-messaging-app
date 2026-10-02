@@ -1,4 +1,4 @@
-import { publish } from "../config/Mq.ts"
+import { publish } from "../config/mq.ts"
 
 import { mqCreateMessage, mqDeleteChat, mqDeleteMessage, MqMessage, MqMessageInput, mqUpdateMessage } from "../model/Mq.ts"
 

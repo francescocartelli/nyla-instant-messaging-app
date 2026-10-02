@@ -4,7 +4,7 @@ import request from 'supertest'
 
 dotenv.config()
 
-import { createLogger } from '../utility/logger.ts'
+import { createLogger } from '../src/utility/logger.ts'
 createLogger(process.env.LOGGING_LEVELS as string)
 
 let app: Express
@@ -22,8 +22,8 @@ describe('API server users tests', () => {
 	beforeAll(async () => {
 		app = (await import('../app.ts')).default
 
-		const { connect: connectDb } = await import('../config/Db.ts')
-		const { connect: connectMq } = await import('../config/Mq.ts')
+		const { connect: connectDb } = await import('../src/config/db.ts')
+		const { connect: connectMq } = await import('../src/config/mq.ts')
 
 		await connectDb(process.env.DATABASE_URL as string, process.env.DATABASE_NAME as string)
 		await connectMq(process.env.MQ_SERVER_URL as string)
@@ -36,8 +36,8 @@ describe('API server users tests', () => {
 			await deleteUser(user)
 		}
 
-		const { close: closeDb } = await import('../config/Db.ts')
-		const { close: closeMq } = await import('../config/Mq.ts')
+		const { close: closeDb } = await import('../src/config/db.ts')
+		const { close: closeMq } = await import('../src/config/mq.ts')
 
 		await closeDb()
 		await closeMq()

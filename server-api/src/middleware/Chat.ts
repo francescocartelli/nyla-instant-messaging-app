@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express"
 
-import { ADMIN_REQUIRED, GROUP_CHATS_OPERATION, USER_IN_CHAT_REQUIRED, notFoundId } from "../constants/ResponseMessages.ts"
+import { ADMIN_REQUIRED, GROUP_CHATS_OPERATION, USER_IN_CHAT_REQUIRED, notFoundId } from "../constants/texts.ts"
 
 import { Chat, GroupChatMember } from "../model/Chat.ts"
 

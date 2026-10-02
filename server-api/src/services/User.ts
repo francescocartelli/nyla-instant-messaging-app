@@ -1,6 +1,6 @@
 import { ObjectId, type Filter } from 'mongodb'
 
-import { configs as dbConfigs, getUserCollection, isOidValid, oid } from '../config/Db.ts'
+import { configs as dbConfigs, getUserCollection, isOidValid, oid } from '../config/db.ts'
 
 import { DirectChatMember, GroupChatMember } from '../model/Chat.ts'
 import { newUser, NewUser, PublicUser, UpdateUser, User, UserDocument, UserHash } from '../model/User.ts'

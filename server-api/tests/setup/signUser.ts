@@ -1,7 +1,7 @@
 import type { Express } from 'express'
 import request from 'supertest'
 
-import { PublicUser } from '../../model/User.ts'
+import { PublicUser } from '../../src/model/User.ts'
 import { extractResponseCookie } from "./utils.ts"
 
 interface SignUserProps {

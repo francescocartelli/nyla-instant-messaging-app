@@ -5,7 +5,7 @@ import type { Express } from 'express'
 
 dotenv.config()
 
-import { createLogger } from '../utility/logger.ts'
+import { createLogger } from '../src/utility/logger.ts'
 createLogger(process.env.LOGGING_LEVELS as string)
 
 let app: Express
@@ -16,7 +16,7 @@ import { jwtCookie } from './setup/utils.ts'
 
 import signupRequests from './data/users.json' with { type: 'json' }
 
-import { Identifiable } from '../model/Chat.ts'
+import { Identifiable } from '../src/model/Chat.ts'
 
 describe('API server chats tests', () => {
 	let users: Array<SignUser>
@@ -25,8 +25,8 @@ describe('API server chats tests', () => {
 	beforeAll(async () => {
 		app = (await import('../app.ts')).default
 
-		const { connect: connectDb } = await import('../config/Db.ts')
-		const { connect: connectMq } = await import('../config/Mq.ts')
+		const { connect: connectDb } = await import('../src/config/db.ts')
+		const { connect: connectMq } = await import('../src/config/mq.ts')
 
 		await connectDb(process.env.DATABASE_URL as string, process.env.DATABASE_NAME as string)
 		await connectMq(process.env.MQ_SERVER_URL as string)
@@ -47,8 +47,8 @@ describe('API server chats tests', () => {
 			.delete(`/api/chats/${id}`)
 			.set('Cookie', jwtCookie(users[0].jwt))))
 
-		const { close: closeDb } = await import('../config/Db.ts')
-		const { close: closeMq } = await import('../config/Mq.ts')
+		const { close: closeDb } = await import('../src/config/db.ts')
+		const { close: closeMq } = await import('../src/config/mq.ts')
 
 		await closeDb()
 		await closeMq()

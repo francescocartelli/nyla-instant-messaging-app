@@ -1,5 +1,5 @@
-import express, { type Express } from 'express'
 import cors from 'cors'
+import express, { type Express } from 'express'
 
 const app: Express = express()
 
@@ -8,11 +8,11 @@ dotenv.config()
 
 import cookieParser from 'cookie-parser'
 
-import { delayedPassThrough } from './middleware/constants/index.ts'
-import { isDev, isTest, validate } from './utility/modes.ts'
+import { delayedPassThrough } from './src/middleware/constants/index.ts'
+import { isDev, isTest, validate } from './src/utility/modes.ts'
 
 /* LOG */
-import { getLogger } from './utility/logger.ts'
+import { getLogger } from './src/utility/logger.ts'
 const log = getLogger()
 
 /* ENVIRONMENT */
@@ -26,7 +26,7 @@ if (isDev(process.env.NODE_ENV as string) && process.env.DELAY_PENALTY) {
 }
 
 /* LOG MIDDLEWARE */
-import { logger } from "./middleware/logger.ts"
+import { logger } from "./src/middleware/logger.ts"
 if (!isTest(process.env.NODE_ENV as string)) {
 	app.use(logger(mode))
 }
@@ -45,12 +45,12 @@ if (process.env.FRONT_END_URL) {
 }
 
 /* VALIDATION */
-import { error as errorMiddleware } from "./middleware/safety/error.ts"
-import { safe, safe as safeController } from "./middleware/safety/safe.ts"
-import { validateId as createValidateIdMiddleware, validateBody } from "./middleware/validation/index.ts"
-import schemas from './schemas/index.ts'
+import { error as errorMiddleware } from "./src/middleware/safety/error.ts"
+import { safe as safeController } from "./src/middleware/safety/safe.ts"
+import { validateId as createValidateIdMiddleware, validateBody } from "./src/middleware/validation/index.ts"
+import schemas from './src/schemas/index.ts'
 
-import { checkOid } from './services/DbServices.ts'
+import { checkOid } from './src/services/DbServices.ts'
 
 const validateId = createValidateIdMiddleware(checkOid)
 
@@ -60,7 +60,7 @@ import passport from 'passport'
 app.use(passport.initialize())
 const authenticate = passport.authenticate('jwt', { session: false })
 
-import { useGoogleStrategy, useJWTtrategy } from './middleware/PStrategies/index.ts'
+import { useGoogleStrategy, useJWTtrategy } from './src/middleware/PStrategies/index.ts'
 if (process.env.SECRET_OR_KEY) passport.use("jwt", useJWTtrategy({ secretOrKey: process.env.SECRET_OR_KEY as string } as any))
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) passport.use(useGoogleStrategy({
@@ -70,19 +70,19 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) passport.u
 }))
 
 /* CONTROLLERS */
-import initAccountControllers from './controllers/Account.ts'
-import * as chatControllers from './controllers/Chat.ts'
-import * as messageControllers from './controllers/Message.ts'
-import * as userControllers from './controllers/User.ts'
+import initAccountControllers from './src/controllers/Account.ts'
+import * as chatControllers from './src/controllers/Chat.ts'
+import * as messageControllers from './src/controllers/Message.ts'
+import * as userControllers from './src/controllers/User.ts'
 
 /* MIDDLEWARES */
-import * as accountMiddlewares from './middleware/Account.ts'
-import * as chatMiddleware from './middleware/Chat.ts'
-import * as messageMiddlewares from './middleware/Message.ts'
-import * as userMiddleware from './middleware/User.ts'
+import * as accountMiddlewares from './src/middleware/Account.ts'
+import * as chatMiddleware from './src/middleware/Chat.ts'
+import * as messageMiddlewares from './src/middleware/Message.ts'
+import * as userMiddleware from './src/middleware/User.ts'
 
 /* CONSTANTS */
-import { SERVER_ERROR } from './constants/ResponseMessages.ts'
+import { SERVER_ERROR } from './src/constants/texts.ts'
 
 /* ----- */
 /* CHATS */

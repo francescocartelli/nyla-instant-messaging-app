@@ -1,13 +1,13 @@
 import type { Response } from "express"
 
-import { notCreated, notDeleted, notFoundId, notModified, TOO_LATE } from "../constants/ResponseMessages.ts"
+import { notCreated, notDeleted, notFoundId, notModified, TOO_LATE } from "../constants/texts.ts"
 
 import chatServices from "../services/Chat.ts"
 import * as messageServices from "../services/Message.ts"
 import * as mqServices from "../services/Mq.ts"
 
-import { getMessageNavigation } from "../utility/Navigation.ts"
-import { createPageCursor } from "../utility/Paging.ts"
+import { getMessageNavigation } from "../utility/navigation.ts"
+import { createPageCursor } from "../utility/pagination.ts"
 import { parseNull } from "../utility/parsing/index.ts"
 
 import { Content, RepliedTo } from "../model/Message.ts"

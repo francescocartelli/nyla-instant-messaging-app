@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express"
 
-import { USER_REQUIRED } from "../constants/ResponseMessages.ts"
+import { USER_REQUIRED } from "../constants/texts.ts"
 
 import { AuthRequest } from "../types/AuthRequest.ts"
 

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch server.ts",
-    "test": "node --experimental-vm-modules ../node_modules/.bin/jest",
+    "test": "node --experimental-vm-modules ../node_modules/.bin/jest --runInBand",
     "build": "tsc",
     "start": "NODE_ENV=production node dist/server.js"
   },

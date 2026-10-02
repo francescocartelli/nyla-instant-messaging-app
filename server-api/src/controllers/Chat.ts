@@ -1,10 +1,10 @@
 import type { Response } from "express"
 import type { ParamsDictionary } from "express-serve-static-core"
 
-import { ADMIN_REQUIRED, NO_CHAT_DELETED, NO_MESSAGES_DELETED, notCreated, notFoundId, notModified, USER_IN_CHAT_REQUIRED } from "../constants/ResponseMessages.ts"
+import { ADMIN_REQUIRED, NO_CHAT_DELETED, NO_MESSAGES_DELETED, notCreated, notFoundId, notModified, USER_IN_CHAT_REQUIRED } from "../constants/texts.ts"
 
-import { getChatNavigation } from "../utility/Navigation.ts"
-import { createPage, parsePageNumber } from "../utility/Paging.ts"
+import { getChatNavigation } from "../utility/navigation.ts"
+import { createPage, parsePageNumber } from "../utility/pagination.ts"
 import { parseBool } from "../utility/parsing/index.ts"
 
 import chatServices from "../services/Chat.ts"

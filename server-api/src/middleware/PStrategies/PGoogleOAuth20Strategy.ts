@@ -1,6 +1,6 @@
 import { Strategy as GoogleStrategy, Profile, StrategyOptions } from 'passport-google-oauth20'
 
-import { IDENTITY_NO_EMAIL, USERNAME_TAKEN } from "../../constants/ResponseMessages.ts"
+import { IDENTITY_NO_EMAIL, USERNAME_TAKEN } from "../../constants/texts.ts"
 
 import usersServices from "../../services/User.ts"
 

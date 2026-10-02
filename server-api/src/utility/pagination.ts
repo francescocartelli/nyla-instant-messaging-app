@@ -1,4 +1,4 @@
-import { CreatePageEndpoint } from "./Navigation.ts"
+import { CreatePageEndpoint } from "./navigation.ts"
 
 export const parsePageNumber = (p: string) => {
     const page = parseInt(p)

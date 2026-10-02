@@ -1,6 +1,6 @@
 import type { Request, Response } from "express"
 
-import { notFoundId, notModified, USERNAME_TAKEN } from "../constants/ResponseMessages.ts"
+import { notFoundId, notModified, USERNAME_TAKEN } from "../constants/texts.ts"
 
 import chatServices from "../services/Chat.ts"
 import usersServices, { SearchType } from "../services/User.ts"

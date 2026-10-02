@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb"
 
-import { oid } from "../config/Db.ts"
+import { oid } from "../config/db.ts"
 
 export type ChatMembers = Array<DirectChatMember> | Array<GroupChatMember>
 

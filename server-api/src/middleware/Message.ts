@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express"
 
-import { notFoundId, SENDER_REQUIRED } from "../constants/ResponseMessages.ts"
+import { notFoundId, SENDER_REQUIRED } from "../constants/texts.ts"
 
 import * as messageServices from "../services/Message.ts"
 
