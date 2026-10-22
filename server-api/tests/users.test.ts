@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 import type { Express } from 'express'
 import request from 'supertest'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 dotenv.config()
 
