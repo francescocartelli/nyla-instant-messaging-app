@@ -9,7 +9,7 @@ import { connect, subscribe, unsubscribe } from './config/Mq.js'
 import createGetCurrentUser from './services/User.js'
 
 import { getChannel } from './utilities/Channels.js'
-import createConnectionManager from './utilities/ConnectionManager_.ts'
+import createConnectionManager from './utilities/ConnectionManager.ts'
 import { jwtTCookieHeader } from './utilities/CookieJWT.js'
 import createLogger from './utilities/Logger.js'
 
