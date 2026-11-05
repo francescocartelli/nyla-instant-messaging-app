@@ -2,10 +2,13 @@
   "name": "api-server",
   "version": "1.0.0",
   "description": "API server used for REST-API",
-  "main": "server.js",
+  "main": "server.ts",
+  "type": "module",
   "scripts": {
-    "test": "jest",
-    "start": "node server.js"
+    "dev": "tsx watch server.ts",
+    "test": "vitest run",
+    "build": "tsc",
+    "start": "NODE_ENV=production node dist/server.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,8 +18,9 @@
     "ajv-formats": "^3.0.1",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.6",
-    "dotenv": "^17.3.1",
-    "express": "^4.18.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "mongodb": "^5.9.1",
     "morgan": "^1.10.0",
     "passport": "^0.6.0",
@@ -24,10 +28,23 @@
     "passport-jwt": "^4.0.1",
     "redis": "^4.6.7",
     "swagger-ui-express": "^5.0.1",
+    "uuid": "^14.0.2",
     "winston": "^3.19.0"
   },
   "devDependencies": {
-    "jest": "^30.4.2",
-    "supertest": "^7.2.2"
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
+    "@types/passport-google-oauth20": "^2.0.17",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^7.2.1",
+    "@types/swagger-ui-express": "^4.1.8",
+    "json-schema-to-typescript": "^16.0.0",
+    "supertest": "^7.2.2",
+    "tsx": "^4.23.13",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
   }
 }

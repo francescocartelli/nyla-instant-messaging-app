@@ -185,7 +185,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "./schemas/chat_update_schema.json"
+                "$ref": "./src/schemas/chat_update_schema.json"
               }
             }
           }
@@ -277,7 +277,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "./schemas/chat_create_schema.json"
+                "$ref": "./src/schemas/chat_create_schema.json"
               },
               "example": {
                 "name": "Random Group Chat",
@@ -447,7 +447,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "./schemas/chat_user_update_schema.json"
+                "$ref": "./src/schemas/chat_user_update_schema.json"
               },
               "example": {
                 "isAdmin": true
@@ -679,7 +679,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "./schemas/message_create_schema.json"
+                "$ref": "./src/schemas/message_create_schema.json"
               },
               "example": {
                 "content": [
@@ -826,7 +826,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "./schemas/message_create_schema.json"
+                "$ref": "./src/schemas/message_create_schema.json"
               },
               "example": {
                 "content": [
@@ -1083,7 +1083,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "schemas/user_update_schema.json"
+                  "$ref": "./src/schemas/user_update_schema.json"
                 }
               }
             }
@@ -1198,7 +1198,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "./schemas/user_signup_schema.json"
+                "$ref": "./src/schemas/user_signup_schema.json"
               },
               "example": {
                 "usernmae": "johndoe",
@@ -1254,7 +1254,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "./schemas/user_signin_schema.json"
+                "$ref": "./src/schemas/user_signin_schema.json"
               },
               "example": {
                 "userIdentifier": "johndoe",

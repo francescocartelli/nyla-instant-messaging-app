@@ -3,17 +3,25 @@
   "version": "1.0.0",
   "description": "WS server used push mechanisms",
   "main": "server.js",
+  "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "dev": "tsx watch server.ts",
+    "build": "tsc",
+    "start": "LOGGING_LEVEL=info node dist/server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cookie-parser": "^1.4.6",
-    "dotenv": "^17.3.1",
+    "dotenv": "^17.4.2",
     "redis": "^4.6.7",
-    "uuid": "^14.0.0",
+    "uuid": "^14.0.2",
     "winston": "^3.19.0",
-    "ws": "^8.19.0"
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3"
   }
 }
