@@ -3,6 +3,4 @@ const flatNode = ({ text, children }) => {
     else if (children && children.length > 0) return children.map(flatNode).join("") + "\n"
 }
 
-const flatRTNodes = (nodes) => nodes.map(flatNode).join("").trim()
-
-exports.flatRTNodes = flatRTNodes
+export const flatRTNodes = (nodes) => nodes.map(flatNode).join("").trim()

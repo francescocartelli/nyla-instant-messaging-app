@@ -1,5 +1,5 @@
-const { extractResponseCookie } = require("../utilities/CookieJWT")
-const { invokeFetch } = require("../utilities/network")
+import { extractResponseCookie } from '../utilities/CookieJWT.js'
+import { invokeFetch } from '../utilities/network.js'
 
 const signInBot = ({ username, password }) => invokeFetch(`${process.env.API_SERVER_URL}/api/authenticate/signin`, {
     method: 'POST',
@@ -13,7 +13,7 @@ const signUpBot = async ({ username, password, email }) => invokeFetch(`${proces
     body: JSON.stringify({ username, password, email })
 })
 
-const signBot = async ({ username, password, email }) => {
+export const signBot = async ({ username, password, email }) => {
     try {
         // try signin
         let res = await signInBot({ username, password })
@@ -30,5 +30,3 @@ const signBot = async ({ username, password, email }) => {
         return null
     }
 }
-
-exports.signBot = signBot

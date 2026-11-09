@@ -1,6 +1,6 @@
-const { WebSocket } = require("ws")
+import { WebSocket } from "ws"
 
-const createWSC = (url, options, {
+export const createWSC = (url, options, {
     onOpen,
     onClose,
     onMessage
@@ -15,5 +15,3 @@ const createWSC = (url, options, {
 
     return wsc
 }
-
-exports.createWSC = createWSC

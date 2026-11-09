@@ -1,6 +1,6 @@
-const { createWSC } = require("./wsc")
+import { createWSC } from "./wsc.js"
 
-const createWSCRouter = (url, options, routes, {
+export const createWSCRouter = (url, options, routes, {
     filterMessage = null,
     fallbackBehavior = null,
     logger = null
@@ -25,5 +25,3 @@ const createWSCRouter = (url, options, routes, {
         }
     }
 })
-
-exports.createWSCRouter = createWSCRouter

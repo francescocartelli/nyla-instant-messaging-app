@@ -1,8 +1,8 @@
-const createLogger = require("./Logger")
+import createLogger from "./Logger.js"
 
 const logger = createLogger(process.env.LOGGING_LEVEL)
 
-const invokeFetch = async (url, { method, ...props }) => {
+export const invokeFetch = async (url, { method, ...props }) => {
     try {
         const startTime = performance.now()
 
@@ -19,5 +19,3 @@ const invokeFetch = async (url, { method, ...props }) => {
         return null
     }
 }
-
-exports.invokeFetch = invokeFetch

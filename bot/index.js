@@ -1,15 +1,15 @@
-const dotenv = require('dotenv')
+import dotenv from 'dotenv'
 
-const { providerEndpoints } = require('./services/llms')
-const { sendMessage, getMessages } = require('./services/messages')
-const { signBot } = require('./services/authenticate')
+import { providerEndpoints } from './services/llms.js'
+import { sendMessage, getMessages } from './services/messages.js'
+import { signBot } from './services/authenticate.js'
 
-const createLogger = require('./utilities/Logger')
-const { assistancePrompt, assistanceWithHistoryPrompt, messageToPrompt } = require('./utilities/prompts')
-const { jwtTCookieHeader } = require('./utilities/CookieJWT')
-const { flatRTNodes } = require('./utilities/RichText')
-const { invokeFetch } = require('./utilities/network')
-const { createWSCRouter } = require('./utilities/wscRouter')
+import createLogger from './utilities/Logger.js'
+import { assistancePrompt, assistanceWithHistoryPrompt, messageToPrompt } from './utilities/prompts.js'
+import { jwtTCookieHeader } from './utilities/CookieJWT.js'
+import { flatRTNodes } from './utilities/RichText.js'
+import { invokeFetch } from './utilities/network.js'
+import { createWSCRouter } from './utilities/wscRouter.js'
 
 dotenv.config()
 

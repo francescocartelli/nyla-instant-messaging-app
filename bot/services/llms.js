@@ -86,11 +86,9 @@ const createOllamaEndpoint = ({
     return data.message?.content || null
 }
 
-const providerEndpoints = {
+export const providerEndpoints = {
     gemini: createGeminiEndpoint,
     openai: createOpenAIEndpoint,
     anthropic: createAnthropicEndpoint,
     ollama: createOllamaEndpoint
 }
-
-exports.providerEndpoints = providerEndpoints
