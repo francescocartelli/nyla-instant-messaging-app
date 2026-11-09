@@ -80,10 +80,10 @@ const boot = async () => {
 
                 logger.debug(`prompt response: ${llmResponse}`)
 
-                sendMessage(chat, jwt, llmResponse)
+                await sendMessage(chat, jwt, llmResponse)
             }
         }, {
-            filterMessage: message => message.idSender === user.id,
+            filterMessage: message => message?.idSender === user.id,
             logger
         })
     } catch (err) {

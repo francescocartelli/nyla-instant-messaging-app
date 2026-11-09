@@ -1,3 +1,5 @@
+const { WebSocket } = require("ws")
+
 const createWSC = (url, options, {
     onOpen,
     onClose,

@@ -64,10 +64,33 @@ const createAnthropicEndpoint = ({
     return data.content?.[0]?.text
 }
 
+const createOllamaEndpoint = ({
+    endpoint,
+    model
+}, fetchFunction = fetch) => async text => {
+    const res = await fetchFunction(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model,
+            messages: [{ role: 'user', content: text }],
+            stream: false
+        })
+    })
+
+    if (!res.ok) return null
+
+    const data = await res.json()
+    return data.message?.content || null
+}
+
 const providerEndpoints = {
     gemini: createGeminiEndpoint,
     openai: createOpenAIEndpoint,
-    anthropic: createAnthropicEndpoint
+    anthropic: createAnthropicEndpoint,
+    ollama: createOllamaEndpoint
 }
 
 exports.providerEndpoints = providerEndpoints
