@@ -1,8 +1,10 @@
 import createLogger from "./logger.ts"
 
-const logger = createLogger(process.env.LOGGING_LEVEL)
+const logger = createLogger(process.env.LOGGING_LEVEL as string)
 
-export const invokeFetch = async (url, { method, ...props }) => {
+export const invokeFetch: (
+    ...args: Parameters<typeof fetch>
+) => Promise<Response | null> = async (url, { method, ...props } = {}) => {
     try {
         const startTime = performance.now()
 

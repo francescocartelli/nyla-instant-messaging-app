@@ -1,23 +1,33 @@
-const createGeminiEndpoint = ({
+type Options = {
+    endpoint: string
+    secret?: string
+    model?: string
+}
+
+type CreateEndpoint = (options: Options, fetchFunction: (
+    ...args: Parameters<typeof fetch>
+) => Promise<Response | null>) => (text: string) => Promise<string | null>
+
+const createGeminiEndpoint: CreateEndpoint = ({
     endpoint,
     secret
 }, fetchFunction = fetch) => async text => {
     const res = await fetchFunction(endpoint, {
         method: 'POST',
         headers: {
-            'x-goog-api-key': secret,
+            ...(secret && { 'x-goog-api-key': secret }),
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ contents: [{ parts: [{ text }] }] })
     })
 
-    if (!res.ok) return null
+    if (!res || !res.ok) return null
 
     const data = await res.json()
     return data.candidates?.[0]?.content?.parts?.[0]?.text
 }
 
-const createOpenAIEndpoint = ({
+const createOpenAIEndpoint: CreateEndpoint = ({
     endpoint,
     secret,
     model
@@ -25,8 +35,8 @@ const createOpenAIEndpoint = ({
     const res = await fetchFunction(endpoint, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${secret}`
+            ...(secret && { 'Authorization': `Bearer ${secret}` }),
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             model,
@@ -34,13 +44,13 @@ const createOpenAIEndpoint = ({
         }),
     })
 
-    if (!res.ok) return null
+    if (!res || !res.ok) return null
 
     const data = await res.json()
     return data.choices?.[0]?.message?.content
 }
 
-const createAnthropicEndpoint = ({
+const createAnthropicEndpoint: CreateEndpoint = ({
     endpoint,
     secret,
     model
@@ -49,7 +59,7 @@ const createAnthropicEndpoint = ({
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': secret,
+            ...(secret && { 'x-api-key': secret }),
         },
         body: JSON.stringify({
             model,
@@ -58,13 +68,13 @@ const createAnthropicEndpoint = ({
         }),
     })
 
-    if (!res.ok) return null
+    if (!res || !res.ok) return null
 
     const data = await res.json()
     return data.content?.[0]?.text
 }
 
-const createOllamaEndpoint = ({
+const createOllamaEndpoint: CreateEndpoint = ({
     endpoint,
     model
 }, fetchFunction = fetch) => async text => {
@@ -80,13 +90,13 @@ const createOllamaEndpoint = ({
         })
     })
 
-    if (!res.ok) return null
+    if (!res || !res.ok) return null
 
     const data = await res.json()
     return data.message?.content || null
 }
 
-export const providerEndpoints = {
+export const providerEndpoints: Record<string, CreateEndpoint> = {
     gemini: createGeminiEndpoint,
     openai: createOpenAIEndpoint,
     anthropic: createAnthropicEndpoint,

@@ -1,6 +1,18 @@
 import { WebSocket } from "ws"
 
-export const createWSC = (url, options, {
+export type Callbacks = {
+    onOpen: () => void
+    onClose: () => void
+    onMessage: (message: WebSocket.MessageEvent) => void
+}
+
+export type CreateWSC = (
+    url: string,
+    options: WebSocket.ClientOptions,
+    callbacks: Callbacks
+) => WebSocket
+
+export const createWSC: CreateWSC = (url, options, {
     onOpen,
     onClose,
     onMessage

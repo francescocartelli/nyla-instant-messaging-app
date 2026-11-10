@@ -5,7 +5,7 @@ import { sendMessage, getMessages } from './services/messages.ts'
 import { signBot } from './services/authenticate.ts'
 
 import createLogger from './utilities/logger.ts'
-import { assistancePrompt, assistanceWithHistoryPrompt, messageToPrompt } from './utilities/prompts.ts'
+import { assistancePrompt, assistanceWithHistoryPrompt, PromptableMessage, Message, messageToPrompt } from './utilities/prompts.ts'
 import { jwtTCookieHeader } from './utilities/cookieJWT.ts'
 import { flatRTNodes } from './utilities/richtext.ts'
 import { invokeFetch } from './utilities/network.ts'
@@ -13,25 +13,25 @@ import { createWSCRouter } from './utilities/router.ts'
 
 dotenv.config()
 
-const logger = createLogger(process.env.LOGGING_LEVEL)
+const logger = createLogger(process.env.LOGGING_LEVEL as string)
 
 const serviceUnavailableResponse = `I apologize, but I'm unable to assist you with this right now. Please feel free to reach out again later.`
 
-const mapMessage = ({ idSender, content, createdAt, deletedAt }, id) => ({
+const mapMessage = ({ idSender, content, createdAt, deletedAt }: Message, id: string): PromptableMessage => ({
     sender: idSender === id ? 'you' : 'user',
     content: content ? flatRTNodes(content) : null,
     createdAt,
     deletedAt
 })
 
-const flatMessageHistory = (messages, idUser) => {
+const flatMessageHistory = (messages: Message[], idUser: string) => {
     const mappedMessages = [...messages].reverse().map(message => mapMessage(message, idUser))
-    const messagesPrompt = mappedMessages.map(messageToPrompt)
+    const messagesPrompt = mappedMessages.map(m => messageToPrompt(m))
 
     return messagesPrompt.join('\n')
 }
 
-const getPrompt = async (message, chat, jwt, user) => {
+const getPrompt = async (message: Message, chat: string, jwt: string, user: { id: string }) => {
     if (!process.env.HAS_HISTORY) {
         const flat = flatRTNodes(message.content)
         return assistancePrompt(flat)
@@ -48,13 +48,13 @@ const boot = async () => {
 
     try {
         const { user, jwt } = await signBot({
-            username: process.env.BOT_USERNAME,
-            password: process.env.BOT_PASSWORD,
-            email: process.env.BOT_EMAIL
+            username: process.env.BOT_USERNAME as string,
+            password: process.env.BOT_PASSWORD as string,
+            email: process.env.BOT_EMAIL as string
         })
         if (!jwt) return
 
-        const createLLMEndpoint = providerEndpoints[process.env.LLM_PROVIDER]
+        const createLLMEndpoint = providerEndpoints[process.env.LLM_PROVIDER as string]
         if (!createLLMEndpoint) {
             logger.error(`llm api provider "${process.env.LLM_PROVIDER}" not recognized`)
             logger.info(`supported providers: ${Object.keys(providerEndpoints).join(', ')}`)
@@ -63,14 +63,14 @@ const boot = async () => {
 
         const fetchLLM = createLLMEndpoint({
             secret: process.env.LLM_API_KEY,
-            endpoint: process.env.LLM_ENDPOINT,
+            endpoint: process.env.LLM_ENDPOINT as string,
             model: process.env.LLM_MODEL
         }, invokeFetch)
 
         logger.info(`Bot signed`)
         logger.debug(JSON.stringify(user))
 
-        wsc = createWSCRouter(process.env.WSS_URL, { headers: jwtTCookieHeader(jwt) }, {
+        wsc = createWSCRouter(process.env.WSS_URL as string, { headers: jwtTCookieHeader(jwt) }, {
             'MESSAGE_CREATE': async ({ chat, message }) => {
                 const prompt = await getPrompt(message, chat, jwt, user)
                 logger.debug('request prompt:', prompt)
