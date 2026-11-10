@@ -15,5 +15,9 @@
     "dotenv": "^17.4.2",
     "winston": "^3.19.0",
     "ws": "^8.20.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }
