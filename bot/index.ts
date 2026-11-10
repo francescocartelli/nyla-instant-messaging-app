@@ -1,15 +1,15 @@
 import dotenv from 'dotenv'
 
-import { providerEndpoints } from './services/llms.js'
-import { sendMessage, getMessages } from './services/messages.js'
-import { signBot } from './services/authenticate.js'
+import { providerEndpoints } from './services/llms.ts'
+import { sendMessage, getMessages } from './services/messages.ts'
+import { signBot } from './services/authenticate.ts'
 
-import createLogger from './utilities/Logger.js'
-import { assistancePrompt, assistanceWithHistoryPrompt, messageToPrompt } from './utilities/prompts.js'
-import { jwtTCookieHeader } from './utilities/CookieJWT.js'
-import { flatRTNodes } from './utilities/RichText.js'
-import { invokeFetch } from './utilities/network.js'
-import { createWSCRouter } from './utilities/wscRouter.js'
+import createLogger from './utilities/logger.ts'
+import { assistancePrompt, assistanceWithHistoryPrompt, messageToPrompt } from './utilities/prompts.ts'
+import { jwtTCookieHeader } from './utilities/cookieJWT.ts'
+import { flatRTNodes } from './utilities/richtext.ts'
+import { invokeFetch } from './utilities/network.ts'
+import { createWSCRouter } from './utilities/router.ts'
 
 dotenv.config()
 

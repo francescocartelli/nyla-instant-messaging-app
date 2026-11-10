@@ -1,4 +1,4 @@
-import { createWSC } from "./wsc.js"
+import { createWSC } from "./wsc.ts"
 
 export const createWSCRouter = (url, options, routes, {
     filterMessage = null,

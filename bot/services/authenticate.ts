@@ -1,5 +1,5 @@
-import { extractResponseCookie } from '../utilities/CookieJWT.js'
-import { invokeFetch } from '../utilities/network.js'
+import { extractResponseCookie } from '../utilities/cookieJWT.ts'
+import { invokeFetch } from '../utilities/network.ts'
 
 const signInBot = ({ username, password }) => invokeFetch(`${process.env.API_SERVER_URL}/api/authenticate/signin`, {
     method: 'POST',

@@ -1,5 +1,5 @@
-import { jwtTCookieHeader } from '../utilities/CookieJWT.js'
-import { invokeFetch } from '../utilities/network.js'
+import { jwtTCookieHeader } from '../utilities/cookieJWT.ts'
+import { invokeFetch } from '../utilities/network.ts'
 
 export const sendMessage = (idChat, jwt, text) => invokeFetch(`${process.env.API_SERVER_URL}/api/chats/${idChat}/messages`, {
     method: 'POST',

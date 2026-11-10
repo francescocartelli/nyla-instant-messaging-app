@@ -1,4 +1,4 @@
-import createLogger from "./Logger.js"
+import createLogger from "./logger.ts"
 
 const logger = createLogger(process.env.LOGGING_LEVEL)
 
